@@ -1,8 +1,10 @@
+
+
 import { registerMiniApp } from "@/core/mini-app-registry";
 import { routes } from "./routes";
 
 registerMiniApp({
-  basePath: "/demo",
+  basePath: "/lorem-generator",
   routes,
-  name: "Demo",
+  name: "Lorem Generator",
 });
