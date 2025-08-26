@@ -7,6 +7,7 @@ import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/vendor/shadcn/components/ui/select";
+import { Checkbox } from '@/vendor/shadcn/components/ui/checkbox'
 import { makeParagraph, makeSentence, makeWord } from "../utils/generator";
 
 enum GenerateMode {
@@ -20,14 +21,15 @@ const LoremGeneratorScreen = () => {
   const [mode, setMode] = useState<GenerateMode>(GenerateMode.Paragraph)
   const [result, setResult] = useState(makeParagraph(1))
   const [amount, setAmount] = useState<number>(1)
+  const [asHTML, setAsHTML] = useState<boolean>(false)
 
-  const onUpdateResultBaseOnMode = (value: GenerateMode, amount: number) => {
+  const onUpdateResultBaseOnMode = (value: GenerateMode, amount: number, valueAsHTML: boolean = false) => {
     setMode(value)
 
     switch (value) {
-      case GenerateMode.Paragraph: setResult(makeParagraph(amount)); break;
-      case GenerateMode.Word: setResult(makeWord(amount)); break;
-      case GenerateMode.Sentence: setResult(makeSentence(amount)); break;
+      case GenerateMode.Paragraph: setResult(makeParagraph(amount, valueAsHTML)); break;
+      case GenerateMode.Word: setResult(makeWord(amount, valueAsHTML)); break;
+      case GenerateMode.Sentence: setResult(makeSentence(amount, valueAsHTML)); break;
     }
   }
 
@@ -43,11 +45,11 @@ const LoremGeneratorScreen = () => {
                 setAmount(1)
               } else {
                 setAmount(Number(e.target.value))
-                onUpdateResultBaseOnMode(mode, Number(e.target.value))
+                onUpdateResultBaseOnMode(mode, Number(e.target.value), asHTML)
               }
             }} min={1} />
             <Select defaultValue={GenerateMode.Paragraph} onValueChange={(v: GenerateMode) => {
-              onUpdateResultBaseOnMode(v, amount)
+              onUpdateResultBaseOnMode(v, amount, asHTML)
             }}>
               <SelectTrigger className="w-[180px]" >
                 <SelectValue placeholder="Theme" />
@@ -58,7 +60,13 @@ const LoremGeneratorScreen = () => {
                 <SelectItem value={GenerateMode.Word}>Word</SelectItem>
               </SelectContent>
             </Select>
-
+          </div>
+          <div className="flex flex-1 pt-4">
+            <Checkbox id="asHTML" onCheckedChange={(value: boolean) => {
+              setAsHTML(value)
+              onUpdateResultBaseOnMode(mode, amount, value)
+            }} />
+            <Label htmlFor="asHTML" className="ml-4">As HTML</Label>
           </div>
           <Label className="my-4">
             Result

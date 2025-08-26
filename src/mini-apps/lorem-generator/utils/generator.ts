@@ -8,20 +8,40 @@ export const LEXICON = [
   "in culpa qui officia deserunt mollit anim id est laborum",
 ]
 
-export function makeWord(value: number) {
+export function makeWord(value: number, asHTML: boolean = false) {
   const baseValue = LEXICON.join(" ").split(" ")
-  return Array.from({ length: value }, (_, index) => {
+
+  let result = Array.from({ length: value }, (_, index) => {
     return baseValue[index % baseValue.length]
   }).join(" ")
+
+  if (asHTML) {
+    result = `<p>${result}</p>`
+  }
+  return result
 }
 
-export function makeSentence(value: number) {
-  return Array.from({ length: value }, (_, index) => {
+export function makeSentence(value: number, asHTML: boolean = false) {
+  let result = Array.from({ length: value }, (_, index) => {
     return LEXICON[index % LEXICON.length]
   }).join(" ")
 
+  if (asHTML) {
+    result = `<p>${result}</p>`
+  }
+
+  return result
+
 }
 
-export function makeParagraph(value: number) {
-  return Array.from({ length: value }, () => LEXICON.join(" ")).join("\n\n");
+export function makeParagraph(value: number, asHTML: boolean = false) {
+  let result;
+
+  if (asHTML) {
+    result = Array.from({ length: value }, () => `<p>${LEXICON.join(" ")}</p>`).join("\n\n")
+  } else {
+    result = Array.from({ length: value }, () => LEXICON.join(" ")).join("\n\n")
+  }
+
+  return result
 }
