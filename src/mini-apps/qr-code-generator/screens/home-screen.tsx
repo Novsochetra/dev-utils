@@ -1,17 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCodeStyling, { type Options } from "qr-code-styling";
-import { DownloadIcon } from "lucide-react";
 
 import { Navbar } from "@/vendor/components/navbar";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
-import { Button } from "@/vendor/shadcn/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/vendor/shadcn/components/ui/select";
 
 import { BackgroundOptionsView } from "../components/background-options-view";
 import { CornerDotOptionsView } from "../components/corner-dots-options-view";
@@ -21,6 +12,9 @@ import { MainOptionsView } from "../components/main-options-view";
 import { QRDotOptionsView } from "../components/qr-dot-options-view";
 import { QROptionsView } from "../components/qr-options-view";
 import { QRCodeContext } from "../components/qr-code-context";
+import { DownloadButton } from "../components/download-button";
+import { DownloadSelectOptions } from "../components/download-select-options";
+
 import { defaultOptions } from "../utils/constants";
 
 const QRCodeGeneratorScreen = () => {
@@ -71,33 +65,21 @@ const QRCodeGeneratorScreen = () => {
               </div>
 
               <div className="flex flex-1 justify-center gap-2">
-                <Button
-                  className="self-center"
+                <DownloadButton
                   onClick={() => {
                     qrCodeInstance.download({
                       name: "dev-tools-qr-generator",
                       extension: allowedDownloadExtension,
                     });
                   }}
-                >
-                  Download <DownloadIcon size={12} />
-                </Button>
-                <Select
-                  defaultValue={"png"}
-                  onValueChange={(v: "png" | "svg") => {
-                    setAllowedDownloadExtension(v);
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="png | svg" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={"png"}>PNG</SelectItem>
-                    <SelectItem value={"svg"}>SVG</SelectItem>
-                  </SelectContent>
-                </Select>
+                />
+
+                <DownloadSelectOptions
+                  onValueChange={(v) => setAllowedDownloadExtension(v)}
+                />
               </div>
             </div>
+
             <MainOptionsView />
             <Separator className="my-4" />
             <QRDotOptionsView />

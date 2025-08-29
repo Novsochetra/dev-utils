@@ -10,6 +10,8 @@ import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { fileToDataURL } from "../utils/file-data-to-url";
 import { ChevronRightIcon } from "lucide-react";
+import { ALLOW_MAX_LOGO_UPLOAD_SIZE_IN_BYTES } from "../utils/constants";
+import { bytesToMB } from "../utils/bytes-to-mb";
 
 export const MainOptionsView = () => {
   const { setOptions, options } = useContext(QRCodeContext);
@@ -24,8 +26,8 @@ export const MainOptionsView = () => {
       alert("Please choose an image file.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      alert("Max 5MB");
+    if (file.size > ALLOW_MAX_LOGO_UPLOAD_SIZE_IN_BYTES) {
+      alert(`Max ${bytesToMB(ALLOW_MAX_LOGO_UPLOAD_SIZE_IN_BYTES)}`);
       return;
     }
 
@@ -58,12 +60,12 @@ export const MainOptionsView = () => {
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
-                <div>
-                  <Label className="my-4" htmlFor="dataInput">
+                <div className="flex flex-1 flex-col my-4 gap-4">
+                  <Label className="" htmlFor="main-options-data-input">
                     Data
                   </Label>
                   <Input
-                    id="dataInput"
+                    id="main-options-data-input"
                     value={options.data}
                     onChange={(e) => {
                       setOptions((prev) => ({
@@ -74,21 +76,22 @@ export const MainOptionsView = () => {
                   />
                 </div>
                 <div className="flex flex-1 flex-col my-2 gap-4">
-                  <Label htmlFor="img">Logo</Label>
+                  <Label htmlFor="main-options-qr-logo-file-input">Logo</Label>
                   <Input
-                    id="img"
+                    id="main-options-qr-logo-file-input"
                     type="file"
                     accept="image/*"
                     onChange={onChange}
                   />
+                  <p className="text-muted-foreground text-sm">
+                    Max: {bytesToMB(ALLOW_MAX_LOGO_UPLOAD_SIZE_IN_BYTES)}
+                  </p>
                 </div>
-                <div className="flex flex-1 gap-4">
-                  <div className="flex flex-1 flex-col">
-                    <Label className="my-4" htmlFor="widthInput">
-                      Width
-                    </Label>
+                <div className="flex flex-1 my-4 gap-4">
+                  <div className="flex flex-1 flex-col gap-4">
+                    <Label htmlFor="main-options-width-input">Width</Label>
                     <Input
-                      id="widthInput"
+                      id="main-options-width-input"
                       type="number"
                       value={options?.width}
                       onChange={(e) => {
@@ -105,12 +108,10 @@ export const MainOptionsView = () => {
                       }}
                     />
                   </div>
-                  <div className="flex flex-1 flex-col">
-                    <Label className="my-4" htmlFor="heightInput">
-                      Height
-                    </Label>
+                  <div className="flex flex-1 flex-col gap-4">
+                    <Label htmlFor="main-options-height-input">Height</Label>
                     <Input
-                      id="heightInput"
+                      id="main-options-height-input"
                       type="number"
                       value={options.height}
                       onChange={(e) => {
@@ -129,11 +130,11 @@ export const MainOptionsView = () => {
                   </div>
                 </div>
                 <div>
-                  <Label className="my-4" htmlFor="marginInput">
+                  <Label className="my-4" htmlFor="main-options-margin-input">
                     Margin
                   </Label>
                   <Input
-                    id="marginInput"
+                    id="main-options-margin-input"
                     type="number"
                     min={0}
                     value={options.margin || 0}

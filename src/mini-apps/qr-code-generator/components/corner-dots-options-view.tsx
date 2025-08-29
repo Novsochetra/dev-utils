@@ -18,11 +18,14 @@ import {
 } from "@/vendor/shadcn/components/ui/select";
 import type { DotType, Gradient } from "qr-code-styling";
 import { Input } from "@/vendor/shadcn/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import {
   defaultOptions,
   defaultDotOptionsGradientColor,
 } from "../utils/constants";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@/vendor/shadcn/components/ui/radio-group";
 
 export const CornerDotOptionsView = () => {
   const [open, setOpen] = useState(false);
@@ -51,7 +54,10 @@ export const CornerDotOptionsView = () => {
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
                 <div className="">
-                  <Label className="my-4" htmlFor="dotStyle">
+                  <Label
+                    className="my-4"
+                    htmlFor="corner-dots-options-dot-style"
+                  >
                     Corner Dot Style
                   </Label>
                   <Select
@@ -122,23 +128,30 @@ export const CornerDotOptionsView = () => {
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={QrDotOptionColorType.Single}
-                        id="single-color"
+                        id="corner-dots-options-single-color"
                       />
-                      <Label htmlFor="single-color">Single Color</Label>
+                      <Label htmlFor="corner-dots-options-single-color">
+                        Single Color
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={QrDotOptionColorType.Gradient}
-                        id="gradient-color"
+                        id="corder-dot-options-gradient-color"
                       />
-                      <Label htmlFor="gradient-color">Gradient Color</Label>
+                      <Label htmlFor="corder-dot-options-gradient-color">
+                        Gradient Color
+                      </Label>
                     </div>
                   </RadioGroup>
                 </div>
 
                 {options.cornersDotOptions?.color ? (
                   <div>
-                    <Label htmlFor="singleColorInput" className="my-4">
+                    <Label
+                      htmlFor="corner-dots-options-single-color-input"
+                      className="my-4"
+                    >
                       Color
                     </Label>
                     <Input
@@ -206,27 +219,31 @@ export const CornerDotOptionsView = () => {
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
                             value={GradientType.Linear}
-                            id="linear-color"
+                            id="corner-dots-options-linear-color"
                           />
-                          <Label htmlFor="linear-color">Linear Color</Label>
+                          <Label htmlFor="corner-dots-options-linear-color">
+                            Linear Color
+                          </Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
                             value={GradientType.Radial}
-                            id="radial-color"
+                            id="corner-dots-options-radial-color"
                           />
-                          <Label htmlFor="radial-color">Radial Color</Label>
+                          <Label htmlFor="corner-dots-options-radial-color">
+                            Radial Color
+                          </Label>
                         </div>
                       </RadioGroup>
                     </div>
                     <div className="flex flex-1 gap-4 my-4">
                       <div className="flex flex-1 flex-col gap-4">
-                        <Label htmlFor="gradientTypeColorStart">
+                        <Label htmlFor="corner-dots-options-gradient-type-color-start">
                           Color Start
                         </Label>
                         <Input
                           type="color"
-                          id="gradientTypeColorStart"
+                          id="corner-dots-options-gradient-type-color-start"
                           className="rounded-md border border-gray-300 p-1 [appearance:none]"
                           value={
                             options?.cornersDotOptions?.gradient
@@ -260,10 +277,12 @@ export const CornerDotOptionsView = () => {
                         />
                       </div>
                       <div className="flex flex-1 flex-col gap-4">
-                        <Label htmlFor="gradientTypeColorEnd">Color End</Label>
+                        <Label htmlFor="corner-dots-options-gradient-type-color-end">
+                          Color End
+                        </Label>
                         <Input
                           type="color"
-                          id="gradientTypeColorEnd"
+                          id="corner-dots-options-gradient-type-color-end"
                           className="rounded-md border border-gray-300 p-1 [appearance:none]"
                           value={
                             options?.cornersDotOptions?.gradient

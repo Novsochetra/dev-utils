@@ -56,3 +56,5 @@ export const defaultOptions: Options = {
     color: "#f1f5f9",
   },
 };
+
+export const ALLOW_MAX_LOGO_UPLOAD_SIZE_IN_BYTES = 5 * 1024 * 1024;

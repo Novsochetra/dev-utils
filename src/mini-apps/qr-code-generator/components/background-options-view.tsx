@@ -2,7 +2,10 @@ import { useContext, useState } from "react";
 import { QRCodeContext } from "./qr-code-context";
 import { ChevronRightIcon } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Gradient } from "qr-code-styling";
+import type {
+  Gradient,
+  GradientType as QRCodeGradientType,
+} from "qr-code-styling";
 
 import {
   Collapsible,
@@ -85,26 +88,34 @@ export const BackgroundOptionsView = () => {
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={QrDotOptionColorType.Single}
-                        id="single-color"
+                        id="background-options-single-color"
                       />
-                      <Label htmlFor="single-color">Single Color</Label>
+                      <Label htmlFor="background-options-single-color">
+                        Single Color
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={QrDotOptionColorType.Gradient}
-                        id="gradient-color"
+                        id="background-options-gradient-color"
                       />
-                      <Label htmlFor="gradient-color">Gradient Color</Label>
+                      <Label htmlFor="background-options-gradient-color">
+                        Gradient Color
+                      </Label>
                     </div>
                   </RadioGroup>
                 </div>
 
                 {options?.backgroundOptions?.color ? (
                   <div>
-                    <Label htmlFor="singleColorInput" className="my-4">
+                    <Label
+                      htmlFor="background-options-single-color-input"
+                      className="my-4"
+                    >
                       Color
                     </Label>
                     <Input
+                      id="background-options-single-color-input"
                       type="color"
                       className="rounded-md border border-gray-300 p-1 [appearance:none]"
                       value={
@@ -143,7 +154,7 @@ export const BackgroundOptionsView = () => {
                       <RadioGroup
                         defaultValue={options.backgroundOptions.gradient.type}
                         className="flex flex-row"
-                        onValueChange={(v: GradientType) => {
+                        onValueChange={(v: QRCodeGradientType) => {
                           setOptions((prev) => ({
                             ...prev,
                             backgroundOptions: {
@@ -167,27 +178,31 @@ export const BackgroundOptionsView = () => {
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
                             value={GradientType.Linear}
-                            id="linear-color"
+                            id="background-options-linear-color"
                           />
-                          <Label htmlFor="linear-color">Linear Color</Label>
+                          <Label htmlFor="background-options-linear-color">
+                            Linear Color
+                          </Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
                             value={GradientType.Radial}
-                            id="radial-color"
+                            id="background-options-radial-color"
                           />
-                          <Label htmlFor="radial-color">Radial Color</Label>
+                          <Label htmlFor="background-options-radial-color">
+                            Radial Color
+                          </Label>
                         </div>
                       </RadioGroup>
                     </div>
                     <div className="flex flex-1 gap-4 my-4">
                       <div className="flex flex-1 flex-col gap-4">
-                        <Label htmlFor="gradientTypeColorStart">
+                        <Label htmlFor="background-options-gradient-type-color-start">
                           Color Start
                         </Label>
                         <Input
                           type="color"
-                          id="gradientTypeColorStart"
+                          id="background-options-gradient-type-color-start"
                           className="rounded-md border border-gray-300 p-1 [appearance:none]"
                           value={
                             options?.backgroundOptions?.gradient
@@ -221,10 +236,12 @@ export const BackgroundOptionsView = () => {
                         />
                       </div>
                       <div className="flex flex-1 flex-col gap-4">
-                        <Label htmlFor="gradientTypeColorEnd">Color End</Label>
+                        <Label htmlFor="background-options-gradient-type-color-end">
+                          Color End
+                        </Label>
                         <Input
                           type="color"
-                          id="gradientTypeColorEnd"
+                          id="background-options-gradient-type-color-end"
                           className="rounded-md border border-gray-300 p-1 [appearance:none]"
                           value={
                             options?.backgroundOptions?.gradient

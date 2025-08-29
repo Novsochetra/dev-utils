@@ -42,11 +42,14 @@ export const ImageOptionsView = () => {
               >
                 <div className="flex flex-1 gap-4">
                   <div className="flex flex-1 flex-col gap-4 my-4">
-                    <Label htmlFor="imageSizeInput">Image Size</Label>
+                    <Label htmlFor="image-options-image-size-input">
+                      Image Size
+                    </Label>
                     <Input
-                      id="imageSizeInput"
+                      id="image-options-image-size-input"
                       type="number"
                       value={options.imageOptions?.imageSize}
+                      step={0.1}
                       onChange={(e) => {
                         let value = defaultImageSize?.imageSize;
                         if (!Number.isNaN(e.target.value)) {
@@ -63,9 +66,9 @@ export const ImageOptionsView = () => {
                     />
                   </div>
                   <div className="flex flex-1 flex-col gap-4 my-4">
-                    <Label htmlFor="marginInput">Margin</Label>
+                    <Label htmlFor="image-options-margin-input">Margin</Label>
                     <Input
-                      id="marginInput"
+                      id="image-options-margin-input"
                       type="number"
                       value={options.imageOptions?.margin}
                       onChange={(e) => {
@@ -86,7 +89,7 @@ export const ImageOptionsView = () => {
                 </div>
                 <div className="flex flex-1">
                   <Checkbox
-                    id="hideBackgroundDotsCheckbox"
+                    id="image-options-hide-background-checkbox"
                     defaultChecked={options.imageOptions?.hideBackgroundDots}
                     onCheckedChange={(value: boolean) => {
                       setOptions((prev) => ({
@@ -98,7 +101,10 @@ export const ImageOptionsView = () => {
                       }));
                     }}
                   />
-                  <Label htmlFor="hideBackgroundDotsCheckbox" className="ml-4">
+                  <Label
+                    htmlFor="image-options-hide-background-checkbox"
+                    className="ml-4"
+                  >
                     Hide Background Dots
                   </Label>
                 </div>

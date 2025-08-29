@@ -46,9 +46,11 @@ export const QROptionsView = () => {
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
                 <div className="flex flex-1 flex-col gap-4 my-4">
-                  <Label htmlFor="typeNumberInput">Type Number</Label>
+                  <Label htmlFor="qr-options-type-number-input">
+                    Type Number
+                  </Label>
                   <Input
-                    id="typeNumberInput"
+                    id="qr-options-type-number-input"
                     type="number"
                     min="0"
                     max="40"
@@ -70,7 +72,7 @@ export const QROptionsView = () => {
                   </p>
                 </div>
                 <div className="flex flex-1 flex-col gap-4 my-4">
-                  <Label htmlFor="qrOptionModeInput">Mode</Label>
+                  <Label htmlFor="qr-options-option-mode-input">Mode</Label>
                   <Select
                     defaultValue={"Byte"}
                     onValueChange={(v: Mode) => {

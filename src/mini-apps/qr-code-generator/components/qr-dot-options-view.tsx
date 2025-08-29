@@ -1,5 +1,9 @@
 import { useContext, useState } from "react";
-import { type DotType, type Gradient } from "qr-code-styling";
+import {
+  type DotType,
+  type Gradient,
+  type GradientType as QRCodeStyleGradientType,
+} from "qr-code-styling";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRightIcon } from "lucide-react";
 
@@ -56,7 +60,7 @@ export const QRDotOptionsView = () => {
                 transition={{ duration: 0.25, ease: "easeInOut" }}
               >
                 <div className="">
-                  <Label className="my-4" htmlFor="dotStyle">
+                  <Label className="my-4" htmlFor="qr-dot-options-dot-style">
                     Dot Style
                   </Label>
                   <Select
@@ -127,26 +131,34 @@ export const QRDotOptionsView = () => {
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={QrDotOptionColorType.Single}
-                        id="single-color"
+                        id="qr-dot-options-single-color"
                       />
-                      <Label htmlFor="single-color">Single Color</Label>
+                      <Label htmlFor="qr-dot-options-single-color">
+                        Single Color
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem
                         value={QrDotOptionColorType.Gradient}
-                        id="gradient-color"
+                        id="qr-dot-options-gradient-color"
                       />
-                      <Label htmlFor="gradient-color">Gradient Color</Label>
+                      <Label htmlFor="qr-dot-options-gradient-color">
+                        Gradient Color
+                      </Label>
                     </div>
                   </RadioGroup>
                 </div>
 
                 {options?.dotsOptions?.color ? (
                   <div>
-                    <Label htmlFor="singleColorInput" className="my-4">
+                    <Label
+                      htmlFor="qr-dot-options-single-color-input"
+                      className="my-4"
+                    >
                       Color
                     </Label>
                     <Input
+                      id="qr-dot-options-single-color-input"
                       type="color"
                       className="rounded-md border border-gray-300 p-1 [appearance:none]"
                       value={
@@ -184,61 +196,62 @@ export const QRDotOptionsView = () => {
                       <Label className="my-4 mr-4">Gradient Type</Label>
                       <RadioGroup
                         defaultValue={
-                          options?.cornersSquareOptions?.color
-                            ? QrDotOptionColorType.Single
-                            : QrDotOptionColorType.Gradient
+                          options?.dotsOptions?.gradient?.type ===
+                          GradientType.Radial
+                            ? GradientType.Radial
+                            : GradientType.Linear
                         }
                         className="flex flex-row"
-                        onValueChange={(v) => {
-                          if (v === QrDotOptionColorType.Single) {
-                            setOptions((prev) => ({
-                              ...prev,
-                              dotsOptions: {
-                                ...(prev?.dotsOptions || {}),
-                                color:
-                                  prev?.dotsOptions?.color ||
-                                  defaultOptions.dotsOptions?.color,
-                                gradient: undefined,
+                        onValueChange={(v: QRCodeStyleGradientType) => {
+                          setOptions((prev) => ({
+                            ...prev,
+                            dotsOptions: {
+                              ...(prev.dotsOptions || {}),
+                              gradient: {
+                                type: v || defaultDotOptionsGradientColor.type,
+                                rotation:
+                                  prev.dotsOptions?.gradient?.rotation ||
+                                  defaultDotOptionsGradientColor.rotation,
+                                colorStops: [
+                                  prev.dotsOptions?.gradient
+                                    ?.colorStops[0] as Gradient["colorStops"][number],
+
+                                  prev.dotsOptions?.gradient
+                                    ?.colorStops[1] as Gradient["colorStops"][number],
+                                ],
                               },
-                            }));
-                          } else if (v === QrDotOptionColorType.Gradient) {
-                            setOptions((prev) => ({
-                              ...prev,
-                              dotsOptions: {
-                                ...(prev?.dotsOptions || {}),
-                                color: undefined,
-                                gradient:
-                                  prev?.dotsOptions?.gradient ||
-                                  defaultDotOptionsGradientColor,
-                              },
-                            }));
-                          }
+                            },
+                          }));
                         }}
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
                             value={GradientType.Linear}
-                            id="linear-color"
+                            id="qr-dot-options-linear-color"
                           />
-                          <Label htmlFor="linear-color">Linear Color</Label>
+                          <Label htmlFor="qr-dot-options-linear-color">
+                            Linear Color
+                          </Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem
                             value={GradientType.Radial}
-                            id="radial-color"
+                            id="qr-dot-options-radial-color"
                           />
-                          <Label htmlFor="radial-color">Radial Color</Label>
+                          <Label htmlFor="qr-dot-options-radial-color">
+                            Radial Color
+                          </Label>
                         </div>
                       </RadioGroup>
                     </div>
                     <div className="flex flex-1 gap-4 my-4">
                       <div className="flex flex-1 flex-col gap-4">
-                        <Label htmlFor="gradientTypeColorStart">
+                        <Label htmlFor="qr-dot-options-gradient-type-color-start">
                           Color Start
                         </Label>
                         <Input
                           type="color"
-                          id="gradientTypeColorStart"
+                          id="qr-dot-options-gradient-type-color-start"
                           className="rounded-md border border-gray-300 p-1 [appearance:none]"
                           value={
                             options?.dotsOptions?.gradient?.colorStops?.[0]
@@ -271,10 +284,12 @@ export const QRDotOptionsView = () => {
                         />
                       </div>
                       <div className="flex flex-1 flex-col gap-4">
-                        <Label htmlFor="gradientTypeColorEnd">Color End</Label>
+                        <Label htmlFor="qr-dot-options-gradient-type-color-end">
+                          Color End
+                        </Label>
                         <Input
                           type="color"
-                          id="gradientTypeColorEnd"
+                          id="qr-dot-options-gradient-type-color-end"
                           className="rounded-md border border-gray-300 p-1 [appearance:none]"
                           value={
                             options?.dotsOptions?.gradient?.colorStops?.[1]
