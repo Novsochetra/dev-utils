@@ -14,7 +14,9 @@ const router = createBrowserRouter(routes);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
-    <Toaster />
-  </StrictMode>
+    <div className="overflow-y-scroll h-screen">
+      <RouterProvider router={router} />
+      <Toaster />
+    </div>
+  </StrictMode>,
 );
