@@ -67,6 +67,7 @@ export const MainOptionsView = () => {
                   <Input
                     id="main-options-data-input"
                     value={options.data}
+                    autoFocus
                     onChange={(e) => {
                       setOptions((prev) => ({
                         ...prev,
