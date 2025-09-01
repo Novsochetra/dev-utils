@@ -8,6 +8,7 @@ import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Navbar } from "@/vendor/components/navbar";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
+import { Separator } from "@/vendor/shadcn/components/ui/separator";
 
 const defaultPlaceHolderJWT =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
@@ -60,6 +61,8 @@ export const JwtDecoderEncoderScreen = () => {
               }}
             />
           </div>
+
+          <Separator />
 
           <div className="flex flex-1 flex-col gap-4">
             <Label>Decoded Header</Label>
