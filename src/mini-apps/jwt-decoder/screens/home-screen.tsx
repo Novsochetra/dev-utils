@@ -30,6 +30,15 @@ export const JwtDecoderEncoderScreen = () => {
             <Textarea
               placeholder={defaultPlaceHolderJWT}
               id="jwt-input-field"
+              className={clsx(
+                "max-h-96 h-44",
+                !isValidToken && jwtValue
+                  ? "border-red-500 focus-visible:ring-red-500/20"
+                  : "",
+                isValidToken && jwtValue
+                  ? "border-green-500 focus-visible:ring-green-500/20"
+                  : "",
+              )}
               value={jwtValue}
               autoFocus
               onChange={(e) => {
@@ -49,19 +58,11 @@ export const JwtDecoderEncoderScreen = () => {
                   setJwtValue(e.target.value);
                 }
               }}
-              className={clsx(
-                "max-h-96 h-32",
-                !isValidToken && jwtValue
-                  ? "border-red-500 focus-visible:ring-red-500/20"
-                  : "",
-                isValidToken && jwtValue
-                  ? "border-green-500 focus-visible:ring-green-500/20"
-                  : "",
-              )}
             />
           </div>
 
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-4">
+            <Label>Decoded Header</Label>
             <div className="relative">
               <Button
                 size="icon"
@@ -83,7 +84,8 @@ export const JwtDecoderEncoderScreen = () => {
               />
             </div>
           </div>
-          <div className="flex flex-1 flex-col">
+          <div className="flex flex-1 flex-col gap-4">
+            <Label>Decoded Payload</Label>
             <div className="relative">
               <Button
                 size="icon"
