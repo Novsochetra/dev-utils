@@ -26,7 +26,7 @@ const defaultPlaceHolderJWT =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
 
 export const JwtDecoderEncoderScreen = () => {
-  const [encoderResult, setEncoderResult] = useState(JSON.stringify({}));
+  const [encoderResult, setEncoderResult] = useState("");
   const [secretValue, setSecretValue] = useState<string>("");
   const [jwtHeader, setJWTHeader] = useState("");
   const [jwtPayload, setJwtPayload] = useState("");
