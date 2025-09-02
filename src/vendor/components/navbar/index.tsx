@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useHotkeys } from "react-hotkeys-hook";
-import { ChevronLeft, Calendar } from "lucide-react";
+import { ChevronLeft, PackageIcon } from "lucide-react";
 
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
@@ -48,7 +48,7 @@ export const Navbar = (props: NavbarProps) => {
 
   return (
     <>
-      <div className="flex px-8 py-4">
+      <div className="flex px-8 py-4 gap-4">
         <div className="h-10 flex items-center">
           {props.showBack ? (
             <Link to="/" className="flex">
@@ -72,8 +72,8 @@ export const Navbar = (props: NavbarProps) => {
           </div>
         )}
 
-        <div>
-          <p>Right Menu</p>
+        <div className="flex items-center">
+          <p className="text-nowrap line-clamp-1 text-ellipsis">Right Menu</p>
         </div>
       </div>
       <Separator />
@@ -104,12 +104,12 @@ export function CommandDialogDemo() {
   return (
     <>
       <div
-        className="w-96 px-4 bg-stone-100 flex items-center rounded-md hover:bg-stone-50 transition-colors duration-300"
+        className="w-full md:w-96 px-4 bg-stone-100 flex items-center rounded-md hover:bg-stone-50 transition-colors duration-300"
         onClick={() => {
           setOpen(true);
         }}
       >
-        <p className="text-muted-foreground text-sm flex flex-1">
+        <p className="text-muted-foreground text-sm flex flex-1 line-clamp-1 text-ellipsis text-nowrap">
           Search apps{" "}
         </p>
 
@@ -158,7 +158,7 @@ export function CommandDialogDemo() {
                         // INFO: we don't allow search in suggestion
                         value={`suggestion-app-${a.id}`}
                       >
-                        <Calendar />
+                        <AppIcon />
                         <span className="truncate line-clamp-1">{a.name}</span>
                       </CommandItem>
                     );
@@ -183,7 +183,7 @@ export function CommandDialogDemo() {
                     value={a.name}
                     keywords={[]}
                   >
-                    <Calendar />
+                    <AppIcon />
                     <span className="truncate line-clamp-1">{a.name}</span>
                   </CommandItem>
                 );
@@ -206,3 +206,15 @@ export function CommandDialogDemo() {
     </>
   );
 }
+
+const AppIcon = ({ icon }: { icon?: string }) => {
+  return (
+    <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+      {icon ? (
+        <img src={icon} className="w-full h-full object-cover" />
+      ) : (
+        <PackageIcon className="text-stone-500" />
+      )}
+    </div>
+  );
+};

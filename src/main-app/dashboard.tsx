@@ -1,7 +1,8 @@
+import { PackageIcon } from "lucide-react";
+import { Link } from "react-router";
+
 import { getMiniApps } from "@/core/mini-app-registry";
 import { Navbar } from "@/vendor/components/navbar";
-import { Braces } from "lucide-react";
-import { Link } from "react-router";
 
 function App() {
   const miniApps = getMiniApps();
@@ -10,7 +11,7 @@ function App() {
     <div className="">
       <Navbar showSearchBar />
 
-      <div className="flex gap-8 p-8 items-stretch">
+      <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
         {miniApps.map((a, index) => {
           return (
             <AppIcon
@@ -38,13 +39,13 @@ const AppIcon = ({
   return (
     <Link
       to={path}
-      className="rounded-xl w-40 flex flex-col items-center overflow-hidden "
+      className="rounded-xl flex flex-col items-center overflow-hidden "
     >
-      <div className="w-40 h-40 bg-teal-100 rounded-xl flex items-center justify-center">
+      <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center">
         {icon ? (
           <img src={icon} className="w-full h-full object-cover" />
         ) : (
-          <Braces size={32} />
+          <PackageIcon size={32} className="text-stone-500" />
         )}
       </div>
       <p className="truncate line-clamp-2 text-wrap text-center mt-4">{name}</p>
