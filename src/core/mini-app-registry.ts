@@ -1,6 +1,7 @@
 import { routes as mainRoutes } from "@/main-app/routes";
 
 export type MiniApp = {
+  id: string;
   basePath: string;
   routes: Array<any>;
   icon?: string;

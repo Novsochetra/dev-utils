@@ -17,10 +17,12 @@ import {
 } from "@/vendor/shadcn/components/ui/select";
 import { fromUnixTime } from "date-fns";
 
-enum GenerateMode {
-  Milliseconds = "milliSeconds",
-  Unix = "unix",
-}
+export const GenerateMode = {
+  Milliseconds: "milliSeconds",
+  Unix: "unix",
+} as const;
+
+export type GenerateMode = (typeof GenerateMode)[keyof typeof GenerateMode];
 
 const UnixTimeStapConverterScreen = () => {
   return (

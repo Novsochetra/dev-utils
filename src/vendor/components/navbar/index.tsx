@@ -1,43 +1,50 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate, } from "react-router";
-import { useHotkeys } from 'react-hotkeys-hook'
+import { Link, useLocation, useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
+import { ChevronLeft, Calendar } from "lucide-react";
 
-import {
-  ChevronLeft,
-  Calendar,
-} from "lucide-react";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
   CommandDialog,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/vendor/shadcn/components/ui/command";
 import { getMiniApps } from "@/core/mini-app-registry";
+import { useAppSuggestions } from "./use-app-suggestions";
 
 type NavbarProps = {
   showBack?: boolean;
-} & ({
-  showSearchBar: true
-} | {
-  showSearchBar: false,
-  title: string
-});
+} & (
+  | {
+      showSearchBar: true;
+    }
+  | {
+      showSearchBar: false;
+      title: string;
+    }
+);
 
 const miniApps = getMiniApps();
 
 export const Navbar = (props: NavbarProps) => {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useHotkeys("esc", () => {
-    if (location.pathname === "/" || location.pathname === "" || location.pathname === "/index") {
-      return
+    if (
+      location.pathname === "/" ||
+      location.pathname === "" ||
+      location.pathname === "/index"
+    ) {
+      return;
     }
 
-    navigate(-1)
-  })
+    navigate(-1);
+  });
 
   return (
     <>
@@ -55,14 +62,15 @@ export const Navbar = (props: NavbarProps) => {
           )}
         </div>
 
-        {props.showSearchBar ?
+        {props.showSearchBar ? (
           <div className="flex flex-1 justify-center">
             <CommandDialogDemo />
           </div>
-          : <div className="flex flex-1 justify-center items-center">
+        ) : (
+          <div className="flex flex-1 justify-center items-center">
             <h3 className="text-lg font-semibold">{props.title}</h3>
           </div>
-        }
+        )}
 
         <div>
           <p>Right Menu</p>
@@ -74,8 +82,12 @@ export const Navbar = (props: NavbarProps) => {
 };
 
 export function CommandDialogDemo() {
-  const navigate = useNavigate()
+  const { data: suggestionApps, update: updateSuggestion } =
+    useAppSuggestions(miniApps);
+
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -88,7 +100,6 @@ export function CommandDialogDemo() {
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
   }, []);
-
 
   return (
     <>
@@ -118,27 +129,66 @@ export function CommandDialogDemo() {
         showCloseButton={false}
       >
         <div className="p-2">
-          <CommandInput placeholder="Search apps ..." />
+          <CommandInput
+            placeholder="Search apps ..."
+            onValueChange={(s) => {
+              setSearch(s);
+            }}
+          />
         </div>
         <Separator />
         <div className="p-2">
           <CommandList className="h-96">
             <CommandEmpty>No results found.</CommandEmpty>
-            {miniApps.map((a, index) => {
-              return (
-                <CommandItem
-                  key={`cmdk-item-${index}`}
-                  className="h-10 text-sm overflow-hidden "
-                  onSelect={() => {
-                    navigate(a.basePath)
-                  }}
-                  keywords={[]}
-                >
-                  <Calendar />
-                  <span className="truncate line-clamp-1">{a.name}</span>
-                </CommandItem>
-              );
-            })}
+
+            {!search ? (
+              <>
+                <CommandGroup heading="Suggestions">
+                  {suggestionApps?.map((a) => {
+                    return (
+                      <CommandItem
+                        id={`suggestion-app-${a.id}`}
+                        key={`suggestion-app-${a.id}`}
+                        className="h-10 text-sm overflow-hidden "
+                        onSelect={() => {
+                          updateSuggestion(a.id, a);
+                          navigate(a.basePath);
+                        }}
+                        keywords={[]}
+                        // INFO: we don't allow search in suggestion
+                        value={`suggestion-app-${a.id}`}
+                      >
+                        <Calendar />
+                        <span className="truncate line-clamp-1">{a.name}</span>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+
+                <CommandSeparator className="my-2" />
+              </>
+            ) : null}
+
+            <CommandGroup heading={search ? "Result" : "Apps"}>
+              {miniApps.map((a, index) => {
+                return (
+                  <CommandItem
+                    id={`cmdk-item-${index}`}
+                    key={`cmdk-item-${index}`}
+                    className="h-10 text-sm overflow-hidden "
+                    onSelect={() => {
+                      updateSuggestion(a.id, a);
+                      navigate(a.basePath);
+                    }}
+                    value={a.name}
+                    keywords={[]}
+                  >
+                    <Calendar />
+                    <span className="truncate line-clamp-1">{a.name}</span>
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
           </CommandList>
         </div>
         <div className="h-10 w-full bg-accent px-4 flex items-center">

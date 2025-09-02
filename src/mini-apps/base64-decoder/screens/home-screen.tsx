@@ -19,7 +19,6 @@ export const Base64EncoderDecoderScreen = () => {
     <div className="min-h-screen w-full flex flex-col">
       <Navbar showBack title="Base64 encoder/decoder" showSearchBar={false} />
       <div className="flex flex-col items-center justify-center p-8 ">
-
         <Tabs
           defaultValue="decoder"
           className="w-[400px] p-6 rounded-xl bg-white border"
@@ -36,7 +35,6 @@ export const Base64EncoderDecoderScreen = () => {
           </TabsContent>
         </Tabs>
       </div>
-
     </div>
   );
 };
@@ -69,7 +67,7 @@ export const DecodedTabContent = () => {
 
       <Button
         className="mt-4 w-full"
-        onClick={(e) => {
+        onClick={() => {
           navigator.clipboard.writeText(decoder(base64Text));
           toast.success("Copied to clipboard!");
         }}
@@ -100,7 +98,7 @@ export const EncodedTabContent = () => {
 
       <Button
         className="mt-4 w-full"
-        onClick={(e) => {
+        onClick={() => {
           navigator.clipboard.writeText(encoder(text));
           toast.success("Copied to clipboard!");
         }}

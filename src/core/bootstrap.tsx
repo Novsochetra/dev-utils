@@ -9,7 +9,6 @@ import.meta.glob("@/mini-apps/*/index.{ts,tsx,js,jsx}", { eager: true });
 
 const routes = getRoutes();
 
-console.log(routes);
 const router = createBrowserRouter(routes);
 
 createRoot(document.getElementById("root")!).render(

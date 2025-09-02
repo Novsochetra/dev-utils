@@ -15,12 +15,15 @@ import {
 } from "@/vendor/shadcn/components/ui/select";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
 
-enum SupportUUIDVersion {
-  V1 = "V1",
-  V4 = "V4",
-  V6 = "V6",
-  V7 = "V7",
-}
+export const SupportUUIDVersion = {
+  V1: "V1",
+  V4: "V4",
+  V6: "V6",
+  V7: "V7",
+} as const;
+
+export type SupportUUIDVersion =
+  (typeof SupportUUIDVersion)[keyof typeof SupportUUIDVersion];
 
 const MAX_AMOUNT_ALLOW_GENERATE = 500;
 

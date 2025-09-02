@@ -1,5 +1,7 @@
 import { createContext, type Dispatch, type SetStateAction } from "react";
 
+function noob() {}
+
 export const JWTHomeScreenContext = createContext<{
   encoderResult: string;
   secretValue: string;
@@ -18,4 +20,22 @@ export const JWTHomeScreenContext = createContext<{
   setDecodedResultHeader: Dispatch<SetStateAction<string>>;
   setIsValidToken: Dispatch<SetStateAction<boolean | null>>;
   setJwtTokenValue: Dispatch<SetStateAction<string>>;
-}>();
+}>({
+  encoderResult: "",
+  secretValue: "",
+  jwtHeader: "",
+  jwtPayload: "",
+  setEncoderResult: noob,
+  setSecretValue: noob,
+  setJWTHeader: noob,
+  setJwtPayload: noob,
+  // decoded
+  jwtTokenValue: "",
+  isValidToken: null,
+  decodedResult: "",
+  resultDecodedHeader: "",
+  setDecodedResult: noob,
+  setDecodedResultHeader: noob,
+  setIsValidToken: noob,
+  setJwtTokenValue: noob,
+});

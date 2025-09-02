@@ -1,4 +1,4 @@
-import { getMiniApps, getRoutes } from "@/core/mini-app-registry";
+import { getMiniApps } from "@/core/mini-app-registry";
 import { Navbar } from "@/vendor/components/navbar";
 import { Braces } from "lucide-react";
 import { Link } from "react-router";
