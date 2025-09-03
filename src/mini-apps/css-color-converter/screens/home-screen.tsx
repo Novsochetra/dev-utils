@@ -54,10 +54,7 @@ export const CssColorConverterScreen = () => {
               />
             </div>
             <p className="text-sm text-muted-foreground">
-              Supported colors: <br />
-              <br />
-              HEX (#ffffff), HSL (hsl(none 0% 100%)), RGB (rgb(100% 100% 100%)),
-              OKLCH (oklch(100% 0 none)), LCH (lch(100 0 none)),
+              Supported colors: hex, hsl, rgb, rgba, oklch, lch
             </p>
           </div>
 
