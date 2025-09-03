@@ -53,7 +53,7 @@ export const Navbar = (props: NavbarProps) => {
           {props.showBack ? (
             <Link to="/" className="flex">
               <ChevronLeft className="mr-4" />
-              Back
+              <span className="hidden sm:block">Back</span>
             </Link>
           ) : (
             <Link to="/" className="flex">
@@ -67,8 +67,8 @@ export const Navbar = (props: NavbarProps) => {
             <CommandDialogDemo />
           </div>
         ) : (
-          <div className="flex flex-1 justify-center items-center">
-            <h3 className="text-lg font-semibold">{props.title}</h3>
+          <div className="flex flex-1 justify-center items-center overflow-hidden">
+            <h3 className="text-lg font-semibold truncate">{props.title}</h3>
           </div>
         )}
 
