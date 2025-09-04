@@ -45,7 +45,7 @@ export const TextCaseConverterScreen = () => {
                 setAnalyzeTextCase(detectTextCase(e.target.value));
               }}
             />
-            {analyzeTextCase !== "Unknown" ? (
+            {smartCaseDetectionMode && analyzeTextCase !== "Unknown" ? (
               <Badge className="absolute bottom-4 right-4 select-none">
                 {SupportedTextCaseLabel[analyzeTextCase]}
               </Badge>
@@ -115,7 +115,7 @@ export const TextCaseConverterScreen = () => {
             <Label htmlFor="result-text-input">Result</Label>
             <Textarea
               id="result-text-input"
-              value={transformTextCase(text, mode, true)}
+              value={transformTextCase(text, mode, smartCaseDetectionMode)}
               className="h-32"
               readOnly
             />
