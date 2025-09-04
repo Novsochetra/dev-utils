@@ -4,7 +4,7 @@ import { routes } from "./routes";
 
 registerMiniApp({
   id: v4(),
-  basePath: "/jwt-decoder-encoder",
+  basePath: "/text-case-converter",
   routes,
-  name: "JWT Decode / Encode",
+  name: "Text Case Converter",
 });
