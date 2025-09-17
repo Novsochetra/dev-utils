@@ -3,27 +3,33 @@ import { Link } from "react-router";
 
 import { getMiniApps } from "@/core/mini-app-registry";
 import { Navbar } from "@/vendor/components/navbar";
+import { AnimatePresence } from "framer-motion";
+import { AnimatedPage } from "@/vendor/components/animate-page";
 
 function App() {
   const miniApps = getMiniApps();
 
   return (
-    <div className="">
-      <Navbar showSearchBar />
+    <AnimatePresence mode="wait">
+      <AnimatedPage key="dashboard-main-app">
+        <div className="">
+          <Navbar showSearchBar />
 
-      <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
-        {miniApps.map((a, index) => {
-          return (
-            <AppIcon
-              key={`app-${index}`}
-              icon={a.icon}
-              path={a.basePath}
-              name={a.name}
-            />
-          );
-        })}
-      </div>
-    </div>
+          <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+            {miniApps.map((a, index) => {
+              return (
+                <AppIcon
+                  key={`app-${index}`}
+                  icon={a.icon}
+                  path={a.basePath}
+                  name={a.name}
+                />
+              );
+            })}
+          </div>
+        </div>
+      </AnimatedPage>
+    </AnimatePresence>
   );
 }
 
