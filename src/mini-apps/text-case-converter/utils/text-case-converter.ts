@@ -72,10 +72,10 @@ export function detectTextCase(input: string): SupportedTextCase | "Unknown" {
   if (/^[a-z]+([A-Z][a-z0-9\s.,!?'"()-]*)+$/.test(input))
     return SupportedTextCase.CamelCase;
 
-  if (/^([A-Z][a-z0-9\s.,!?'"()-]*)+$/.test(input))
-    return SupportedTextCase.PascalCase;
+  if (/^(?:[A-Z][a-z0-9]*)+$/.test(input)) return SupportedTextCase.PascalCase;
 
-  if (/^([A-Z][a-z0-9]*\s?)+$/.test(input)) return SupportedTextCase.TitleCase;
+  if (/^(?:[A-Z][a-z0-9]*)(?:\s[A-Z][a-z0-9]*)+$/.test(input))
+    return SupportedTextCase.TitleCase;
 
   if (/^[a-z]+(_[a-z0-9]+)+$/.test(input)) return SupportedTextCase.SnakeCase;
 
