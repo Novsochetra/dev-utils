@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { UTCDate } from "@date-fns/utc";
+import { AnimatePresence } from "framer-motion";
+import { fromUnixTime } from "date-fns";
 
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
@@ -15,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/vendor/shadcn/components/ui/select";
-import { fromUnixTime } from "date-fns";
+import { AnimatedPage } from "@/vendor/components/animate-page";
+import { APP_ID } from "../utils/constants";
 
 export const GenerateMode = {
   Milliseconds: "milliSeconds",
@@ -26,27 +28,31 @@ export type GenerateMode = (typeof GenerateMode)[keyof typeof GenerateMode];
 
 const UnixTimeStapConverterScreen = () => {
   return (
-    <div className="min-h-screen w-full flex flex-col">
-      <Navbar
-        showBack
-        title="Unix Timestamps Converter"
-        showSearchBar={false}
-      />
+    <AnimatePresence mode="wait">
+      <AnimatedPage key={APP_ID}>
+        <div className="min-h-screen w-full flex flex-col">
+          <Navbar
+            showBack
+            title="Unix Timestamps Converter"
+            showSearchBar={false}
+          />
 
-      <div className="flex flex-col items-center justify-center p-8 ">
-        <div className="w-[600px] h-full p-6 rounded-xl border bg-white gap-2">
-          <div className="flex flex-1 mb-4">
-            <CurrentUTCDate />
+          <div className="flex flex-col items-center justify-center p-8 ">
+            <div className="w-[600px] h-full p-6 rounded-xl border bg-white gap-2">
+              <div className="flex flex-1 mb-4">
+                <CurrentUTCDate />
 
-            <CurrentUnix />
+                <CurrentUnix />
+              </div>
+
+              <Separator />
+
+              <FormConverter />
+            </div>
           </div>
-
-          <Separator />
-
-          <FormConverter />
         </div>
-      </div>
-    </div>
+      </AnimatedPage>
+    </AnimatePresence>
   );
 };
 
