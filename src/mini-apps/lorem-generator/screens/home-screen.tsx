@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { AnimatePresence } from "framer-motion";
 
 import { Navbar } from "@/vendor/components/navbar";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -15,6 +16,8 @@ import {
 } from "@/vendor/shadcn/components/ui/select";
 import { Checkbox } from "@/vendor/shadcn/components/ui/checkbox";
 import { makeParagraph, makeSentence, makeWord } from "../utils/generator";
+import { AnimatedPage } from "@/vendor/components/animate-page";
+import { APP_ID } from "../utils/constant";
 
 const GenerateMode = {
   Paragraph: "paragraph",
@@ -51,75 +54,86 @@ const LoremGeneratorScreen = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col">
-      <Navbar showBack title="Lorem Generator" showSearchBar={false} />
-      <div className="flex flex-col items-center justify-center p-8 ">
-        <div className="w-[600px] h-full p-6 rounded-xl border bg-white">
-          <div className="flex">
-            <Input
-              className="flex flex-1 mr-4"
-              type="number"
-              placeholder="Enter amount"
-              value={parseInt(String(amount))}
-              onChange={(e) => {
-                if (Number.isNaN(e.target.value)) {
-                  setAmount(1);
-                } else {
-                  setAmount(Number(e.target.value));
-                  onUpdateResultBaseOnMode(
-                    mode,
-                    Number(e.target.value),
-                    asHTML,
-                  );
-                }
-              }}
-              min={1}
-            />
-            <Select
-              defaultValue={GenerateMode.Paragraph}
-              onValueChange={(v: GenerateMode) => {
-                onUpdateResultBaseOnMode(v, amount, asHTML);
-              }}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Theme" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={GenerateMode.Paragraph}>
-                  Paragraph
-                </SelectItem>
-                <SelectItem value={GenerateMode.Sentence}>Sentence</SelectItem>
-                <SelectItem value={GenerateMode.Word}>Word</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex flex-1 pt-4">
-            <Checkbox
-              id="asHTML"
-              onCheckedChange={(value: boolean) => {
-                setAsHTML(value);
-                onUpdateResultBaseOnMode(mode, amount, value);
-              }}
-            />
-            <Label htmlFor="asHTML" className="ml-4">
-              As HTML
-            </Label>
-          </div>
-          <Label className="my-4">Result</Label>
-          <Textarea placeholder="" value={result} readOnly className="h-96" />
+    <AnimatePresence mode="wait">
+      <AnimatedPage key={APP_ID}>
+        <div className="min-h-screen w-full flex flex-col">
+          <Navbar showBack title="Lorem Generator" showSearchBar={false} />
+          <div className="flex flex-col items-center justify-center p-8 ">
+            <div className="w-full lg:w-8/12 p-6 rounded-xl bg-white border">
+              <div className="flex">
+                <Input
+                  className="flex flex-1 mr-4"
+                  type="number"
+                  placeholder="Enter amount"
+                  value={parseInt(String(amount))}
+                  onChange={(e) => {
+                    if (Number.isNaN(e.target.value)) {
+                      setAmount(1);
+                    } else {
+                      setAmount(Number(e.target.value));
+                      onUpdateResultBaseOnMode(
+                        mode,
+                        Number(e.target.value),
+                        asHTML,
+                      );
+                    }
+                  }}
+                  min={1}
+                />
+                <Select
+                  defaultValue={GenerateMode.Paragraph}
+                  onValueChange={(v: GenerateMode) => {
+                    onUpdateResultBaseOnMode(v, amount, asHTML);
+                  }}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={GenerateMode.Paragraph}>
+                      Paragraph
+                    </SelectItem>
+                    <SelectItem value={GenerateMode.Sentence}>
+                      Sentence
+                    </SelectItem>
+                    <SelectItem value={GenerateMode.Word}>Word</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-1 pt-4">
+                <Checkbox
+                  id="asHTML"
+                  onCheckedChange={(value: boolean) => {
+                    setAsHTML(value);
+                    onUpdateResultBaseOnMode(mode, amount, value);
+                  }}
+                />
+                <Label htmlFor="asHTML" className="ml-4">
+                  As HTML
+                </Label>
+              </div>
+              <Label className="my-4">Result</Label>
+              <Textarea
+                placeholder=""
+                value={result}
+                readOnly
+                className="h-96"
+              />
 
-          <Button
-            className="mt-4 w-full"
-            onClick={() => {
-              navigator.clipboard.writeText(result);
-              toast.success("Copied to clipboard!");
-            }}
-          >
-            Copy
-          </Button>
+              <Button
+                className="mt-4 w-full"
+                onClick={() => {
+                  navigator.clipboard.writeText(result);
+                  toast.success("Copied to clipboard!");
+                }}
+              >
+                Copy
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      </AnimatedPage>
+    </AnimatePresence>
   );
 };
 
