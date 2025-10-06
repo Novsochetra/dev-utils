@@ -21,7 +21,7 @@ export const Base64EncoderDecoderScreen = () => {
       <div className="flex flex-col items-center justify-center p-8 ">
         <Tabs
           defaultValue="decoder"
-          className="w-[400px] p-6 rounded-xl bg-white border"
+          className="w-full lg:w-8/12 p-6 rounded-xl bg-white border"
         >
           <TabsList className="w-full">
             <TabsTrigger value="decoder">Decoder</TabsTrigger>
