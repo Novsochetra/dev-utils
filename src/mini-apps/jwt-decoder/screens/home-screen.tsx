@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { CopyIcon } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import { clsx } from "clsx";
 import {
   base64url,
@@ -21,6 +22,8 @@ import {
   TabsContent,
 } from "@/vendor/shadcn/components/ui/tabs";
 import { JWTHomeScreenContext } from "../components/jwt-home-screen-context";
+import { AnimatedPage } from "@/vendor/components/animate-page";
+import { APP_ID } from "../utils/constant";
 
 const defaultPlaceHolderJWT =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
@@ -58,27 +61,35 @@ export const JwtDecoderEncoderScreen = () => {
         setJwtTokenValue,
       }}
     >
-      <div className="min-h-screen w-full flex flex-col">
-        <Navbar showBack title="JWT Decoder / Encoder" showSearchBar={false} />
+      <AnimatePresence mode="wait">
+        <AnimatedPage key={APP_ID}>
+          <div className="min-h-screen w-full flex flex-col">
+            <Navbar
+              showBack
+              title="JWT Decoder / Encoder"
+              showSearchBar={false}
+            />
 
-        <div className="flex flex-col items-center justify-center p-8 ">
-          <Tabs
-            defaultValue="decoder"
-            className="w-8/12 p-6 rounded-xl bg-white border"
-          >
-            <TabsList className="w-full">
-              <TabsTrigger value="decoder">Decoder</TabsTrigger>
-              <TabsTrigger value="encoder">Encoder</TabsTrigger>
-            </TabsList>
-            <TabsContent value="decoder" className="pt-4">
-              <JwtDecoderTabContent />
-            </TabsContent>
-            <TabsContent value="encoder" className="pt-4">
-              <JwtEncoderTabContent />
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+            <div className="flex flex-1 justify-center p-8">
+              <Tabs
+                defaultValue="decoder"
+                className="w-full lg:w-8/12 p-6 rounded-xl bg-white border"
+              >
+                <TabsList className="w-full">
+                  <TabsTrigger value="decoder">Decoder</TabsTrigger>
+                  <TabsTrigger value="encoder">Encoder</TabsTrigger>
+                </TabsList>
+                <TabsContent value="decoder" className="pt-4">
+                  <JwtDecoderTabContent />
+                </TabsContent>
+                <TabsContent value="encoder" className="pt-4">
+                  <JwtEncoderTabContent />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
+        </AnimatedPage>
+      </AnimatePresence>
     </JWTHomeScreenContext.Provider>
   );
 };
@@ -130,14 +141,14 @@ export const JwtEncoderTabContent = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-row gap-4">
-      <div className="flex flex-1 flex-col gap-4">
+    <div className="flex flex-col md:flex-row gap-4 h-full">
+      <div className="flex flex-col gap-4 w-full md:w-1/2">
         <div className="flex flex-1 flex-col gap-4">
           <Label htmlFor="encoded-tab-header-input">Header</Label>
           <Textarea
             id="encoded-tab-header-input"
             value={jwtHeader}
-            className="h-32"
+            className="h-full"
             onChange={(e) => {
               setJWTHeader(e.target.value);
               processEncryptJWT({
@@ -153,7 +164,7 @@ export const JwtEncoderTabContent = () => {
           <Textarea
             id="encoded-tab-payload-input"
             value={jwtPayload}
-            className="h-32"
+            className="h-full"
             onChange={(e) => {
               setJwtPayload(e.target.value);
               processEncryptJWT({
@@ -183,7 +194,7 @@ export const JwtEncoderTabContent = () => {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4">
+      <div className="flex flex-col gap-4 w-full md:w-1/2">
         <Label htmlFor="jwt-input-field">Json Web Token (JWT)</Label>
 
         <Textarea
@@ -211,8 +222,8 @@ export const JwtDecoderTabContent = () => {
   } = useContext(JWTHomeScreenContext);
 
   return (
-    <div className="flex flex-1 flex-row gap-4">
-      <div className="flex flex-1 flex-col gap-4">
+    <div className="flex flex-col md:flex-row gap-4 h-full">
+      <div className="flex flex-col gap-4 w-full md:w-1/2">
         <Label htmlFor="jwt-input-field">Json Web Token (JWT)</Label>
 
         <Textarea
@@ -251,12 +262,12 @@ export const JwtDecoderTabContent = () => {
         />
       </div>
 
-      <div className="flex flex-1 flex-col gap-4">
+      <div className="flex flex-col gap-4 w-full md:w-1/2 h-full">
         <div className="flex flex-1 flex-col gap-4">
           <Label htmlFor="decoded-tab-decoded-header-input">
             Decoded Header
           </Label>
-          <div className="relative">
+          <div className="relative h-full">
             <Button
               size="icon"
               variant="ghost"
@@ -271,16 +282,16 @@ export const JwtDecoderTabContent = () => {
             <Textarea
               id="decoded-tab-decoded-header-input"
               value={jwtTokenValue ? resultDecodedHeader : ""}
-              className="h-32"
+              className="h-full"
               readOnly
             />
           </div>
         </div>
-        <div className="flex flex-1 flex-col gap-4">
+        <div className="flex flex-1 flex-col gap-4 h-full">
           <Label htmlFor="decoded-tab-decoded-payload-input">
             Decoded Payload
           </Label>
-          <div className="relative">
+          <div className="relative h-full">
             <Button
               size="icon"
               variant="ghost"
@@ -294,8 +305,8 @@ export const JwtDecoderTabContent = () => {
             </Button>
             <Textarea
               id="decoded-tab-decoded-payload-input"
+              className="h-full"
               value={jwtTokenValue ? decodedResult : ""}
-              className="h-96"
               readOnly
             />
           </div>

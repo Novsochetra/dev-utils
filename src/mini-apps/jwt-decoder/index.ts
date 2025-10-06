@@ -1,10 +1,10 @@
-import { v4 } from "uuid";
 import { registerMiniApp } from "@/core/mini-app-registry";
 import { routes } from "./routes";
+import { APP_BASE_PATH, APP_NAME, APP_ID } from "./utils/constant";
 
 registerMiniApp({
-  id: v4(),
-  basePath: "/jwt-decoder-encoder",
+  id: APP_ID,
+  basePath: APP_BASE_PATH,
   routes,
-  name: "JWT Decode / Encode",
+  name: APP_NAME,
 });
