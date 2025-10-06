@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { toast } from "sonner";
+import { AnimatePresence } from "framer-motion";
 
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Label } from "@/vendor/shadcn/components/ui/label";
@@ -13,29 +14,39 @@ import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
 import { Navbar } from "@/vendor/components/navbar";
 import { decoder } from "../utils/decoder";
 import { encoder } from "../utils/encoder";
+import { AnimatedPage } from "@/vendor/components/animate-page";
+import { APP_ID } from "../utils/constant";
 
 export const Base64EncoderDecoderScreen = () => {
   return (
-    <div className="min-h-screen w-full flex flex-col">
-      <Navbar showBack title="Base64 encoder/decoder" showSearchBar={false} />
-      <div className="flex flex-col items-center justify-center p-8 ">
-        <Tabs
-          defaultValue="decoder"
-          className="w-full lg:w-8/12 p-6 rounded-xl bg-white border"
-        >
-          <TabsList className="w-full">
-            <TabsTrigger value="decoder">Decoder</TabsTrigger>
-            <TabsTrigger value="encoder">Encoder</TabsTrigger>
-          </TabsList>
-          <TabsContent value="decoder">
-            <DecodedTabContent />
-          </TabsContent>
-          <TabsContent value="encoder">
-            <EncodedTabContent />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+    <AnimatePresence mode="wait">
+      <AnimatedPage key={APP_ID}>
+        <div className="min-h-screen w-full flex flex-col">
+          <Navbar
+            showBack
+            title="Base64 encoder/decoder"
+            showSearchBar={false}
+          />
+          <div className="flex flex-col items-center justify-center p-8 ">
+            <Tabs
+              defaultValue="decoder"
+              className="w-full lg:w-8/12 p-6 rounded-xl bg-white border"
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="decoder">Decoder</TabsTrigger>
+                <TabsTrigger value="encoder">Encoder</TabsTrigger>
+              </TabsList>
+              <TabsContent value="decoder">
+                <DecodedTabContent />
+              </TabsContent>
+              <TabsContent value="encoder">
+                <EncodedTabContent />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </AnimatedPage>
+    </AnimatePresence>
   );
 };
 

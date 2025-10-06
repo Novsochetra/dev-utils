@@ -1,10 +1,10 @@
-import { v4 } from "uuid";
 import { registerMiniApp } from "@/core/mini-app-registry";
 import { routes } from "./routes";
+import { APP_BASE_PATH, APP_ID, APP_NAME } from "./utils/constant";
 
 registerMiniApp({
-  id: v4(),
-  basePath: "/base64-decoder",
+  id: APP_ID,
+  basePath: APP_BASE_PATH,
   routes,
-  name: "Base64 Decode / Encode",
+  name: APP_NAME,
 });
