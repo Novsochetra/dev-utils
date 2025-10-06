@@ -1,4 +1,10 @@
 import type { Gradient, Options } from "qr-code-styling";
+import { v4 } from "uuid";
+
+export const APP_NAME = "QR Code Generator";
+
+export const APP_BASE_PATH = "/qr-code-generator";
+export const APP_ID = v4();
 
 export const defaultDotOptionsGradientColor: Gradient = {
   type: "linear",

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCodeStyling, { type Options } from "qr-code-styling";
+import { AnimatePresence } from "framer-motion";
 
 import { Navbar } from "@/vendor/components/navbar";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
@@ -15,7 +16,8 @@ import { QRCodeContext } from "../components/qr-code-context";
 import { DownloadButton } from "../components/download-button";
 import { DownloadSelectOptions } from "../components/download-select-options";
 
-import { defaultOptions } from "../utils/constants";
+import { APP_ID, defaultOptions } from "../utils/constants";
+import { AnimatedPage } from "@/vendor/components/animate-page";
 
 const QRCodeGeneratorScreen = () => {
   const [options, setOptions] = useState<Options>(defaultOptions);
@@ -54,48 +56,52 @@ const QRCodeGeneratorScreen = () => {
 
   return (
     <QRCodeContext.Provider value={{ options, setOptions }}>
-      <div className="min-h-screen w-full flex flex-col">
-        <Navbar showBack title="QR Code Generator" showSearchBar={false} />
+      <AnimatePresence mode="wait">
+        <AnimatedPage key={APP_ID}>
+          <div className="min-h-screen w-full flex flex-col">
+            <Navbar showBack title="QR Code Generator" showSearchBar={false} />
 
-        <div className="flex flex-col items-center justify-center p-8 ">
-          <div className="w-[600px] h-full p-6 rounded-xl border bg-white gap-2">
-            <div className="flex flex-1 flex-col items-center justify-center mb-8 p-4 gap-4">
-              <div className="rounded-2xl overflow-hidden">
-                <div ref={ref} />
-              </div>
+            <div className="flex flex-col items-center justify-center p-8 ">
+              <div className="w-full lg:w-8/12 p-6 rounded-xl bg-white border">
+                <div className="flex flex-1 flex-col items-center justify-center mb-8 p-4 gap-4">
+                  <div className="rounded-2xl overflow-hidden">
+                    <div ref={ref} />
+                  </div>
 
-              <div className="flex flex-1 justify-center gap-2">
-                <DownloadButton
-                  onClick={() => {
-                    qrCodeInstance.download({
-                      name: "dev-tools-qr-generator",
-                      extension: allowedDownloadExtension,
-                    });
-                  }}
-                />
+                  <div className="flex flex-1 justify-center gap-2">
+                    <DownloadButton
+                      onClick={() => {
+                        qrCodeInstance.download({
+                          name: "dev-tools-qr-generator",
+                          extension: allowedDownloadExtension,
+                        });
+                      }}
+                    />
 
-                <DownloadSelectOptions
-                  onValueChange={(v) => setAllowedDownloadExtension(v)}
-                />
+                    <DownloadSelectOptions
+                      onValueChange={(v) => setAllowedDownloadExtension(v)}
+                    />
+                  </div>
+                </div>
+
+                <MainOptionsView />
+                <Separator className="my-4" />
+                <QRDotOptionsView />
+                <Separator className="my-4" />
+                <CornerSquareOptionsView />
+                <Separator className="my-4" />
+                <CornerDotOptionsView />
+                <Separator className="my-4" />
+                <BackgroundOptionsView />
+                <Separator className="my-4" />
+                <ImageOptionsView />
+                <Separator className="my-4" />
+                <QROptionsView />
               </div>
             </div>
-
-            <MainOptionsView />
-            <Separator className="my-4" />
-            <QRDotOptionsView />
-            <Separator className="my-4" />
-            <CornerSquareOptionsView />
-            <Separator className="my-4" />
-            <CornerDotOptionsView />
-            <Separator className="my-4" />
-            <BackgroundOptionsView />
-            <Separator className="my-4" />
-            <ImageOptionsView />
-            <Separator className="my-4" />
-            <QROptionsView />
           </div>
-        </div>
-      </div>
+        </AnimatedPage>{" "}
+      </AnimatePresence>
     </QRCodeContext.Provider>
   );
 };

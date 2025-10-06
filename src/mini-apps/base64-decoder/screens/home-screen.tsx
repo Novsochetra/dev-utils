@@ -45,7 +45,7 @@ export const Base64EncoderDecoderScreen = () => {
             </Tabs>
           </div>
         </div>
-      </AnimatedPage>
+      </AnimatedPage>{" "}
     </AnimatePresence>
   );
 };
