@@ -20,7 +20,7 @@ import { APP_ID } from "../utils/constant";
 export const Base64EncoderDecoderScreen = () => {
   return (
     <AnimatePresence mode="wait">
-      <AnimatedPage key={APP_ID}>
+      <AnimatedPage id={APP_ID}>
         <div className="min-h-screen w-full flex flex-col">
           <Navbar
             showBack

@@ -20,7 +20,7 @@ export const CssColorConverterScreen = () => {
 
   return (
     <AnimatePresence mode="wait">
-      <AnimatedPage key={APP_ID}>
+      <AnimatedPage id={APP_ID}>
         <div className="min-h-screen w-full flex flex-col">
           <Navbar showBack title="CSS Color Converter" showSearchBar={false} />
 

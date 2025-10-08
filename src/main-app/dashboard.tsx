@@ -11,7 +11,7 @@ function App() {
 
   return (
     <AnimatePresence mode="wait">
-      <AnimatedPage key="dashboard-main-app">
+      <AnimatedPage id="dashboard-main-app">
         <div className="">
           <Navbar showSearchBar />
 

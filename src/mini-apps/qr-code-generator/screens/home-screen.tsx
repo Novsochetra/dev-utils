@@ -57,7 +57,7 @@ const QRCodeGeneratorScreen = () => {
   return (
     <QRCodeContext.Provider value={{ options, setOptions }}>
       <AnimatePresence mode="wait">
-        <AnimatedPage key={APP_ID}>
+        <AnimatedPage id={APP_ID}>
           <div className="min-h-screen w-full flex flex-col">
             <Navbar showBack title="QR Code Generator" showSearchBar={false} />
 

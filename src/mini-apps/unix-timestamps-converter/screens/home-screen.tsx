@@ -29,7 +29,7 @@ export type GenerateMode = (typeof GenerateMode)[keyof typeof GenerateMode];
 const UnixTimeStapConverterScreen = () => {
   return (
     <AnimatePresence mode="wait">
-      <AnimatedPage key={APP_ID}>
+      <AnimatedPage id={APP_ID}>
         <div className="min-h-screen w-full flex flex-col">
           <Navbar
             showBack
