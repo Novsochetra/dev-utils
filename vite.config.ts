@@ -11,4 +11,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    allowedHosts: ["unobstructive-unexcluding-lala.ngrok-free.dev"],
+    middlewareMode: false,
+    cors: true,
+  },
 });

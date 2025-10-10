@@ -1,10 +1,12 @@
 import { PackageIcon } from "lucide-react";
 import { Link } from "react-router";
+import { faker } from "@faker-js/faker";
 
 import { getMiniApps } from "@/core/mini-app-registry";
 import { Navbar } from "@/vendor/components/navbar";
 import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
+import("@/mini-apps/data-generator/utils/faker");
 
 function App() {
   const miniApps = getMiniApps();
