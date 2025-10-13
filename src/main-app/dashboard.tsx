@@ -1,6 +1,5 @@
 import { PackageIcon } from "lucide-react";
 import { Link } from "react-router";
-import { faker } from "@faker-js/faker";
 
 import { getMiniApps } from "@/core/mini-app-registry";
 import { Navbar } from "@/vendor/components/navbar";

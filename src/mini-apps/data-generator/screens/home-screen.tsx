@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import {
+  useForm,
+  useFieldArray,
+  Controller,
+  type Control,
+  type UseFormReturn,
+} from "react-hook-form";
 import { clsx } from "clsx";
 import { InputWithSuggestion } from "../components/input-with-suggestion";
 
@@ -19,27 +25,30 @@ import {
 } from "@/vendor/shadcn/components/ui/select";
 import { Plus, TrashIcon } from "lucide-react";
 
-type FieldConfig = {
+type FieldConfig = FieldConfigString | FieldConfigArray | FieldConfigMap;
+
+type FieldConfigString = {
   key: string;
-} & (
-  | {
-      type:
-        | typeof SupportDataType.String
-        | typeof SupportDataType.Number
-        | typeof SupportDataType.Date;
-      value: string; // MARK: need to proper type typeof availableFakerPaths;
-    }
-  | {
-      type: typeof SupportDataType.Array;
-      amount: number;
-      children?: FieldConfig[];
-    }
-  | {
-      type: typeof SupportDataType.Map;
-      amount: number;
-      children?: Record<string, FieldConfig>;
-    }
-);
+  type:
+    | typeof SupportDataType.String
+    | typeof SupportDataType.Number
+    | typeof SupportDataType.Date;
+  value: string;
+};
+
+type FieldConfigArray = {
+  key: string;
+  type: typeof SupportDataType.Array;
+  amount: number;
+  children: FieldConfig[];
+};
+
+type FieldConfigMap = {
+  key: string;
+  type: typeof SupportDataType.Map;
+  amount: number;
+  children: Record<string, FieldConfig>;
+};
 
 type FormValues = {
   fields: FieldConfig[];
@@ -101,7 +110,7 @@ const DataGeneratorScreen = () => {
 
 function generateFromSchema(
   field: FieldConfig,
-): Record<string, unknown> | string | null {
+): null | string | (string | null)[] | Record<string, string | null> {
   switch (field.type) {
     case SupportDataType.String:
     case SupportDataType.Number:
@@ -110,22 +119,29 @@ function generateFromSchema(
     }
 
     case SupportDataType.Array: {
-      return Array.from({ length: field.amount || 1 }, () =>
-        generateFromSchema({
-          key: field.children?.[0]?.key || "",
-          type: field.children?.[0]?.type,
-          value: field.children?.[0]?.value || "",
-          children: field.children?.[0]?.children || [],
-        }),
-      );
+      const f = field as FieldConfigArray;
+      const firstChild = f.children?.[0];
+      if (!firstChild) {
+        return [];
+      }
+
+      return Array.from({ length: field.amount || 1 }, () => {
+        return generateFromSchema(firstChild) as string | null;
+      });
     }
 
     case SupportDataType.Map: {
-      const obj: Record<string, any> = {};
-      for (const child of field.children || []) {
-        const res = generateFromSchema(child);
-        obj[child.key] = res;
+      const obj: Record<string, string | null> = {};
+      const f = field as FieldConfigMap;
+      for (const key of Object.keys(f.children || {})) {
+        const child = f.children?.[key];
+
+        if (child) {
+          const res = generateFromSchema(child) as string | null;
+          obj[child.key] = res;
+        }
       }
+
       return obj;
     }
 
@@ -152,26 +168,18 @@ const RecursiveFieldArray = ({
   setValue,
   isRoot,
 }: {
-  control: any;
+  control: Control<FormValues>;
   name: string;
   depth?: number;
   parentDataType?: SupportDataType;
-  setValue: any;
+  setValue: UseFormReturn<FormValues>["setValue"];
   isRoot: boolean;
 }) => {
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray<FormValues, "fields">({
     control,
+    // @ts-expect-error: Dynamic nested field array path
     name,
   });
-
-  // Auto update array child names
-  useEffect(() => {
-    if (parentDataType === SupportDataType.Array) {
-      fields.forEach((field, index) => {
-        setValue(`${name}.${index}.name`, String(index));
-      });
-    }
-  }, [fields.length, parentDataType, setValue, name, fields]);
 
   return (
     <div
@@ -180,25 +188,24 @@ const RecursiveFieldArray = ({
         depth > 0 && "border-l-1 border-muted/90 pl-4",
       )}
     >
-      {fields.map((field, index) => (
-        <div key={field.id} className="relative flex flex-col gap-2">
+      {fields.map((_, index) => (
+        <div key={`fields-${index}`} className="relative flex flex-col gap-2">
           {/* Field name + type */}
           <div className="flex items-center gap-4">
             <Controller
               control={control}
+              // @ts-expect-error: Dynamic nested field array path
               name={`${name}.${index}.key`}
               render={({ field }) => {
-                console.log("FIELD: ", field);
                 return (
                   <InputWithSuggestion
                     {...field}
                     value={
                       parentDataType === SupportDataType.Array
                         ? "0"
-                        : field.value
+                        : (field.value as string)
                     }
                     placeholder="Field name"
-                    // className="w-60"
                     disabled={parentDataType === SupportDataType.Array}
                   />
                 );
@@ -207,9 +214,13 @@ const RecursiveFieldArray = ({
 
             <Controller
               control={control}
+              // @ts-expect-error: Dynamic nested field array path
               name={`${name}.${index}.type`}
               render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                >
                   <SelectTrigger className="w-[140px]">
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
@@ -226,16 +237,21 @@ const RecursiveFieldArray = ({
 
             <Controller
               control={control}
+              // @ts-expect-error: Dynamic nested field array path
               name={`${name}.${index}.type`}
-              render={({ field: { value: type } }) => {
+              render={({ field }) => {
+                const type = field.value;
+
                 if (type === SupportDataType.Array) {
                   return (
                     <Controller
                       control={control}
+                      // @ts-expect-error: Dynamic nested field array path
                       name={`${name}.${index}.amount`}
                       render={({ field }) => (
                         <Input
                           {...field}
+                          value={field.value as string}
                           placeholder={`Amount of field value to be generate`}
                           className="w-60"
                         />
@@ -244,13 +260,14 @@ const RecursiveFieldArray = ({
                   );
                 }
 
-                return null;
+                return <></>;
               }}
             />
 
             {isRoot ? null : (
               <Controller
                 control={control}
+                // @ts-expect-error: Dynamic nested field array path
                 name={`${name}.${index}.type`}
                 render={() => {
                   return (
@@ -271,6 +288,7 @@ const RecursiveFieldArray = ({
           {/* Field value or nested children */}
           <Controller
             control={control}
+            // @ts-expect-error: Dynamic nested field array path
             name={`${name}.${index}.type`}
             render={({ field: { value: type } }) => {
               if (
@@ -281,11 +299,13 @@ const RecursiveFieldArray = ({
                 return (
                   <Controller
                     control={control}
+                    // @ts-expect-error: Dynamic nested field array path
                     name={`${name}.${index}.value`}
                     render={({ field }) => {
                       return (
                         <InputWithSuggestion
                           {...field}
+                          value={field.value as string}
                           placeholder={`Enter ${type.toLowerCase()} value`}
                           className="ml-6 mt-2 w-60"
                         />
@@ -303,16 +323,17 @@ const RecursiveFieldArray = ({
                   <div className="ml-2 mt-2">
                     <RecursiveFieldArray
                       control={control}
-                      name={`${name}.${index}.children`}
+                      name={`${name}.${index}.children` as string}
                       depth={depth + 1}
                       parentDataType={type}
                       setValue={setValue}
+                      isRoot={false}
                     />
                   </div>
                 );
               }
 
-              return null;
+              return <></>;
             }}
           />
         </div>
@@ -325,7 +346,12 @@ const RecursiveFieldArray = ({
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => append({ key: "", type: SupportDataType.String })}
+          onClick={() =>
+            append({
+              key: "",
+              type: SupportDataType.String,
+            } as FieldConfigString)
+          }
           className="w-fit text-muted-foreground hover:text-foreground"
         >
           <Plus className="mr-1 h-4 w-4" /> Add Field

@@ -10,29 +10,25 @@ import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import { availableFakerPaths } from "../utils/faker";
 
-// const data = [
-//   {
-//     label: "User",
-//     value: "users",
-//     data: [
-//       { label: "Alice", value: "alice" },
-//       { label: "Bob", value: "bob" },
-//       { label: "Apple", value: "apple" },
-//     ],
-//   },
-//   {
-//     label: "Admin",
-//     value: "admin",
-//     data: [
-//       { label: "Alice 2", value: "alice-2" },
-//       { label: "Bob 2", value: "bob-2" },
-//       { label: "Apple 2", value: "apple-2" },
-//     ],
-//   },
-// ];
+type SectionData = {
+  label: string;
+  value: string;
+  data: Array<{ label: string; value: string }>;
+}[];
 
-const result = [];
-const groups = {};
+type GroupSectionDataByKey = Record<
+  string,
+  {
+    label: string;
+    value: string;
+    data: Array<{ label: string; value: string }>;
+  }
+>;
+
+const data: SectionData = [];
+const groups: {
+  [key: string]: string[];
+} = {};
 
 availableFakerPaths.forEach((v) => {
   const key = v.split(".")[0];
@@ -42,15 +38,12 @@ availableFakerPaths.forEach((v) => {
 });
 
 Object.entries(groups).map(([groupHeader, fieldValues], index) => {
-  const res = [];
-  result[index] = {
-    label: groupHeader,
-    value: groupHeader,
+  data[index] = {
+    label: groupHeader as string,
+    value: groupHeader as string,
     data: fieldValues.map((v) => ({ label: v, value: v })),
   };
 });
-
-const data = result;
 
 export const InputWithSuggestion = ({
   placeholder,
@@ -61,11 +54,12 @@ export const InputWithSuggestion = ({
   className,
   disabled,
 }: {
+  value: string;
   ref: React.Ref<HTMLInputElement>;
   onChange: (value: string) => void;
 } & Pick<
   React.InputHTMLAttributes<HTMLInputElement>,
-  "disabled" | "placeholder" | "onBlur" | "value" | "className"
+  "disabled" | "placeholder" | "onBlur" | "className"
 >) => {
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
@@ -99,8 +93,8 @@ export const InputWithSuggestion = ({
     const results = fuse.search(query).map((r) => r.item);
 
     // group back into sections
-    const groupedResults = results.reduce((acc: any, item) => {
-      const sectionKey = item.sectionValue;
+    const groupedResults = results.reduce((acc, item) => {
+      const sectionKey = item.sectionValue as string;
       if (!acc[sectionKey]) {
         acc[sectionKey] = {
           label: item.sectionLabel,
@@ -108,9 +102,11 @@ export const InputWithSuggestion = ({
           data: [],
         };
       }
+
       acc[sectionKey].data.push(item);
+
       return acc;
-    }, {});
+    }, {} as GroupSectionDataByKey);
 
     return Object.values(groupedResults);
   }, [query, fuse]);
@@ -122,7 +118,7 @@ export const InputWithSuggestion = ({
   );
 
   // Scroll active item into view
-  const itemRefs = useRef<HTMLDivElement[]>([]);
+  const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
   useEffect(() => {
     if (itemRefs.current[activeIndex]) {
       itemRefs.current[activeIndex].scrollIntoView({
@@ -130,7 +126,7 @@ export const InputWithSuggestion = ({
         behavior: "smooth",
       });
     }
-  }, [itemRefs.current, activeIndex, filtered]);
+  }, [activeIndex, filtered]);
 
   // Arrow key navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -212,7 +208,7 @@ export const InputWithSuggestion = ({
                             ? "bg-accent text-accent-foreground"
                             : ""
                         } hover:bg-slate-100`}
-                        onKeyDown={(e) => {
+                        onKeyDown={() => {
                           onChange?.(item.label);
 
                           setQuery(item.label);

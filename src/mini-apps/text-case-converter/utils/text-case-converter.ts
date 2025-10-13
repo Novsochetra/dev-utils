@@ -448,9 +448,7 @@ export function pascalCaseToLowerCase(input: string) {
   return input
     .split("\n")
     .map((line) =>
-      line.replace(/([A-Z])/g, (match, p1, offset) =>
-        offset > 0 ? " " + p1 : p1,
-      ),
+      line.replace(/([A-Z])/g, (_, p1, offset) => (offset > 0 ? " " + p1 : p1)),
     )
     .join("\n")
     .toLowerCase();

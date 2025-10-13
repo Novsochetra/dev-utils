@@ -1,4 +1,6 @@
-import { faker } from "@faker-js/faker";
+import { faker as f } from "@faker-js/faker";
+
+const faker = f;
 
 export const getObjectMethods = (obj: Record<string, unknown>) => {
   return Object.keys(obj)?.filter((key) => typeof obj[key] === "function");
