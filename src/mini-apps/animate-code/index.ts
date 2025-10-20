@@ -1,0 +1,10 @@
+import { registerMiniApp } from "@/core/mini-app-registry";
+import { routes } from "./routes";
+import { APP_BASE_PATH, APP_ID, APP_NAME } from "./utils/constants";
+
+registerMiniApp({
+  id: APP_ID,
+  basePath: APP_BASE_PATH,
+  routes,
+  name: APP_NAME,
+});
