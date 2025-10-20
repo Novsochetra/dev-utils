@@ -24,6 +24,11 @@ import {
   SelectValue,
 } from "@/vendor/shadcn/components/ui/select";
 import { Plus, TrashIcon } from "lucide-react";
+import {
+  ResizablePanel,
+  ResizablePanelGroup,
+  ResizableHandle,
+} from "@/vendor/shadcn/components/ui/resizable";
 
 type FieldConfig = FieldConfigString | FieldConfigArray | FieldConfigMap;
 
@@ -80,27 +85,68 @@ const DataGeneratorScreen = () => {
   return (
     <AnimatePresence mode="wait">
       <AnimatedPage id={APP_ID}>
-        <div className="min-h-screen w-full flex flex-col">
+        <div className="h-screen w-full flex flex-col">
           <Navbar showBack title={APP_NAME} showSearchBar={false} />
-          <div className="flex flex-1 flex-col items-center justify-center p-8 ">
-            <div
-              onSubmit={handleSubmit(handleGenerate)}
-              className="w-full lg:w-8/12 p-6 rounded-xl bg-white border"
+          <div className="flex flex-1 flex-col p-8 h-full bg-red-400 overflow-auto">
+            <ResizablePanelGroup
+              direction="horizontal"
+              className="h-full bg-white rounded-lg"
             >
-              <RecursiveFieldArray
-                control={control}
-                name="fields"
-                setValue={setValue}
-                isRoot={true}
-              />
-              <Button className="mt-4" onClick={handleSubmit(handleGenerate)}>
-                Generate Data
-              </Button>
-            </div>
+              <ResizablePanel className="p-6">
+                <div className="flex flex-1">
+                  <RecursiveFieldArray
+                    control={control}
+                    name="fields"
+                    setValue={setValue}
+                    isRoot={true}
+                  />
+                </div>
+                <Button
+                  className="mt-4 self-start"
+                  onClick={handleSubmit(handleGenerate)}
+                >
+                  Generate Data
+                </Button>
+              </ResizablePanel>
 
-            <pre className="bg-gray-100 text-sm p-4 rounded overflow-auto">
-              {JSON.stringify(generatedData, null, 2)}
-            </pre>
+              <ResizableHandle withHandle />
+
+              <ResizablePanel className="flex-1 p-6">
+                <pre className="w-full p-6 bg-gray-200 rounded-lg h-full overflow-auto">
+                  {JSON.stringify(generatedData, null, 2)}
+                </pre>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+
+            {/* <ResizablePanelGroup */}
+            {/*   direction="horizontal" */}
+            {/*   className="w-full flex flex-row flex-1 rounded-xl border bg-white" */}
+            {/* > */}
+            {/*   <ResizablePanel className="flex flex-col flex-1 p-6"> */}
+            {/*     <div className="flex flex-1"> */}
+            {/*       <RecursiveFieldArray */}
+            {/*         control={control} */}
+            {/*         name="fields" */}
+            {/*         setValue={setValue} */}
+            {/*         isRoot={true} */}
+            {/*       /> */}
+            {/*     </div> */}
+            {/*     <Button */}
+            {/*       className="mt-4 self-start" */}
+            {/*       onClick={handleSubmit(handleGenerate)} */}
+            {/*     > */}
+            {/*       Generate Data */}
+            {/*     </Button> */}
+            {/*   </ResizablePanel> */}
+            {/*   <ResizableHandle withHandle /> */}
+            {/*   <ResizablePanel className="flex flex-1 p-6"> */}
+            {/*     <div className="flex-1 bg-gray-100 text-sm p-4 rounded overflow-auto h-full"> */}
+            {/*       <pre className="min-w-full"> */}
+            {/*         {JSON.stringify(generatedData, null, 2)} */}
+            {/*       </pre> */}
+            {/*     </div> */}
+            {/*   </ResizablePanel> */}
+            {/* </ResizablePanelGroup> */}
           </div>
         </div>
       </AnimatedPage>
