@@ -18,6 +18,7 @@ import { useAppSuggestions } from "./use-app-suggestions";
 
 type NavbarProps = {
   showBack?: boolean;
+  enableBackListener?: boolean;
 } & (
   | {
       showSearchBar: true;
@@ -35,15 +36,17 @@ export const Navbar = (props: NavbarProps) => {
   const location = useLocation();
 
   useHotkeys("esc", () => {
-    if (
-      location.pathname === "/" ||
-      location.pathname === "" ||
-      location.pathname === "/index"
-    ) {
-      return;
-    }
+    if (props.enableBackListener) {
+      if (
+        location.pathname === "/" ||
+        location.pathname === "" ||
+        location.pathname === "/index"
+      ) {
+        return;
+      }
 
-    navigate(-1);
+      navigate(-1);
+    }
   });
 
   return (

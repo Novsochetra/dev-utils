@@ -50,6 +50,8 @@ export const AnimateCodeHomeScreen = () => {
         setIdx((prev) => Math.min(prev + 1, slides.length - 1));
       } else if (e.key === "ArrowLeft") {
         setIdx((prev) => Math.max(prev - 1, 0));
+      } else if (e.key === "Escape") {
+        setMode(Mode.Edit);
       }
     };
 
@@ -90,9 +92,14 @@ export const AnimateCodeHomeScreen = () => {
     <AnimatePresence mode="wait">
       <AnimatedPage id={APP_ID}>
         <div className="min-h-screen w-full flex flex-col">
-          <Navbar showBack title="🤩" showSearchBar={false} />
+          <Navbar
+            showBack
+            title="🤩"
+            showSearchBar={false}
+            enableBackListener={mode === Mode.Edit}
+          />
 
-          <div className="flex flex-1 flex-col items-center p-8 bg-red-200 ">
+          <div className="flex flex-1 flex-col items-center p-8">
             <div className="flex lg:w-8/12 rounded-xl bg-white border overflow-hidden">
               {mode === Mode.Edit ? (
                 <Slider

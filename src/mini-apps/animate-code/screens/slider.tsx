@@ -3,6 +3,7 @@ import { EyeClosed, EyeIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Mode } from "./home-screen";
+import clsx from "clsx";
 
 type SliderProps = {
   mode: Mode;
@@ -28,14 +29,15 @@ export const Slider = ({
   onToggleMode,
 }: SliderProps) => {
   return (
-    <div className="flex flex-1 bg-green-500 overflow-hidden">
-      <div className="flex flex-col bg-purple-50 h-[600px] relative">
+    <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col h-[600px] relative">
         <div className=" flex flex-col h-full overflow-y-scroll gap-4 p-4 pb-28">
           {slides.map((_, idx) => {
             return (
               <SliderItem
                 key={`slider-item-${idx}`}
                 index={idx}
+                active={activeIdx === idx}
                 onSelecteSlide={onSelecteSlide}
                 onRemoveSlide={onRemoveSlide}
               />
@@ -46,8 +48,8 @@ export const Slider = ({
           <AddSliderButton onPress={onAddSlide} />
         </div>
       </div>
-      <div className="flex flex-1 bg-green-50">
-        <div className="p-8 flex flex-1 flex-col items-center justify-center bg-red-500 gap-4">
+      <div className="flex flex-1">
+        <div className="p-8 flex flex-1 flex-col items-center justify-center gap-4">
           <div className="flex w-full justify-end">
             <Button className="" size="icon" onClick={onToggleMode}>
               {mode === Mode.Edit ? (
@@ -70,18 +72,23 @@ export const Slider = ({
 
 type SliderItemProps = {
   index: number;
+  active: boolean;
   onSelecteSlide: (index: number) => void;
   onRemoveSlide: (index: number) => void;
 };
 
 const SliderItem = ({
   index,
+  active,
   onRemoveSlide,
   onSelecteSlide,
 }: SliderItemProps) => {
   return (
     <div
-      className="group w-32 rounded-md overflow-hidden border min-h-20 relative"
+      className={clsx(
+        "group w-32 rounded-md overflow-hidden min-h-20 relative transition-border",
+        active ? "border-2 border-sky-400" : "border-2",
+      )}
       onClick={() => onSelecteSlide(index)}
     >
       <div className="w-full h-full bg-gray-50"></div>
