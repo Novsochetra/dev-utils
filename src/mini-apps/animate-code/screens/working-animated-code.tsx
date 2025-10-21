@@ -1,11 +1,8 @@
+"use client";
+
 import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import DiffMatchPatch from "diff-match-patch";
-import hljs from "highlight.js/lib/core";
-import xml from "highlight.js/lib/languages/xml"; // HTML/XML support
-import "highlight.js/styles/atom-one-dark.css"; // any theme
-
-hljs.registerLanguage("html", xml);
 
 const dmp = new DiffMatchPatch();
 
@@ -16,58 +13,20 @@ const addDuration = 1;
 const addedDelayPerChar = 0.08;
 const lineDelay = 0.05;
 
-// Traverse HLJS DOM to extract per-character colors
-function traverseHighlightDynamic(node: Node, parentColor?: string): string[] {
-  let colors: string[] = [];
-
-  if (node.nodeType === Node.TEXT_NODE) {
-    const color = parentColor || "#fff";
-    colors.push(...Array.from(node.textContent || "").map(() => color));
-  } else if (node.nodeType === Node.ELEMENT_NODE) {
-    const el = node as HTMLElement;
-    const computed = window.getComputedStyle(el);
-    const newColor = computed.color || parentColor; // fallback to parent
-    node.childNodes.forEach((child) => {
-      colors.push(...traverseHighlightDynamic(child, newColor));
-    });
-  }
-
-  return colors;
-}
-
 export default function MultiLineDiffAnimator({ oldText, newText }) {
-  const [bgColor, setBgColor] = useState("white");
   const [animate, setAnimate] = useState(true);
 
-  // Compute diff
   const diffs = useMemo(
     () => dmp.diff_main(oldText, newText),
     [oldText, newText],
   );
 
-  // Compute highlight colors dynamically
-  const highlightColors = useMemo(() => {
-    if (typeof window === "undefined") return [];
-
-    // Create temporary container
-    const container = document.createElement("pre");
-    container.className = "hljs"; // ensures theme colors applied
-    container.style.display = "none";
-    container.innerHTML = hljs.highlight(newText, { language: "html" }).value;
-    document.body.appendChild(container);
-
-    const colors = traverseHighlightDynamic(container);
-    document.body.removeChild(container);
-    return colors;
-  }, [newText]);
-
-  // Compute positions for characters
   const computePositions = (text: string) => {
     const positions: { x: number; y: number; line: number; col: number }[] = [];
-    let x = 0,
-      y = 0,
-      line = 0,
-      col = 0;
+    let x = 0;
+    let y = 0;
+    let line = 0;
+    let col = 0;
     for (let i = 0; i < text.length; i++) {
       positions.push({ x, y, line, col });
       if (text[i] === "\n") {
@@ -86,10 +45,9 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
   const oldPositions = computePositions(oldText);
   const newPositions = computePositions(newText);
 
-  // Build characters array
   const chars: {
     char: string;
-    type: number;
+    type: number; // 0: unchanged, -1: removed, 1: added
     key: string;
     oldX?: number;
     oldY?: number;
@@ -98,7 +56,6 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
     line: number;
     col: number;
     index: number;
-    color?: string;
   }[] = [];
 
   let oldIndex = 0;
@@ -136,32 +93,27 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
         line: newPos?.line ?? 0,
         col: newPos?.col ?? 0,
         index: charIndex,
-        color:
-          type === 1 ? highlightColors[newIndex - 1] || "#34d399" : undefined,
       });
 
       charIndex++;
     });
   });
 
-  // Get background color from theme
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const temp = document.createElement("pre");
-    temp.className = "hljs";
-    temp.style.display = "none";
-    document.body.appendChild(temp);
-    const computed = window.getComputedStyle(temp);
-    setBgColor(computed.backgroundColor || "#1e1e1e");
-    document.body.removeChild(temp);
-  }, []);
+  // Compute global delay for added characters (wait until all removed/changed finish)
+  const maxRemoveChangeDelay = chars
+    .filter((c) => c.type === 0 || c.type === -1)
+    .reduce((max, c) => {
+      const delay = c.type === -1 ? removeDuration : 0; // removed chars take removeDuration
+      return Math.max(max, delay);
+    }, 0);
 
   return (
     <div
       style={{
         padding: 20,
-        backgroundColor: bgColor,
+        background: "#1e1e1e",
         fontFamily: "monospace",
+        color: "white",
         minHeight: 200,
       }}
     >
@@ -190,30 +142,40 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
             let initial: any, animateProps: any, style: any;
 
             if (c.type === 0) {
+              // unchanged/moved
               initial = { x: c.oldX, y: c.oldY, opacity: 1 };
               animateProps = {
                 x: c.finalX,
                 y: c.finalY,
                 opacity: 1,
-                transition: { duration: addDuration },
+                transition: { duration: addDuration, delay: 0 },
               };
-              style = { color: c.color || "#fff" };
+              style = { color: "white" };
             } else if (c.type === -1) {
+              // removed
               initial = {
                 x: c.oldX,
                 y: c.oldY,
                 opacity: 1,
+                color: "#f87171",
                 textDecoration: "line-through",
               };
               animateProps = {
                 opacity: 0,
-                transition: { duration: removeDuration },
+                transition: { duration: removeDuration, delay: 0 },
               };
-              style = { textDecoration: "line-through", color: "#f87171" };
+              style = { color: "#f87171", textDecoration: "line-through" };
             } else if (c.type === 1) {
+              // added
               const delay =
                 addDuration + addedDelayPerChar + c.line * lineDelay;
-              initial = { x: c.finalX, y: c.finalY, opacity: 0 };
+
+              initial = {
+                x: c.finalX,
+                y: c.finalY,
+                opacity: 0,
+                color: "#34d399",
+              };
               animateProps = {
                 x: c.finalX,
                 y: c.finalY,
@@ -226,7 +188,7 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
                   damping: 20,
                 },
               };
-              style = { color: c.color || "#34d399" };
+              style = { color: "#34d399" };
             }
 
             return (
