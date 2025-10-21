@@ -2,14 +2,12 @@ import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import DiffMatchPatch from "diff-match-patch";
 import hljs from "highlight.js/lib/core";
-import xml from "highlight.js/lib/languages/xml"; // HTML/XML support
+import("highlight.js/lib/common");
 import "highlight.js/styles/atom-one-dark.css"; // any theme
-
-hljs.registerLanguage("html", xml);
 
 const dmp = new DiffMatchPatch();
 
-const charWidth = 8;
+const charWidth = 10;
 const lineHeight = 20;
 const removeDuration = 0.8;
 const addDuration = 1;
@@ -35,7 +33,15 @@ function traverseHighlightDynamic(node: Node, parentColor?: string): string[] {
   return colors;
 }
 
-export default function MultiLineDiffAnimator({ oldText, newText }) {
+type MultiLineDiffAnimatorProps = {
+  oldText: string;
+  newText: string;
+};
+
+export default function MultiLineDiffAnimator({
+  oldText,
+  newText,
+}: MultiLineDiffAnimatorProps) {
   const [bgColor, setBgColor] = useState("white");
   const [animate, setAnimate] = useState(true);
 
@@ -53,10 +59,11 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
     const container = document.createElement("pre");
     container.className = "hljs"; // ensures theme colors applied
     container.style.display = "none";
-    container.innerHTML = hljs.highlight(newText, { language: "html" }).value;
+    container.innerHTML = hljs.highlightAuto(newText).value;
     document.body.appendChild(container);
 
     const colors = traverseHighlightDynamic(container);
+
     document.body.removeChild(container);
     return colors;
   }, [newText]);
@@ -136,8 +143,7 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
         line: newPos?.line ?? 0,
         col: newPos?.col ?? 0,
         index: charIndex,
-        color:
-          type === 1 ? highlightColors[newIndex - 1] || "#34d399" : undefined,
+        color: highlightColors[newIndex - 1],
       });
 
       charIndex++;
@@ -158,11 +164,9 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
 
   return (
     <div
+      className="p-4 font-jetbrains-mono min-h-60 rounded-md"
       style={{
-        padding: 20,
         backgroundColor: bgColor,
-        fontFamily: "monospace",
-        minHeight: 200,
       }}
     >
       <div style={{ position: "relative", minHeight: 200 }}>
@@ -246,21 +250,6 @@ export default function MultiLineDiffAnimator({ oldText, newText }) {
             );
           })}
       </div>
-
-      <button
-        onClick={() => setAnimate(true)}
-        style={{
-          marginTop: 20,
-          padding: "6px 12px",
-          background: "#2563eb",
-          color: "white",
-          border: "none",
-          borderRadius: 4,
-          cursor: "pointer",
-        }}
-      >
-        Animate Code
-      </button>
     </div>
   );
 }
