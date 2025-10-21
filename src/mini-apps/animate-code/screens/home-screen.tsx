@@ -3,45 +3,65 @@ import { AnimatePresence } from "framer-motion";
 import { APP_ID } from "../utils/constants";
 import { Navbar } from "@/vendor/components/navbar";
 import AnimateSlides from "./animate-slide";
+import { useEffect, useState } from "react";
 
 // Example slides
-const slide1 = `class Person {}
+const slide1 = `
+<div></div>
 `;
 
-const slide2 = `class Person {
-}
+const slide2 = `
+<div>
+</div>
 `;
 
-const slide3 = `class Person {
-  speak() {}
-}
+const slide3 = `
+<div class="container">
+  <input />
+</div>
 `;
 
-const slide4 = `class Person {
-  speak() {
-    console.log("speak")
-  }
-}
+const slide4 = `
+<div class="...">
+  <input />
+</div>
 `;
 
-const slide5 = `class Person {
-  speak() { ... }
-
-  run() { 
-    console.log("run")
-  }
-}
-`;
-
-const slides = [slide1, slide2, slide3];
+const slides = [slide2, slide3, slide4];
 
 export const AnimateCodeHomeScreen = () => {
+  const [idx, setIdx] = useState(0);
+
+  // Handle arrow keys
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        setIdx((prev) => Math.min(prev + 1, slides.length - 1));
+      } else if (e.key === "ArrowLeft") {
+        setIdx((prev) => Math.max(prev - 1, 0));
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
   return (
     <AnimatePresence mode="wait">
       <AnimatedPage id={APP_ID}>
         <div className="min-h-screen w-full flex flex-col">
-          <Navbar showBack title="Animate Code" showSearchBar={false} />
-          <AnimateSlides code={slide3} language="javascript" lineDelay={1} />
+          <Navbar showBack title="🤩" showSearchBar={false} />
+          <button
+            onClick={() => {
+              setIdx((prev) => (prev + 1) % slides.length);
+            }}
+          >
+            Next ({idx + 1} / {slides.length})
+          </button>
+          <AnimateSlides
+            newText={slides[idx]}
+            oldText={slides[idx == 0 ? 0 : idx - 1] || ""}
+          />
         </div>
       </AnimatedPage>
     </AnimatePresence>
