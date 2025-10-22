@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
+import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
 import hljs from "highlight.js/lib/core";
 import("highlight.js/lib/common");
@@ -169,7 +170,13 @@ export default function MultiLineDiffAnimator({
         backgroundColor: bgColor,
       }}
     >
-      <div style={{ position: "relative", minHeight: 200 }}>
+      <motion.div
+        // INFO: ensure the animation across slide has uniq animation key
+        // otherwise some character transtion (add, modified, removed)
+        // seem not animate correctly
+        key={v4()}
+        style={{ position: "relative", minHeight: 200 }}
+      >
         {!animate &&
           oldText.split("").map((c, i) => {
             const pos = oldPositions[i];
@@ -249,7 +256,7 @@ export default function MultiLineDiffAnimator({
               </motion.span>
             );
           })}
-      </div>
+      </motion.div>
     </div>
   );
 }
