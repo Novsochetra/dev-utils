@@ -164,7 +164,7 @@ export default function MultiLineDiffAnimator({
 
   return (
     <div
-      className="p-4 font-jetbrains-mono min-h-60 rounded-md"
+      className="w-full h-full p-4 font-jetbrains-mono min-h-60 rounded-md"
       style={{
         backgroundColor: bgColor,
       }}

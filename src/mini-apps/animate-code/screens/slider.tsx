@@ -1,5 +1,6 @@
 import { Ref } from "react";
 import { EyeClosed, EyeIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Mode } from "./home-screen";
@@ -7,9 +8,9 @@ import clsx from "clsx";
 
 type SliderProps = {
   mode: Mode;
-  slidersContentRef: Ref<string[]>;
+  slidersContentRef: Ref<{ id: string; data: string }[]>;
   activeIdx: number;
-  slides: string[];
+  slides: { id: string; data: string }[];
   onAddSlide: () => void;
   onRemoveSlide: (index: number) => void;
   onSelecteSlide: (index: number) => void;
@@ -31,19 +32,25 @@ export const Slider = ({
   return (
     <div className="flex flex-1 overflow-hidden">
       <div className="flex flex-col h-[600px] relative">
-        <div className=" flex flex-col h-full overflow-y-scroll gap-4 p-4 pb-28">
-          {slides.map((_, idx) => {
-            return (
-              <SliderItem
-                key={`slider-item-${idx}`}
-                index={idx}
-                active={activeIdx === idx}
-                onSelecteSlide={onSelecteSlide}
-                onRemoveSlide={onRemoveSlide}
-              />
-            );
-          })}
-        </div>
+        <motion.div
+          className=" flex flex-col h-full overflow-y-scroll gap-4 p-4 pb-28"
+          layout
+        >
+          <AnimatePresence>
+            {slides.map((s, idx) => {
+              return (
+                <SliderItem
+                  key={`slider-item-${s.id}`}
+                  index={idx}
+                  active={activeIdx === idx}
+                  onSelecteSlide={onSelecteSlide}
+                  onRemoveSlide={onRemoveSlide}
+                />
+              );
+            })}
+          </AnimatePresence>
+        </motion.div>
+
         <div className="px-4 pb-4 absolute bottom-0">
           <AddSliderButton onPress={onAddSlide} />
         </div>
@@ -61,8 +68,10 @@ export const Slider = ({
           </div>
 
           <CodeEditorWithHighlight
-            value={slidersContentRef?.current?.[activeIdx] || ""}
+            value={slidersContentRef?.current?.[activeIdx]?.data || ""}
             onChange={(v) => onUpdateContentRef(activeIdx, v)}
+            animationKey="code-editor"
+            layoutId="code-editor"
           />
         </div>
       </div>
@@ -84,12 +93,21 @@ const SliderItem = ({
   onSelecteSlide,
 }: SliderItemProps) => {
   return (
-    <div
+    <motion.div
       className={clsx(
         "group w-32 rounded-md overflow-hidden min-h-20 relative transition-border",
         active ? "border-2 border-sky-400" : "border-2",
       )}
       onClick={() => onSelecteSlide(index)}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{
+        type: "spring",
+        stiffness: 200, // Apple-style stiffness
+        damping: 25, // Apple-style damping
+        mass: 0.6, // lighter mass for smoother motion
+      }}
     >
       <div className="w-full h-full bg-gray-50"></div>
       <Button
@@ -100,7 +118,7 @@ const SliderItem = ({
       >
         <Trash2Icon size={12} />
       </Button>
-    </div>
+    </motion.div>
   );
 };
 

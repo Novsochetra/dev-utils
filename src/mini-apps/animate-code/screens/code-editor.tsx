@@ -1,11 +1,14 @@
 "use client";
 import("highlight.js/lib/common");
+import { motion } from "framer-motion";
 import "highlight.js/styles/atom-one-dark.css"; // any theme
 import React, { useEffect, useRef, useState } from "react";
 import hljs from "highlight.js/lib/core";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
 
 type Props = {
+  animationKey?: string;
+  layoutId?: string;
   value?: string;
   onChange?: (v: string) => void;
   language?: string;
@@ -13,6 +16,8 @@ type Props = {
 };
 
 export default function CodeEditorWithHighlight({
+  animationKey,
+  layoutId,
   value = "",
   onChange,
   language = "javascript",
@@ -60,7 +65,11 @@ export default function CodeEditorWithHighlight({
   }, [code]);
 
   return (
-    <div className={`relative w-full aspect-video ${className}`}>
+    <motion.div
+      key={animationKey}
+      className={`relative w-full aspect-video ${className}`}
+      layoutId={layoutId}
+    >
       {/* Highlighted code background */}
       <pre
         ref={preRef}
@@ -90,7 +99,7 @@ export default function CodeEditorWithHighlight({
           fontSize: 12,
         }}
       />
-    </div>
+    </motion.div>
   );
 }
 

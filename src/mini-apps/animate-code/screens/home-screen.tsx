@@ -1,9 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatedPage } from "@/vendor/components/animate-page";
-import { AnimatePresence } from "framer-motion";
-import { APP_ID } from "../utils/constants";
-import { Navbar } from "@/vendor/components/navbar";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { v4 } from "uuid";
+
 import AnimateSlides from "./animate-slide";
+import { APP_ID } from "../utils/constants";
+import { AnimatePresence } from "framer-motion";
+import { AnimatedPage } from "@/vendor/components/animate-page";
+import { Navbar } from "@/vendor/components/navbar";
 import { Slider } from "./slider";
 
 // Example slides
@@ -27,9 +30,11 @@ const slide4 = `
   <input />
 </div>
 `;
+const d = [slide1, slide2, slide3];
 
-const slides = [slide2, slide3, slide4];
+const defaultSlides = d.map((v, i) => ({ id: v4(), data: v }));
 
+console.log("D; ", defaultSlides);
 export const Mode = {
   Preview: 0,
   Edit: 1,
@@ -38,8 +43,10 @@ export const Mode = {
 export type Mode = (typeof Mode)[keyof typeof Mode];
 
 export const AnimateCodeHomeScreen = () => {
-  const [slides, setSlides] = useState([slide1, slide2, slide3]);
-  const slidersContentRef = useRef<string[]>([slide1, slide2, slide3]);
+  const [slides, setSlides] =
+    useState<Array<{ id: string; data: string }>>(defaultSlides);
+  const slidersContentRef =
+    useRef<Array<{ id: string; data: string }>>(defaultSlides);
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState<Mode>(Mode.Edit);
 
@@ -65,17 +72,24 @@ export const AnimateCodeHomeScreen = () => {
 
   const onAddSlide = useCallback(() => {
     //
-    setSlides((prev) => [...prev, ""]);
-    slidersContentRef.current.push("");
+    const newItem = { id: v4(), data: "" };
+    setSlides((prev) => [...prev, newItem]);
+    slidersContentRef.current.push({ ...newItem });
   }, []);
 
   const onRemoveSlide = useCallback((index: number) => {
-    setSlides((prev) => prev.filter((_, i) => index !== i));
-    slidersContentRef.current.push("");
+    setSlides((prev) => {
+      if (prev.length === 1) {
+        return prev;
+      }
+
+      return prev.filter((_, i) => index !== i);
+    });
+    slidersContentRef.current.filter((_, i) => index !== i);
   }, []);
 
   const onUpdateContentRef = (index: number, newValue: string) => {
-    slidersContentRef.current[index] = newValue;
+    slidersContentRef.current[index].data = newValue;
     console.log("update: ", slidersContentRef.current);
   };
 
@@ -115,14 +129,26 @@ export const AnimateCodeHomeScreen = () => {
                 />
               ) : null}
               {mode === Mode.Preview ? (
-                <div className="w-full">
+                <motion.div
+                  className="w-full h-[600px]"
+                  layout
+                  key="code-editor-preview"
+                  layoutId="code-editor"
+                  transition={{
+                    type: "spring",
+                    stiffness: 200,
+                    damping: 18,
+                    mass: 0.6,
+                  }}
+                >
                   <AnimateSlides
-                    newText={slidersContentRef.current[idx]}
+                    newText={slidersContentRef.current[idx].data}
                     oldText={
-                      slidersContentRef.current[idx == 0 ? 0 : idx - 1] || ""
+                      slidersContentRef.current[idx == 0 ? 0 : idx - 1]?.data ||
+                      ""
                     }
                   />
-                </div>
+                </motion.div>
               ) : null}
             </div>
           </div>
