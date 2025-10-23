@@ -121,7 +121,15 @@ const SliderItem = memo(
         }}
       >
         <div className="w-full h-full bg-gray-50">
-          {imageData ? <img className="w-full h-full" src={imageData} /> : null}
+          {imageData ? (
+            <motion.img
+              className="w-full h-full"
+              src={imageData}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+            />
+          ) : null}
         </div>
         <Button
           variant="link"
