@@ -36,6 +36,7 @@
     "fuse.js": "^7.1.0",
     "gsap": "^3.13.0",
     "highlight.js": "^11.11.1",
+    "html2canvas-pro": "^1.5.12",
     "hyntax": "^1.1.9",
     "jose": "^6.1.0",
     "jwt-decode": "^4.0.0",

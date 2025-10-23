@@ -1,14 +1,18 @@
-import { Ref } from "react";
+import { memo, type Ref, type Dispatch, type SetStateAction } from "react";
+import clsx from "clsx";
 import { EyeClosed, EyeIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Mode } from "./home-screen";
-import clsx from "clsx";
 
 type SliderProps = {
   mode: Mode;
-  slidersContentRef: Ref<{ id: string; data: string }[]>;
+  slidersContentRef: { id: string; data: string }[];
+  codeEditorRef: Ref<HTMLDivElement | null>;
+  canvasPreviewsRef: Record<string, string>;
+  setCanvasPreviewRef: Dispatch<SetStateAction<Record<string, string>>>;
   activeIdx: number;
   slides: { id: string; data: string }[];
   onAddSlide: () => void;
@@ -21,6 +25,8 @@ type SliderProps = {
 export const Slider = ({
   mode,
   slidersContentRef,
+  codeEditorRef,
+  canvasPreviewsRef,
   activeIdx,
   slides,
   onAddSlide,
@@ -41,6 +47,7 @@ export const Slider = ({
               return (
                 <SliderItem
                   key={`slider-item-${s.id}`}
+                  imageData={canvasPreviewsRef[idx]}
                   index={idx}
                   active={activeIdx === idx}
                   onSelecteSlide={onSelecteSlide}
@@ -68,7 +75,8 @@ export const Slider = ({
           </div>
 
           <CodeEditorWithHighlight
-            value={slidersContentRef?.current?.[activeIdx]?.data || ""}
+            ref={codeEditorRef}
+            value={slidersContentRef[activeIdx]?.data || ""}
             onChange={(v) => onUpdateContentRef(activeIdx, v)}
             animationKey="code-editor"
             layoutId="code-editor"
@@ -82,51 +90,57 @@ export const Slider = ({
 type SliderItemProps = {
   index: number;
   active: boolean;
+  imageData?: string | null;
   onSelecteSlide: (index: number) => void;
   onRemoveSlide: (index: number) => void;
 };
 
-const SliderItem = ({
-  index,
-  active,
-  onRemoveSlide,
-  onSelecteSlide,
-}: SliderItemProps) => {
-  return (
-    <motion.div
-      className={clsx(
-        "group w-32 rounded-md overflow-hidden min-h-20 relative transition-border",
-        active ? "border-2 border-sky-400" : "border-2",
-      )}
-      onClick={() => onSelecteSlide(index)}
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{
-        type: "spring",
-        stiffness: 200, // Apple-style stiffness
-        damping: 25, // Apple-style damping
-        mass: 0.6, // lighter mass for smoother motion
-      }}
-    >
-      <div className="w-full h-full bg-gray-50"></div>
-      <Button
-        variant="link"
-        size="icon"
-        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white bg-zinc-600 transition-opacity hover:bg-none"
-        onClick={() => onRemoveSlide(index)}
+const SliderItem = memo(
+  ({
+    index,
+    imageData,
+    active,
+    onRemoveSlide,
+    onSelecteSlide,
+  }: SliderItemProps) => {
+    return (
+      <motion.div
+        className={clsx(
+          "group w-32 max-h-[72px] min-h-[72px] rounded-md overflow-hidden relative transition-border",
+          active ? "border-2 border-sky-400" : "border-2",
+        )}
+        onClick={() => onSelecteSlide(index)}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        transition={{
+          type: "spring",
+          stiffness: 200, // Apple-style stiffness
+          damping: 25, // Apple-style damping
+          mass: 0.6, // lighter mass for smoother motion
+        }}
       >
-        <Trash2Icon size={12} />
-      </Button>
-    </motion.div>
-  );
-};
+        <div className="w-full h-full bg-gray-50">
+          {imageData ? <img className="w-full h-full" src={imageData} /> : null}
+        </div>
+        <Button
+          variant="link"
+          size="icon"
+          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white bg-zinc-600 transition-opacity hover:bg-none"
+          onClick={() => onRemoveSlide(index)}
+        >
+          <Trash2Icon size={12} />
+        </Button>
+      </motion.div>
+    );
+  },
+);
 
 type AddSliderButtonProps = {
   onPress: () => void;
 };
 
-const AddSliderButton = ({ onPress }: AddSliderButtonProps) => {
+const AddSliderButton = memo(({ onPress }: AddSliderButtonProps) => {
   return (
     <div
       className="w-32 rounded-md border h-20 bg-white z-100 flex items-center justify-center"
@@ -135,4 +149,4 @@ const AddSliderButton = ({ onPress }: AddSliderButtonProps) => {
       <PlusIcon size={24} className="text-slate-800" />
     </div>
   );
-};
+});

@@ -1,12 +1,12 @@
 "use client";
+import React, { useEffect, useRef, useState, type Ref } from "react";
+import hljs from "highlight.js/lib/core";
 import("highlight.js/lib/common");
 import { motion } from "framer-motion";
-import "highlight.js/styles/atom-one-dark.css"; // any theme
-import React, { useEffect, useRef, useState } from "react";
-import hljs from "highlight.js/lib/core";
-import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
+import "highlight.js/styles/atom-one-dark.css";
 
 type Props = {
+  ref: Ref<HTMLDivElement | null>;
   animationKey?: string;
   layoutId?: string;
   value?: string;
@@ -16,6 +16,7 @@ type Props = {
 };
 
 export default function CodeEditorWithHighlight({
+  ref,
   animationKey,
   layoutId,
   value = "",
@@ -60,15 +61,12 @@ export default function CodeEditorWithHighlight({
     }
   };
 
-  useEffect(() => {
-    onChange?.(code);
-  }, [code]);
-
   return (
     <motion.div
       key={animationKey}
       className={`relative w-full aspect-video ${className}`}
       layoutId={layoutId}
+      ref={ref}
     >
       {/* Highlighted code background */}
       <pre
@@ -85,16 +83,19 @@ export default function CodeEditorWithHighlight({
       </pre>
 
       {/* Editable overlay */}
-      <Textarea
+      <textarea
         ref={taRef as any}
         value={code}
-        onChange={(e) => setCode(e.target.value)}
+        onChange={(e) => {
+          setCode(e.target.value);
+          onChange?.(e.target.value);
+        }}
         onScroll={onScroll}
         onKeyDown={onKeyDown}
         spellCheck={false}
         autoFocus
         className="absolute inset-0 text-transparent bg-transparent caret-white text-base p-3 rounded-lg 
-               focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none font-mono"
+               focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none font-mono mt-[2px] ml-[2px]"
         style={{
           fontSize: 12,
         }}
