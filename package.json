@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "postinstall": "cp node_modules/web-tree-sitter/tree-sitter.wasm public",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
