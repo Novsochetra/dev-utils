@@ -68,7 +68,8 @@ class Person { /* ... */ }
 const person = new Person("Alice");
 console.log("person: ", person)
 `;
-const d = [slide0, slide1, slide2, slide3, slide4, slide5, slide6];
+// const d = [slide0, slide1, slide2, slide3, slide4, slide5, slide6];
+const d = [slide0, slide1];
 
 const defaultSlides = d.map((v, i) => ({ id: v4(), data: v }));
 
@@ -92,11 +93,28 @@ export type PreviewState = (typeof PreviewState)[keyof typeof PreviewState];
 const AnimationInterval = 3000;
 let previewAnimationInterval: NodeJS.Timeout | null = null;
 
+function keyBy<T extends Record<string, any>, K extends keyof T>(
+  arr: T[],
+  key: K,
+): Record<string, T> {
+  return arr.reduce(
+    (acc, item) => {
+      const k = item[key];
+      if (typeof k === "string" || typeof k === "number") {
+        acc[String(k)] = item;
+      }
+      return acc;
+    },
+    {} as Record<string, T>,
+  );
+}
+
 export const AnimateCodeHomeScreen = () => {
   const [slides, setSlides] =
     useState<Array<{ id: string; data: string }>>(defaultSlides);
-  const slidersContentRef =
-    useRef<Array<{ id: string; data: string }>>(defaultSlides);
+  const slidersContentRef = useRef<
+    Record<string, { id: string; data: string }>
+  >(keyBy(defaultSlides, "id"));
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState<Mode>(Mode.Edit);
   const { imagePreviews, setImagePreviews } = useGeneratePreview({ slides });
@@ -135,7 +153,7 @@ export const AnimateCodeHomeScreen = () => {
   const onAddSlide = useCallback(() => {
     const newItem = { id: v4(), data: "" };
     setSlides((prev) => [...prev, newItem]);
-    slidersContentRef.current.push({ ...newItem });
+    slidersContentRef.current[newItem.id] = newItem;
   }, []);
 
   const onRemoveSlide = useCallback((index: number) => {
@@ -147,7 +165,9 @@ export const AnimateCodeHomeScreen = () => {
       return prev.filter((_, i) => index !== i);
     });
 
-    slidersContentRef.current.filter((_, i) => index !== i);
+    const idToDelete = slides[index].id;
+    delete slidersContentRef.current[idToDelete];
+
     setImagePreviews((prev) => {
       delete prev[`${index}`];
       return prev;
@@ -159,7 +179,9 @@ export const AnimateCodeHomeScreen = () => {
   }, []);
 
   const onUpdateContentRef = (index: number, newValue: string) => {
-    slidersContentRef.current[index].data = newValue;
+    const idToUpdate = slides[index].id;
+
+    slidersContentRef.current[idToUpdate].data = newValue;
     capturePreviewImage(index);
   };
 
@@ -190,30 +212,46 @@ export const AnimateCodeHomeScreen = () => {
   }, [mode, idx]);
 
   const capturePreviewImage = async (index: number) => {
-    if (!codeEditorRef.current) {
-      return;
-    }
+    if (!codeEditorRef.current) return;
 
-    const canvas = await html2canvas(codeEditorRef.current);
-    // const aspectRatioCodeEditor = 16 / 9
-    const canvasWidth = 300;
-    tempCanvas.current.width = canvasWidth;
-    tempCanvas.current.height = (9 * canvasWidth) / 16;
+    const previewWidth = 300;
+    const previewHeight = (9 * previewWidth) / 16;
+
+    const canvas = await html2canvas(codeEditorRef.current, {
+      width: previewWidth,
+      height: previewHeight,
+    });
+
+    tempCanvas.current.width = previewWidth;
+    tempCanvas.current.height = previewHeight;
+
     const ctx = tempCanvas.current.getContext("2d");
-    ctx?.drawImage(
-      canvas,
-      0,
-      0,
-      tempCanvas.current.width,
-      tempCanvas.current.height,
-    );
+    ctx?.drawImage(canvas, 0, 0, previewWidth, previewHeight);
 
     const base64Image = tempCanvas.current.toDataURL("image/jpeg");
     setImagePreviews((prev) => ({
       ...prev,
-      [`${index}`]: base64Image,
+      [slides[index].id]: base64Image,
     }));
   };
+
+  const onAddSlideAbove = useCallback((index: number) => {
+    const newItem = { id: v4(), data: "" };
+    slidersContentRef.current[newItem.id] = newItem;
+
+    setSlides((prev) => {
+      return [...prev.slice(0, index), newItem, ...prev.slice(index)];
+    });
+  }, []);
+
+  const onAddSlideBelow = useCallback((index: number) => {
+    const newItem = { id: v4(), data: "" };
+    slidersContentRef.current[newItem.id] = newItem;
+
+    setSlides((prev) => {
+      return [...prev.slice(0, index + 1), newItem, ...prev.slice(index + 1)];
+    });
+  }, []);
 
   return (
     <AnimatePresence mode="wait">
@@ -277,6 +315,8 @@ export const AnimateCodeHomeScreen = () => {
                   activeIdx={idx}
                   slides={slides}
                   onRemoveSlide={onRemoveSlide}
+                  onAddSlideAbove={onAddSlideAbove}
+                  onAddSlideBelow={onAddSlideBelow}
                   onSelecteSlide={(index) => setIdx(index)}
                 />
               ) : null}

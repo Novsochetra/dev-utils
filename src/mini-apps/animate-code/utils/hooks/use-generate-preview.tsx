@@ -19,57 +19,40 @@ export const useGeneratePreview = ({ slides }: Props) => {
       hiddenContainer.style.position = "fixed";
       hiddenContainer.style.top = "-9999px";
       hiddenContainer.style.left = "-9999px";
-      hiddenContainer.style.width = "400px";
-      hiddenContainer.style.height = "225px";
       hiddenContainer.style.pointerEvents = "none";
-
       document.body.appendChild(hiddenContainer);
 
-      for (let i = 0; i < slides.length; i++) {
+      const previewWidth = 300;
+      const previewHeight = (9 * previewWidth) / 16; // 16:9 aspect ratio
+
+      for (const slide of slides) {
         const div = document.createElement("div");
-
         div.classList.add("hljs");
-        div.style.width = "600px";
-        div.style.height = "337.5px";
+        div.style.width = `${previewWidth}px`;
+        div.style.height = `${previewHeight}px`;
 
-        const highlighted = hljs.highlight(slides[i].data || "", {
+        const highlighted = hljs.highlight(slide.data || "", {
           language: "javascript",
         });
 
-        // Dynamically render your CodeEditorWithHighlight inside the offscreen div
-        const preTagNode = `<pre
-        ref={preRef}
-        aria-hidden="true"
-        className="relative w-[600px] h-[337.5px] inset-0 text-base font-mono hljs border-2 border-red-500 rounded-lg p-3 overflow-auto"
-        style={{
-          fontSize: 12,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}
+        div.innerHTML = `
+      <pre
+        class="relative w-[${previewWidth}px] h-[${previewHeight}px] inset-0 text-base font-mono hljs rounded-lg p-3 overflow-auto"
+        style="font-size:12px;white-space:pre-wrap;word-break:break-word;"
       >
-        <code>
-          ${highlighted.value}
-        </code>
+        <code>${highlighted.value}</code>
       </pre>
-        `;
-
-        div.innerHTML = preTagNode;
+    `;
 
         hiddenContainer.appendChild(div);
 
-        const canvasWidth = 600;
-        const canvas = await html2canvas(div, {});
-        const tempCanvas = document.createElement("canvas");
+        const canvas = await html2canvas(div, {
+          width: previewWidth,
+          height: previewHeight,
+        });
 
-        const resizedCanvasWidth = 200;
-        tempCanvas.width = resizedCanvasWidth;
-        tempCanvas.height = (9 * canvasWidth) / 16;
-        const ctx = tempCanvas.getContext("2d");
-
-        ctx?.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
-
-        const base64Image = tempCanvas.toDataURL("image/jpeg");
-        setImagePreviews((prev) => ({ ...prev, [`${i}`]: base64Image }));
+        const base64Image = canvas.toDataURL("image/jpeg");
+        setImagePreviews((prev) => ({ ...prev, [slide.id]: base64Image }));
       }
 
       document.body.removeChild(hiddenContainer);
