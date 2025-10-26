@@ -39,7 +39,7 @@ export const Slider = memo(
             className=" flex flex-col h-full overflow-y-scroll gap-4 p-4"
             layout
           >
-            <AnimatePresence>
+            <AnimatePresence mode="popLayout">
               {slides.map((s, idx) => {
                 return (
                   <SliderItem
@@ -102,6 +102,7 @@ const SliderItem = memo(
           damping: 25, // Apple-style damping
           mass: 0.6, // lighter mass for smoother motion
         }}
+        layout
       >
         <div className="w-full h-full bg-gray-50">
           {imageData ? (
