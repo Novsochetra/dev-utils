@@ -8,6 +8,7 @@ import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Mode } from "./home-screen";
 
 type SliderProps = {
+  sidebarOpen: boolean;
   slidersContentRef: { id: string; data: string }[];
   codeEditorRef: Ref<HTMLDivElement | null>;
   canvasPreviewsRef: Record<string, string>;
@@ -21,6 +22,7 @@ type SliderProps = {
 
 export const Slider = memo(
   ({
+    sidebarOpen,
     slidersContentRef,
     codeEditorRef,
     canvasPreviewsRef,
@@ -32,25 +34,27 @@ export const Slider = memo(
   }: SliderProps) => {
     return (
       <div className="flex flex-1 min-h-0">
-        <motion.div
-          className=" flex flex-col h-full overflow-y-scroll gap-4 p-4"
-          layout
-        >
-          <AnimatePresence>
-            {slides.map((s, idx) => {
-              return (
-                <SliderItem
-                  key={`slider-item-${s.id}`}
-                  imageData={canvasPreviewsRef[idx]}
-                  index={idx}
-                  active={activeIdx === idx}
-                  onSelecteSlide={onSelecteSlide}
-                  onRemoveSlide={onRemoveSlide}
-                />
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
+        {sidebarOpen ? (
+          <motion.div
+            className=" flex flex-col h-full overflow-y-scroll gap-4 p-4"
+            layout
+          >
+            <AnimatePresence>
+              {slides.map((s, idx) => {
+                return (
+                  <SliderItem
+                    key={`slider-item-${s.id}`}
+                    imageData={canvasPreviewsRef[idx]}
+                    index={idx}
+                    active={activeIdx === idx}
+                    onSelecteSlide={onSelecteSlide}
+                    onRemoveSlide={onRemoveSlide}
+                  />
+                );
+              })}
+            </AnimatePresence>
+          </motion.div>
+        ) : null}
 
         <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0">
           <CodeEditorWithHighlight

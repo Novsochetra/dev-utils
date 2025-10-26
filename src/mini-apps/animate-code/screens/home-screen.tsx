@@ -100,6 +100,7 @@ export const AnimateCodeHomeScreen = () => {
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState<Mode>(Mode.Edit);
   const { imagePreviews, setImagePreviews } = useGeneratePreview({ slides });
+  const [sidebarOpen, setSideOpen] = useState(true);
 
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
   const tempCanvas = useRef(document.createElement("canvas"));
@@ -151,6 +152,10 @@ export const AnimateCodeHomeScreen = () => {
       delete prev[`${index}`];
       return prev;
     });
+  }, []);
+
+  const onToggleSidebar = useCallback(() => {
+    setSideOpen((prev) => !prev);
   }, []);
 
   const onUpdateContentRef = (index: number, newValue: string) => {
@@ -225,7 +230,11 @@ export const AnimateCodeHomeScreen = () => {
             <div className="flex w-full rounded-xl mb-4">
               <div>
                 <ButtonGroup>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onToggleSidebar()}
+                  >
                     <SidebarIcon />
                   </Button>
                   <Button
@@ -259,6 +268,7 @@ export const AnimateCodeHomeScreen = () => {
             <div className="flex w-full rounded-xl bg-white border overflow-hidden">
               {mode === Mode.Edit ? (
                 <Slider
+                  sidebarOpen={sidebarOpen}
                   slidersContentRef={slidersContentRef.current}
                   canvasPreviewsRef={imagePreviews}
                   codeEditorRef={codeEditorRef}
