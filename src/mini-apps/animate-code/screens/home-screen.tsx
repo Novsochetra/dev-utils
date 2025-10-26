@@ -156,7 +156,7 @@ export const AnimateCodeHomeScreen = () => {
     slidersContentRef.current[newItem.id] = newItem;
   }, []);
 
-  const onRemoveSlide = useCallback((index: number) => {
+  const onRemoveSlide = (index: number) => {
     setSlides((prev) => {
       if (prev.length === 1) {
         return prev;
@@ -172,7 +172,7 @@ export const AnimateCodeHomeScreen = () => {
       delete prev[`${index}`];
       return prev;
     });
-  }, []);
+  };
 
   const onToggleSidebar = useCallback(() => {
     setSideOpen((prev) => !prev);
