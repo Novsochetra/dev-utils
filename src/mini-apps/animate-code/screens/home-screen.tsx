@@ -2,14 +2,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import html2canvas from "html2canvas-pro";
+import { AnimatePresence } from "framer-motion";
+import { EyeClosed, EyeIcon, SidebarIcon } from "lucide-react";
 
 import AnimateSlides from "./animate-slide";
 import { APP_ID } from "../utils/constants";
-import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { Navbar } from "@/vendor/components/navbar";
 import { Slider } from "./slider";
 import { useGeneratePreview } from "../utils/hooks/use-generate-preview";
+import { Button } from "@/vendor/shadcn/components/ui/button";
+import { ButtonGroup } from "@/vendor/shadcn/components/ui/button-group";
 
 // Example slides
 const slide0 = `
@@ -96,9 +99,6 @@ export const AnimateCodeHomeScreen = () => {
     useRef<Array<{ id: string; data: string }>>(defaultSlides);
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState<Mode>(Mode.Edit);
-  const [canvasPreviewsRef, setCanvasPreviewRef] = useState<
-    Record<string, string>
-  >({});
   const { imagePreviews, setImagePreviews } = useGeneratePreview({ slides });
 
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
@@ -147,7 +147,7 @@ export const AnimateCodeHomeScreen = () => {
     });
 
     slidersContentRef.current.filter((_, i) => index !== i);
-    setCanvasPreviewRef((prev) => {
+    setImagePreviews((prev) => {
       delete prev[`${index}`];
       return prev;
     });
@@ -204,8 +204,7 @@ export const AnimateCodeHomeScreen = () => {
     );
 
     const base64Image = tempCanvas.current.toDataURL("image/jpeg");
-    console.log("UPDATE: ");
-    setCanvasPreviewRef((prev) => ({
+    setImagePreviews((prev) => ({
       ...prev,
       [`${index}`]: base64Image,
     }));
@@ -214,7 +213,7 @@ export const AnimateCodeHomeScreen = () => {
   return (
     <AnimatePresence mode="wait">
       <AnimatedPage id={APP_ID}>
-        <div className="min-h-screen w-full flex flex-col">
+        <div className="h-screen w-full flex flex-col">
           <Navbar
             showBack
             title="🤩"
@@ -222,11 +221,44 @@ export const AnimateCodeHomeScreen = () => {
             enableBackListener={mode === Mode.Edit}
           />
 
-          <div className="flex flex-1 flex-col items-center p-8">
+          <div className="flex flex-1 flex-col px-8 py-4 min-h-0">
+            <div className="flex w-full rounded-xl mb-4">
+              <div>
+                <ButtonGroup>
+                  <Button variant="outline" size="sm">
+                    <SidebarIcon />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      onAddSlide();
+                    }}
+                  >
+                    Add Slide
+                  </Button>
+                </ButtonGroup>
+              </div>
+
+              <div className="flex flex-1 justify-center">
+                <Button
+                  className=""
+                  variant="outline"
+                  size="sm"
+                  onClick={onToggleMode}
+                >
+                  {mode === Mode.Edit ? (
+                    <EyeIcon size={12} />
+                  ) : (
+                    <EyeClosed size={12} />
+                  )}
+                </Button>
+              </div>
+            </div>
+
             <div className="flex w-full rounded-xl bg-white border overflow-hidden">
               {mode === Mode.Edit ? (
                 <Slider
-                  mode={mode}
                   slidersContentRef={slidersContentRef.current}
                   canvasPreviewsRef={imagePreviews}
                   codeEditorRef={codeEditorRef}
@@ -234,9 +266,7 @@ export const AnimateCodeHomeScreen = () => {
                   setCanvasPreviewRef={setImagePreviews}
                   activeIdx={idx}
                   slides={slides}
-                  onAddSlide={onAddSlide}
                   onRemoveSlide={onRemoveSlide}
-                  onToggleMode={onToggleMode}
                   onSelecteSlide={(index) => setIdx(index)}
                 />
               ) : null}

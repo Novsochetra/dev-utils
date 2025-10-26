@@ -1,6 +1,6 @@
 import { memo, type Ref, type Dispatch, type SetStateAction } from "react";
 import clsx from "clsx";
-import { EyeClosed, EyeIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { Trash2Icon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import CodeEditorWithHighlight from "./code-editor";
@@ -8,38 +8,32 @@ import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Mode } from "./home-screen";
 
 type SliderProps = {
-  mode: Mode;
   slidersContentRef: { id: string; data: string }[];
   codeEditorRef: Ref<HTMLDivElement | null>;
   canvasPreviewsRef: Record<string, string>;
   setCanvasPreviewRef: Dispatch<SetStateAction<Record<string, string>>>;
   activeIdx: number;
   slides: { id: string; data: string }[];
-  onAddSlide: () => void;
   onRemoveSlide: (index: number) => void;
   onSelecteSlide: (index: number) => void;
   onUpdateContentRef: (index: number, value: string) => void;
-  onToggleMode: () => void;
 };
 
-export const Slider = ({
-  mode,
-  slidersContentRef,
-  codeEditorRef,
-  canvasPreviewsRef,
-  activeIdx,
-  slides,
-  onAddSlide,
-  onRemoveSlide,
-  onSelecteSlide,
-  onUpdateContentRef,
-  onToggleMode,
-}: SliderProps) => {
-  return (
-    <div className="flex flex-1 overflow-hidden">
-      <div className="flex flex-col h-[600px] relative">
+export const Slider = memo(
+  ({
+    slidersContentRef,
+    codeEditorRef,
+    canvasPreviewsRef,
+    activeIdx,
+    slides,
+    onRemoveSlide,
+    onSelecteSlide,
+    onUpdateContentRef,
+  }: SliderProps) => {
+    return (
+      <div className="flex flex-1 min-h-0">
         <motion.div
-          className=" flex flex-col h-full overflow-y-scroll gap-4 p-4 pb-28"
+          className=" flex flex-col h-full overflow-y-scroll gap-4 p-4"
           layout
         >
           <AnimatePresence>
@@ -58,22 +52,7 @@ export const Slider = ({
           </AnimatePresence>
         </motion.div>
 
-        <div className="px-4 pb-4 absolute bottom-0">
-          <AddSliderButton onPress={onAddSlide} />
-        </div>
-      </div>
-      <div className="flex flex-1">
-        <div className="p-8 flex flex-1 flex-col items-center justify-center gap-4">
-          <div className="flex w-full justify-end">
-            <Button className="" size="icon" onClick={onToggleMode}>
-              {mode === Mode.Edit ? (
-                <EyeIcon size={12} />
-              ) : (
-                <EyeClosed size={12} />
-              )}
-            </Button>
-          </div>
-
+        <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0">
           <CodeEditorWithHighlight
             ref={codeEditorRef}
             value={slidersContentRef[activeIdx]?.data || ""}
@@ -83,9 +62,9 @@ export const Slider = ({
           />
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  },
+);
 
 type SliderItemProps = {
   index: number;
@@ -143,18 +122,3 @@ const SliderItem = memo(
     );
   },
 );
-
-type AddSliderButtonProps = {
-  onPress: () => void;
-};
-
-const AddSliderButton = memo(({ onPress }: AddSliderButtonProps) => {
-  return (
-    <div
-      className="w-32 rounded-md border h-20 bg-white z-100 flex items-center justify-center"
-      onClick={() => onPress()}
-    >
-      <PlusIcon size={24} className="text-slate-800" />
-    </div>
-  );
-});

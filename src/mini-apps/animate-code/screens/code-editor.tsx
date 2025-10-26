@@ -64,7 +64,7 @@ export default function CodeEditorWithHighlight({
   return (
     <motion.div
       key={animationKey}
-      className={`relative w-full aspect-video ${className}`}
+      className={`relative aspect-video w-full h-auto max-h-full max-w-full ${className}`}
       layoutId={layoutId}
       ref={ref}
     >
@@ -75,8 +75,8 @@ export default function CodeEditorWithHighlight({
         className="absolute inset-0 text-base font-mono hljs border-2 border-red-500 rounded-lg p-3 overflow-auto"
         style={{
           fontSize: 12,
-          whiteSpace: "pre-wrap", // ✅ allows long lines to wrap
-          wordBreak: "break-word", // ✅ break very long tokens
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
         }}
       >
         <code dangerouslySetInnerHTML={{ __html: highlighted || " " }} />
