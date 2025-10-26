@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
-import("highlight.js/lib/common");
-import "highlight.js/styles/atom-one-dark.css"; // any theme
-import hljs from "highlight.js/lib/core";
 import html2canvas from "html2canvas-pro";
 
 import AnimateSlides from "./animate-slide";
@@ -12,6 +9,7 @@ import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { Navbar } from "@/vendor/components/navbar";
 import { Slider } from "./slider";
+import { useGeneratePreview } from "../utils/hooks/use-generate-preview";
 
 // Example slides
 const slide0 = `
@@ -78,6 +76,19 @@ export const Mode = {
 
 export type Mode = (typeof Mode)[keyof typeof Mode];
 
+const PreviewState = {
+  IDLE: 0,
+  PLAY: 1,
+  PAUSE: 2,
+  RESUME: 3,
+  FINISH: 4,
+} as const;
+
+export type PreviewState = (typeof PreviewState)[keyof typeof PreviewState];
+
+const AnimationInterval = 3000;
+let previewAnimationInterval: NodeJS.Timeout | null = null;
+
 export const AnimateCodeHomeScreen = () => {
   const [slides, setSlides] =
     useState<Array<{ id: string; data: string }>>(defaultSlides);
@@ -88,8 +99,13 @@ export const AnimateCodeHomeScreen = () => {
   const [canvasPreviewsRef, setCanvasPreviewRef] = useState<
     Record<string, string>
   >({});
+  const { imagePreviews, setImagePreviews } = useGeneratePreview({ slides });
+
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
   const tempCanvas = useRef(document.createElement("canvas"));
+  const [previewState, setPreviewState] = useState<PreviewState>(
+    PreviewState.IDLE,
+  );
 
   // Handle arrow keys
   useEffect(() => {
@@ -100,6 +116,10 @@ export const AnimateCodeHomeScreen = () => {
         setIdx((prev) => Math.max(prev - 1, 0));
       } else if (e.key === "Escape") {
         setMode(Mode.Edit);
+        if (previewAnimationInterval) {
+          clearInterval(previewAnimationInterval);
+          previewAnimationInterval = null;
+        }
       }
     };
 
@@ -110,77 +130,6 @@ export const AnimateCodeHomeScreen = () => {
     }
     return () => window.removeEventListener("keydown", handleKey);
   }, [mode]);
-
-  useEffect(() => {
-    async function generateAllPreviews() {
-      const hiddenContainer = document.createElement("div");
-      hiddenContainer.style.position = "fixed";
-      hiddenContainer.style.top = "-9999px";
-      hiddenContainer.style.left = "-9999px";
-      hiddenContainer.style.width = "400px";
-      hiddenContainer.style.height = "225px";
-      hiddenContainer.style.pointerEvents = "none";
-
-      document.body.appendChild(hiddenContainer);
-
-      console.log("LENGTH SLIDE: ", slides);
-      for (let i = 0; i < slides.length; i++) {
-        const div = document.createElement("div");
-
-        div.classList.add("hljs");
-        div.style.width = "600px";
-        div.style.height = "337.5px";
-
-        const highlighted = hljs.highlight(slides[i].data || "", {
-          language: "javascript",
-        });
-
-        // Dynamically render your CodeEditorWithHighlight inside the offscreen div
-        const preTagNode = `<pre
-        ref={preRef}
-        aria-hidden="true"
-        className="relative w-[600px] h-[337.5px] inset-0 text-base font-mono hljs border-2 border-red-500 rounded-lg p-3 overflow-auto"
-        style={{
-          fontSize: 12,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}
-      >
-        <code>
-          ${highlighted.value}
-        </code>
-      </pre>
-        `;
-
-        div.innerHTML = preTagNode;
-
-        hiddenContainer.appendChild(div);
-
-        const canvasWidth = 600;
-        const canvas = await html2canvas(div, {});
-
-        const resizedCanvasWidth = 200;
-        tempCanvas.current.width = resizedCanvasWidth;
-        tempCanvas.current.height = (9 * canvasWidth) / 16;
-        const ctx = tempCanvas.current.getContext("2d");
-
-        ctx?.drawImage(
-          canvas,
-          0,
-          0,
-          tempCanvas.current.width,
-          tempCanvas.current.height,
-        );
-
-        const base64Image = tempCanvas.current.toDataURL("image/jpeg");
-        setCanvasPreviewRef((prev) => ({ ...prev, [`${i}`]: base64Image }));
-      }
-
-      document.body.removeChild(hiddenContainer);
-    }
-
-    generateAllPreviews();
-  }, []);
 
   const onAddSlide = useCallback(() => {
     const newItem = { id: v4(), data: "" };
@@ -212,10 +161,28 @@ export const AnimateCodeHomeScreen = () => {
   const onToggleMode = useCallback(() => {
     if (mode === Mode.Edit) {
       setMode(Mode.Preview);
+      setPreviewState(PreviewState.PLAY);
+
+      previewAnimationInterval = setInterval(() => {
+        setIdx((prev) => {
+          let newIdx = prev + 1;
+
+          if (newIdx >= slides.length) {
+            if (previewAnimationInterval) {
+              clearInterval(previewAnimationInterval);
+              previewAnimationInterval = null;
+            }
+
+            return prev;
+          }
+
+          return newIdx;
+        });
+      }, AnimationInterval);
     } else if (mode === Mode.Preview) {
       setMode(Mode.Edit);
     }
-  }, [mode]);
+  }, [mode, idx]);
 
   const capturePreviewImage = async (index: number) => {
     if (!codeEditorRef.current) {
@@ -256,15 +223,15 @@ export const AnimateCodeHomeScreen = () => {
           />
 
           <div className="flex flex-1 flex-col items-center p-8">
-            <div className="flex lg:w-8/12 rounded-xl bg-white border overflow-hidden">
+            <div className="flex w-full rounded-xl bg-white border overflow-hidden">
               {mode === Mode.Edit ? (
                 <Slider
                   mode={mode}
                   slidersContentRef={slidersContentRef.current}
-                  canvasPreviewsRef={canvasPreviewsRef}
+                  canvasPreviewsRef={imagePreviews}
                   codeEditorRef={codeEditorRef}
                   onUpdateContentRef={onUpdateContentRef}
-                  setCanvasPreviewRef={setCanvasPreviewRef}
+                  setCanvasPreviewRef={setImagePreviews}
                   activeIdx={idx}
                   slides={slides}
                   onAddSlide={onAddSlide}
@@ -273,30 +240,30 @@ export const AnimateCodeHomeScreen = () => {
                   onSelecteSlide={(index) => setIdx(index)}
                 />
               ) : null}
-              {mode === Mode.Preview ? (
-                <motion.div
-                  className="w-full h-[600px]"
-                  layout
-                  key="code-editor-preview"
-                  layoutId="code-editor"
-                  transition={{
-                    type: "spring",
-                    stiffness: 200,
-                    damping: 18,
-                    mass: 0.6,
-                  }}
-                >
-                  <AnimateSlides
-                    newText={slidersContentRef.current[idx].data}
-                    oldText={
-                      slidersContentRef.current[idx == 0 ? 0 : idx - 1]?.data ||
-                      ""
-                    }
-                  />
-                </motion.div>
-              ) : null}
             </div>
           </div>
+
+          {mode === Mode.Preview ? (
+            <motion.div
+              className="absolute w-full h-full"
+              layout
+              key="code-editor-preview"
+              layoutId="code-editor"
+              transition={{
+                type: "spring",
+                stiffness: 200,
+                damping: 18,
+                mass: 0.6,
+              }}
+            >
+              <AnimateSlides
+                newText={slidersContentRef.current[idx].data}
+                oldText={
+                  slidersContentRef.current[idx == 0 ? 0 : idx - 1]?.data || ""
+                }
+              />
+            </motion.div>
+          ) : null}
         </div>
       </AnimatedPage>
     </AnimatePresence>
