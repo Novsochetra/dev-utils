@@ -1,4 +1,4 @@
-import { memo, use, useCallback, useEffect, useRef, type Ref } from "react";
+import { memo, useEffect, useRef, type Ref } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import html2canvas from "html2canvas-pro";
@@ -19,7 +19,6 @@ import AnimateSlides from "./animate-slide";
 import { APP_ID } from "../utils/constants";
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { Navbar } from "@/vendor/components/navbar";
-import { useGeneratePreview } from "../utils/hooks/use-generate-preview";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { ButtonGroup } from "@/vendor/shadcn/components/ui/button-group";
 import { Slider } from "./slider";
@@ -79,7 +78,7 @@ const person = new Person("Alice");
 console.log("person: ", person)
 `;
 // const d = [slide0, slide1, slide2, slide3, slide4, slide5, slide6];
-const d = [slide0, slide1];
+const d = [slide0, slide1, slide1];
 
 const defaultSlides = d.map((v, i) => ({ id: v4(), data: atom(v) }));
 
@@ -160,6 +159,11 @@ export const AppState: AppState = {
   slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
 };
 
+export const slideIdsAtom = atom((get) =>
+  get(AppState.slides).map((s) => s.id),
+);
+console.log("SLIDE IDS: ", store.get(slideIdsAtom));
+
 export const AppActions = {
   SelectSlide: (index: number) => {
     store.set(AppState.currentSlideIdx, index);
@@ -168,6 +172,13 @@ export const AppActions = {
     const newItem = { id: v4(), data: atom("") };
     const prev = store.get(AppState.slides);
     store.set(AppState.slides, [...prev, newItem]);
+
+    // Add Image Preview
+    const imagePreviews = store.get(AppState.imagePreviews);
+    store.set(AppState.imagePreviews, {
+      ...imagePreviews,
+      [newItem.id]: atom(""),
+    });
   },
   AddSlideBelow: (index: number) => {
     const newItem = { id: v4(), data: atom("") };
@@ -177,6 +188,13 @@ export const AppActions = {
       newItem,
       ...prev.slice(index + 1),
     ]);
+
+    // Add Image Preview
+    const imagePreviews = store.get(AppState.imagePreviews);
+    store.set(AppState.imagePreviews, {
+      ...imagePreviews,
+      [newItem.id]: atom(""),
+    });
   },
   AddSlideAbove: (index: number) => {
     const newItem = { id: v4(), data: atom("") };
@@ -186,6 +204,13 @@ export const AppActions = {
       newItem,
       ...prev.slice(index),
     ]);
+
+    // Add Image Preview
+    const imagePreviews = store.get(AppState.imagePreviews);
+    store.set(AppState.imagePreviews, {
+      ...imagePreviews,
+      [newItem.id]: atom(""),
+    });
   },
   RemoveSlide: (index: number) => {
     const prev = store.get(AppState.slides);
@@ -197,6 +222,18 @@ export const AppActions = {
       AppState.slides,
       prev.filter((_, i) => index !== i),
     );
+
+    // Update Image Preview
+    const imagePreviews = store.get(AppState.imagePreviews);
+    delete imagePreviews[prev[index].id];
+
+    store.set(AppState.imagePreviews, {
+      ...imagePreviews,
+    });
+
+    // Auto select previous slide
+    const currentIdx = store.get(AppState.currentSlideIdx);
+    store.set(AppState.currentSlideIdx, currentIdx <= 0 ? 0 : currentIdx - 1);
   },
   ToggleSidebar: () => {
     const isOpen = store.get(AppState.sidebarOpen);
@@ -242,8 +279,6 @@ export const createPreviewImage = async (slideData: string) => {
 export const AnimateCodeHomeScreen = () => {
   const mode = useAtomValue(AppState.mode);
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
-
-  useGeneratePreview();
 
   // Handle arrow keys
   useEffect(() => {

@@ -1,70 +1,76 @@
-import("highlight.js/lib/common");
-import "highlight.js/styles/atom-one-dark.css"; // any theme
-import { useEffect } from "react";
-import { useAtomValue, atom, createStore } from "jotai";
+import { useEffect, useRef } from "react";
 import hljs from "highlight.js/lib/core";
 import html2canvas from "html2canvas-pro";
 import { AppState, store } from "../../screens/home-screen";
 
-const myStore = createStore();
+const generateSlidePreview = async (slideData: string) => {
+  const div = document.createElement("div");
+  div.classList.add("hljs");
+  div.style.width = "300px";
+  div.style.height = `${(9 * 300) / 16}px`;
+  div.innerHTML = `
+    <pre style="font-size:12px;white-space:pre-wrap;word-break:break-word;">
+      <code>${hljs.highlight(slideData || "", { language: "javascript" }).value}</code>
+    </pre>
+  `;
 
-export const useGeneratePreview = () => {
-  const slides = useAtomValue(AppState.slides);
+  document.body.appendChild(div);
+  const canvas = await html2canvas(div, {
+    width: 300,
+    height: (9 * 300) / 16,
+  });
+  const base64 = canvas.toDataURL("image/jpeg");
+  document.body.removeChild(div);
+  return base64;
+};
+
+export const useGlobalLazyPreview = (slides: { id: string }[]) => {
+  const elementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
-    async function generateAllPreviews() {
-      const hiddenContainer = document.createElement("div");
-      hiddenContainer.style.position = "fixed";
-      hiddenContainer.style.top = "-9999px";
-      hiddenContainer.style.left = "-9999px";
-      hiddenContainer.style.pointerEvents = "none";
-      document.body.appendChild(hiddenContainer);
+    console.log("HI");
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const id = entry.target.getAttribute("data-id");
+            if (!id) continue;
 
-      const previewWidth = 300;
-      const previewHeight = (9 * previewWidth) / 16; // 16:9 aspect ratio
+            const index = slides.findIndex((s) => s.id === id);
+            if (index === -1) continue; // slide removed
 
-      for (const slide of slides) {
-        const div = document.createElement("div");
-        div.classList.add("hljs");
-        div.style.width = `${previewWidth}px`;
-        div.style.height = `${previewHeight}px`;
+            const slideData = store.get(AppState.slides)[index]?.data;
+            if (!slideData) continue;
 
-        const slideData = myStore.get(slide.data);
+            const base64Preview = await generateSlidePreview(
+              store.get(slideData),
+            );
+            const imagePreviews = store.get(AppState.imagePreviews);
+            const imageAtom = imagePreviews[id];
+            if (imageAtom) store.set(imageAtom, base64Preview);
 
-        const highlighted = hljs.highlight(slideData || "", {
-          language: "javascript",
-        });
-
-        div.innerHTML = `
-      <pre
-        class="relative w-[${previewWidth}px] h-[${previewHeight}px] inset-0 text-base font-mono hljs rounded-lg p-3 overflow-auto"
-        style="font-size:12px;white-space:pre-wrap;word-break:break-word;"
-      >
-        <code>${highlighted.value}</code>
-      </pre>
-    `;
-
-        hiddenContainer.appendChild(div);
-
-        const canvas = await html2canvas(div, {
-          width: previewWidth,
-          height: previewHeight,
-        });
-
-        const base64Image = canvas.toDataURL("image/jpeg");
-
-        const imagePreviews = store.get(AppState.imagePreviews);
-
-        const imageAtom = imagePreviews[slide.id];
-
-        if (imageAtom) {
-          store.set(imageAtom, base64Image); // update existing atom
+            observer.unobserve(entry.target);
+            elementsRef.current.delete(id); // remove from map
+          }
         }
-      }
+      },
+      { root: null, threshold: 0.1 },
+    );
 
-      document.body.removeChild(hiddenContainer);
+    elementsRef.current.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [slides]);
+
+  // register and unregister
+  const register = (id: string, el: HTMLDivElement | null) => {
+    if (el) {
+      el.setAttribute("data-id", id);
+      elementsRef.current.set(id, el);
+    } else {
+      elementsRef.current.delete(id); // unmount → remove reference
     }
+  };
 
-    generateAllPreviews();
-  }, []);
+  return { register };
 };
