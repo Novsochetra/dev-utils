@@ -1,12 +1,18 @@
 "use client";
-import React, { useEffect, useRef, useState, type Ref } from "react";
+import React, {
+  memo,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import hljs from "highlight.js/lib/core";
 import("highlight.js/lib/common");
 import { motion } from "framer-motion";
 import "highlight.js/styles/atom-one-dark.css";
 
 type Props = {
-  ref: Ref<HTMLDivElement | null>;
+  ref: RefObject<HTMLDivElement | null>;
   animationKey?: string;
   layoutId?: string;
   value?: string;
@@ -15,7 +21,7 @@ type Props = {
   className?: string;
 };
 
-export default function CodeEditorWithHighlight({
+const CodeEditorWithHighlight = ({
   ref,
   animationKey,
   layoutId,
@@ -23,7 +29,7 @@ export default function CodeEditorWithHighlight({
   onChange,
   language = "javascript",
   className = "",
-}: Props) {
+}: Props) => {
   const [code, setCode] = useState(value);
   const [highlighted, setHighlighted] = useState("");
   const preRef = useRef<HTMLPreElement | null>(null);
@@ -102,7 +108,9 @@ export default function CodeEditorWithHighlight({
       />
     </motion.div>
   );
-}
+};
+
+export default memo(CodeEditorWithHighlight);
 
 function escapeHtml(str: string) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

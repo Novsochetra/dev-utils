@@ -53,7 +53,6 @@ export const useGeneratePreview = () => {
 
         const base64Image = canvas.toDataURL("image/jpeg");
 
-        console.log("generating: ", base64Image);
         const imagePreviews = store.get(AppState.imagePreviews);
 
         const imageAtom = imagePreviews[slide.id];

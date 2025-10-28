@@ -22,7 +22,6 @@ export const AnimateCode: React.FC<AnimateCodeProps> = ({
   lineDelay = 0.05,
   prevCode = "",
 }) => {
-  console.log("==================================");
   const [highlightedHTML, setHighlightedHTML] = useState<string>("");
 
   // Highlight current code
@@ -50,7 +49,6 @@ export const AnimateCode: React.FC<AnimateCodeProps> = ({
     });
   });
 
-  console.log("DIFF: ", diffs);
   return (
     <motion.div
       className={`hljs ${language} min-h-32`}
@@ -65,7 +63,6 @@ export const AnimateCode: React.FC<AnimateCodeProps> = ({
         if (state === "added") initial = { opacity: 0, y: 10 };
         else if (state === "changed") initial = { opacity: 0.5, y: 0 };
 
-        console.log("state: ", state, line);
         return (
           <motion.div
             key={`line-${idx}-${line}`}

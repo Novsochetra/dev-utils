@@ -164,7 +164,6 @@ export const InputWithSuggestion = ({
             onChange={(e) => {
               setQuery(e.target.value);
               setOpen(true);
-              console.log("V: ", e.target.value);
               onChange?.(e.target.value);
             }}
             onClick={() => setOpen(true)}

@@ -1,8 +1,8 @@
-import { memo, type Ref } from "react";
+import { memo, type RefObject } from "react";
 import clsx from "clsx";
 import { Trash2Icon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
 
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -21,7 +21,7 @@ import {
 } from "@/vendor/shadcn/components/ui/context-menu";
 
 type SliderProps = {
-  codeEditorRef: Ref<HTMLDivElement | null>;
+  codeEditorRef: RefObject<HTMLDivElement | null>;
 };
 
 export const Slider = memo(({ codeEditorRef }: SliderProps) => {
@@ -42,11 +42,11 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
 });
 
 const CodeEditorWithAtom = memo(
-  ({ ref }: { ref: Ref<HTMLDivElement | null> }) => {
+  ({ ref }: { ref: RefObject<HTMLDivElement | null> }) => {
     const slides = store.get(AppState.slides);
     const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
     const [value, setValue] = useAtom(
-      slides[currentSlideIdx].data || fallbackAtom,
+      (slides[currentSlideIdx].data || fallbackAtom) as PrimitiveAtom<string>,
     );
 
     const onChange = (newValue: string) => {
@@ -59,7 +59,6 @@ const CodeEditorWithAtom = memo(
     const updatePreviewImages = async (newValue: string) => {
       if (ref.current) {
         const base64Image = await createPreviewImage(newValue);
-        console.log("base64Image: ", base64Image);
         const index = store.get(AppState.currentSlideIdx);
         const previews = store.get(AppState.imagePreviews);
         const previewAtom = previews[slides[index].id];
@@ -87,7 +86,6 @@ export const LeftSidebarSlider = () => {
 
   const padding = 16;
   const sliderItemWidth = 128 + padding * 2;
-  console.log("BEFORE: ", AppState.imagePreviews);
 
   return (
     <motion.div
@@ -127,9 +125,8 @@ type SliderItemProps = {
 
 const SliderItem = memo(({ active, id, index }: SliderItemProps) => {
   const imagePreviews = store.get(AppState.imagePreviews);
-  const imageData = useAtomValue(imagePreviews[id]);
+  const imageData = useAtomValue(imagePreviews[id] || fallbackAtom);
 
-  console.log("Imagepre: ", imageData);
   return (
     <ContextMenu>
       <ContextMenuTrigger>

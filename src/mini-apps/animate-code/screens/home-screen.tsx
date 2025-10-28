@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, type Ref } from "react";
+import { memo, use, useCallback, useEffect, useRef, type Ref } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import html2canvas from "html2canvas-pro";
@@ -135,7 +135,6 @@ function keyByAtom(arr: any[]) {
     }
   });
 
-  console.log("FINAL: ", store.get(res));
   return res;
 }
 
@@ -199,6 +198,10 @@ export const AppActions = {
       prev.filter((_, i) => index !== i),
     );
   },
+  ToggleSidebar: () => {
+    const isOpen = store.get(AppState.sidebarOpen);
+    store.set(AppState.sidebarOpen, !isOpen);
+  },
 };
 
 export const createPreviewImage = async (slideData: string) => {
@@ -231,34 +234,36 @@ export const createPreviewImage = async (slideData: string) => {
   });
 
   const res = canvas.toDataURL("image/jpeg");
-  console.log("convert: ", res);
   document.body.removeChild(div);
 
   return res;
 };
 
 export const AnimateCodeHomeScreen = () => {
-  const [slides, setSlides] = useAtom(AppState.slides);
-  const setPreviewState = useSetAtom(AppState.previewState);
-  const [mode, setMode] = useAtom<Mode>(AppState.mode);
-
-  const [currentSlideIdx, setCurrentSlideIdx] = useAtom(
-    AppState.currentSlideIdx,
-  );
-
+  const mode = useAtomValue(AppState.mode);
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
-  const tempCanvas = useRef(document.createElement("canvas"));
+
   useGeneratePreview();
 
   // Handle arrow keys
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      const mode = store.get(AppState.mode);
+
+      if (mode != Mode.Preview) return;
+
+      const currentSlideIdx = store.get(AppState.currentSlideIdx);
+      const slides = store.get(AppState.slides);
+
       if (e.key === "ArrowRight") {
-        setCurrentSlideIdx((prev) => Math.min(prev + 1, slides.length - 1));
+        AppActions.SelectSlide(
+          Math.min(currentSlideIdx + 1, slides.length - 1),
+        );
       } else if (e.key === "ArrowLeft") {
-        setCurrentSlideIdx((prev) => Math.max(prev - 1, 0));
+        AppActions.SelectSlide(Math.max(currentSlideIdx - 1, 0));
       } else if (e.key === "Escape") {
-        setMode(Mode.Edit);
+        store.set(AppState.mode, Mode.Edit);
+
         if (previewAnimationInterval) {
           clearInterval(previewAnimationInterval);
           previewAnimationInterval = null;
@@ -266,70 +271,10 @@ export const AnimateCodeHomeScreen = () => {
       }
     };
 
-    if (mode === Mode.Preview) {
-      window.addEventListener("keydown", handleKey);
-    } else {
-      window.removeEventListener("keydown", handleKey);
-    }
+    window.addEventListener("keydown", handleKey);
+
     return () => window.removeEventListener("keydown", handleKey);
-  }, [mode]);
-
-  const onUpdateContentRef = (index: number, newValue: string) => {
-    if (slides[index].data) {
-      store.set(slides[index].data, newValue);
-    }
-
-    capturePreviewImage(index);
-  };
-
-  const onToggleMode = useCallback(() => {
-    if (mode === Mode.Edit) {
-      setMode(Mode.Preview);
-      setPreviewState(PreviewState.PLAY);
-
-      previewAnimationInterval = setInterval(() => {
-        setCurrentSlideIdx((prev) => {
-          const newIdx = prev + 1;
-
-          if (newIdx >= slides.length) {
-            if (previewAnimationInterval) {
-              clearInterval(previewAnimationInterval);
-              previewAnimationInterval = null;
-            }
-
-            return prev;
-          }
-
-          return newIdx;
-        });
-      }, AnimationInterval);
-    } else if (mode === Mode.Preview) {
-      setMode(Mode.Edit);
-    }
-  }, [mode, currentSlideIdx]);
-
-  const capturePreviewImage = async (index: number) => {
-    if (!codeEditorRef.current) return;
-
-    const previewWidth = 300;
-    const previewHeight = (9 * previewWidth) / 16;
-
-    const canvas = await html2canvas(codeEditorRef.current, {
-      width: previewWidth,
-      height: previewHeight,
-    });
-
-    tempCanvas.current.width = previewWidth;
-    tempCanvas.current.height = previewHeight;
-
-    const ctx = tempCanvas.current.getContext("2d");
-    ctx?.drawImage(canvas, 0, 0, previewWidth, previewHeight);
-
-    const base64Image = tempCanvas.current.toDataURL("image/jpeg");
-    const previews = store.get(AppState.imagePreviews);
-    const previewAtom = previews[slides[index].id];
-    store.set(previewAtom, base64Image);
-  };
+  }, []);
 
   return (
     <AnimatePresence mode="wait">
@@ -343,38 +288,11 @@ export const AnimateCodeHomeScreen = () => {
           />
 
           <div className="flex flex-1 flex-col px-8 py-4 min-h-0">
-            <div className="flex w-full rounded-xl mb-4">
-              <div>
-                <ButtonGroup>
-                  <ToggleSidebarButton />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      AppActions.AddSlide();
-                    }}
-                  >
-                    Add Slide
-                  </Button>
-                </ButtonGroup>
-              </div>
-
-              <div className="flex flex-1 justify-center">
-                <PreviewButton />
-              </div>
-            </div>
+            <MenuBarItem />
 
             <div className="flex w-full rounded-xl bg-white border overflow-hidden">
               {mode === Mode.Edit ? (
-                <Slider
-                  canvasPreviewsRef={{}}
-                  codeEditorRef={codeEditorRef}
-                  onUpdateContentRef={onUpdateContentRef}
-                  setCanvasPreviewRef={() => {}}
-                  activeIdx={currentSlideIdx}
-                  slides={slides}
-                  onSelecteSlide={(index) => setCurrentSlideIdx(index)}
-                />
+                <Slider codeEditorRef={codeEditorRef} />
               ) : null}
             </div>
           </div>
@@ -409,6 +327,31 @@ export const PreviewSlide = memo(() => {
     >
       <AnimateSlides newText={currentSlide} oldText={prevSlide} />;
     </motion.div>
+  );
+});
+
+export const MenuBarItem = memo(() => {
+  return (
+    <div className="flex w-full rounded-xl mb-4">
+      <div>
+        <ButtonGroup>
+          <ToggleSidebarButton />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              AppActions.AddSlide();
+            }}
+          >
+            Add Slide
+          </Button>
+        </ButtonGroup>
+      </div>
+
+      <div className="flex flex-1 justify-center">
+        <PreviewButton />
+      </div>
+    </div>
   );
 });
 
@@ -461,13 +404,11 @@ export const PreviewButton = memo(() => {
 });
 
 export const ToggleSidebarButton = memo(() => {
-  const setOpenSidebar = useSetAtom(AppState.sidebarOpen);
-
   return (
     <Button
       variant="outline"
       size="sm"
-      onClick={() => setOpenSidebar((prev) => !prev)}
+      onClick={() => AppActions.ToggleSidebar()}
     >
       <SidebarIcon />
     </Button>
