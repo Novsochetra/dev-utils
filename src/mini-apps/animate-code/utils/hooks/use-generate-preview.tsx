@@ -1,17 +1,15 @@
 import("highlight.js/lib/common");
 import "highlight.js/styles/atom-one-dark.css"; // any theme
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useAtomValue, atom, createStore } from "jotai";
 import hljs from "highlight.js/lib/core";
 import html2canvas from "html2canvas-pro";
+import { AppState, store } from "../../screens/home-screen";
 
-type Props = {
-  slides: { id: string; data: string }[];
-};
+const myStore = createStore();
 
-export const useGeneratePreview = ({ slides }: Props) => {
-  const [imagePreviews, setImagePreviews] = useState<Record<string, string>>(
-    {},
-  );
+export const useGeneratePreview = () => {
+  const slides = useAtomValue(AppState.slides);
 
   useEffect(() => {
     async function generateAllPreviews() {
@@ -31,7 +29,9 @@ export const useGeneratePreview = ({ slides }: Props) => {
         div.style.width = `${previewWidth}px`;
         div.style.height = `${previewHeight}px`;
 
-        const highlighted = hljs.highlight(slide.data || "", {
+        const slideData = myStore.get(slide.data);
+
+        const highlighted = hljs.highlight(slideData || "", {
           language: "javascript",
         });
 
@@ -52,7 +52,15 @@ export const useGeneratePreview = ({ slides }: Props) => {
         });
 
         const base64Image = canvas.toDataURL("image/jpeg");
-        setImagePreviews((prev) => ({ ...prev, [slide.id]: base64Image }));
+
+        console.log("generating: ", base64Image);
+        const imagePreviews = store.get(AppState.imagePreviews);
+
+        const imageAtom = imagePreviews[slide.id];
+
+        if (imageAtom) {
+          store.set(imageAtom, base64Image); // update existing atom
+        }
       }
 
       document.body.removeChild(hiddenContainer);
@@ -60,9 +68,4 @@ export const useGeneratePreview = ({ slides }: Props) => {
 
     generateAllPreviews();
   }, []);
-
-  return {
-    imagePreviews,
-    setImagePreviews,
-  };
 };
