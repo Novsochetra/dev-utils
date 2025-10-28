@@ -89,7 +89,7 @@ const CodeEditorWithAtom = memo(
   },
 );
 
-export const LeftSidebarSlider = () => {
+export const LeftSidebarSlider = memo(() => {
   const sidebarOpen = useAtomValue(AppState.sidebarOpen);
   const slides = useAtomValue(AppState.slides);
   const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
@@ -125,7 +125,7 @@ export const LeftSidebarSlider = () => {
       </div>
     </motion.div>
   );
-};
+});
 
 type SliderItemProps = {
   id: string;
@@ -135,78 +135,85 @@ type SliderItemProps = {
   register: (id: string, el: HTMLDivElement | null) => void;
 };
 
-const SliderItem = memo(({ active, id, index, register }: SliderItemProps) => {
-  const imagePreviews = store.get(AppState.imagePreviews);
+const SliderItem = memo(
+  ({ active, id, index, register }: SliderItemProps) => {
+    const imagePreviews = store.get(AppState.imagePreviews);
 
-  const imageData = useAtomValue(imagePreviews[id] || fallbackAtom);
+    const imageData = useAtomValue(imagePreviews[id] || fallbackAtom);
 
-  return (
-    <div ref={(el) => register(id, el)}>
-      <ContextMenu>
-        <ContextMenuTrigger>
-          <motion.div
-            className={clsx(
-              "group w-32 max-h-[72px] min-h-[72px] rounded-md overflow-hidden relative transition-border",
-              active ? "border-2 border-sky-400" : "border-2",
-            )}
-            onClick={() => AppActions.SelectSlide(index)}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{
-              type: "spring",
-              stiffness: 200, // Apple-style stiffness
-              damping: 25, // Apple-style damping
-              mass: 0.6, // lighter mass for smoother motion
-            }}
-            layout
-          >
-            <div className="w-full h-full bg-gray-50">
-              {imageData ? (
-                <motion.img
-                  className="w-full aspect-video"
-                  src={imageData}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1 }}
-                />
-              ) : null}
-            </div>
-            <Button
-              variant="link"
-              size="icon"
-              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white bg-zinc-600 transition-opacity hover:bg-none"
+    return (
+      <div ref={(el) => register(id, el)}>
+        <ContextMenu>
+          <ContextMenuTrigger>
+            <motion.div
+              className={clsx(
+                "group w-32 max-h-[72px] min-h-[72px] rounded-md overflow-hidden relative transition-border",
+                active ? "border-2 border-sky-400" : "border-2",
+              )}
+              onClick={() => AppActions.SelectSlide(index)}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{
+                type: "spring",
+                stiffness: 200, // Apple-style stiffness
+                damping: 25, // Apple-style damping
+                mass: 0.6, // lighter mass for smoother motion
+              }}
+              layout
+            >
+              <div className="w-full h-full bg-gray-50">
+                {imageData ? (
+                  <motion.img
+                    className="w-full aspect-video"
+                    src={imageData}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1 }}
+                  />
+                ) : null}
+              </div>
+              <Button
+                variant="link"
+                size="icon"
+                className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white bg-zinc-600 transition-opacity hover:bg-none"
+                onClick={() => AppActions.RemoveSlide(index)}
+              >
+                <Trash2Icon size={12} />
+              </Button>
+            </motion.div>
+          </ContextMenuTrigger>
+          <ContextMenuContent>
+            <ContextMenuItem
+              className="text-xs"
+              onClick={() => {
+                AppActions.AddSlideAbove(index);
+              }}
+            >
+              Add Slide Above
+            </ContextMenuItem>
+            <ContextMenuItem
+              className="text-xs"
+              onClick={() => {
+                AppActions.AddSlideBelow(index);
+              }}
+            >
+              Add Slide Below
+            </ContextMenuItem>
+            <ContextMenuItem
+              className="text-xs"
               onClick={() => AppActions.RemoveSlide(index)}
             >
-              <Trash2Icon size={12} />
-            </Button>
-          </motion.div>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem
-            className="text-xs"
-            onClick={() => {
-              AppActions.AddSlideAbove(index);
-            }}
-          >
-            Add Slide Above
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="text-xs"
-            onClick={() => {
-              AppActions.AddSlideBelow(index);
-            }}
-          >
-            Add Slide Below
-          </ContextMenuItem>
-          <ContextMenuItem
-            className="text-xs"
-            onClick={() => AppActions.RemoveSlide(index)}
-          >
-            Delete Slide
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
-    </div>
-  );
-});
+              Delete Slide
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      </div>
+    );
+  },
+  (prev, next) =>
+    prev.id === next.id &&
+    prev.index === next.index &&
+    prev.active === next.active &&
+    prev.imageData === next.imageData,
+);
