@@ -13,12 +13,7 @@ import {
   getDefaultStore,
   type PrimitiveAtom,
 } from "jotai";
-import {
-  EyeClosed,
-  EyeIcon,
-  MapPinPlusInside,
-  SidebarIcon,
-} from "lucide-react";
+import { EyeClosed, EyeIcon, SidebarIcon } from "lucide-react";
 
 import AnimateSlides from "./animate-slide";
 import { APP_ID } from "../utils/constants";
@@ -155,7 +150,7 @@ function keyByAtom(arr: any[]) {
 }
 
 export type AppState = {
-  projects: PrimitiveAtom<[]>;
+  projects: PrimitiveAtom<string[]>;
   sidebarOpen: PrimitiveAtom<boolean>;
   currentSlideIdx: PrimitiveAtom<number>;
   mode: PrimitiveAtom<Mode>;
@@ -163,13 +158,16 @@ export type AppState = {
   imagePreviews: PrimitiveAtom<Record<string, PrimitiveAtom<string>>>;
   slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
   previewSize: PrimitiveAtom<number>;
+  previewTitle: PrimitiveAtom<string>;
   previewResizeDirection: PrimitiveAtom<PreviewResizeDirection>;
 };
 
 export const fallbackAtom = atom();
 
+const defaultProjectId = v4();
+
 export const AppState: AppState = {
-  projects: atom([]),
+  projects: atom([defaultProjectId]),
   sidebarOpen: atom(true),
   currentSlideIdx: atom(0),
   mode: atom<Mode>(Mode.Edit),
@@ -177,6 +175,7 @@ export const AppState: AppState = {
   imagePreviews: keyByAtom(defaultSlides),
   slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
   previewSize: atom(100), // percentage
+  previewTitle: atom("index.html"),
   previewResizeDirection: atom<PreviewResizeDirection>(
     PreviewResizeDirection.DOWN,
   ),

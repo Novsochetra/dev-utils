@@ -20,7 +20,7 @@ import {
   Mode,
   PreviewResizeDirection,
 } from "./home-screen";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom, useAtom } from "jotai";
 
 const dmp = new DiffMatchPatch();
 
@@ -279,9 +279,14 @@ const Toolbar = memo(() => {
 
   return (
     <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
-      <div className="flex-1"></div>
+      <div className="flex flex-1">
+        <img
+          src="./assets/icons/android-chrome-192x192.png "
+          className="w-4 h-4 self-center ml-4 rounded-xs"
+        />
+      </div>
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm font-bold text-white">index.html</p>
+        <ToolbarTitle />
       </div>
       <div className="flex-1 flex items-center justify-end">
         <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
@@ -310,5 +315,18 @@ const Toolbar = memo(() => {
         </div>
       </div>
     </div>
+  );
+});
+
+export const ToolbarTitle = memo(() => {
+  const [title, setTitle] = useAtom(AppState.previewTitle);
+
+  return (
+    <input
+      type="text"
+      value={title}
+      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold"
+      onChange={(e) => setTitle(e.target.value)}
+    />
   );
 });
