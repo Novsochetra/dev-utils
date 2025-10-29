@@ -38,6 +38,6 @@ export const useShortcutKeys = () => {
         interval.previewAnimationInterval = null;
       }
     },
-    { enabled: mode === Mode.Preview },
+    { enabled: mode === Mode.Preview, enableOnFormTags: true },
   );
 };
