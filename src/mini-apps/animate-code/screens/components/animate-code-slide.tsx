@@ -1,16 +1,14 @@
 import("highlight.js/lib/common");
 import "highlight.js/styles/atom-one-dark.css"; // any theme
-
+import { useAtomValue } from "jotai";
 import { memo, useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
+
 import hljs from "highlight.js/lib/core";
-import { Maximize2Icon, Minimize2Icon, MinusIcon, XIcon } from "lucide-react";
-import { useAtomValue, useAtom } from "jotai";
 import { AppState } from "../../state/state";
-import { AppActions } from "../../state/actions";
-import { Mode, PreviewResizeDirection } from "../../utils/constants";
+import { Toolbar } from "./toolbar";
 
 const dmp = new DiffMatchPatch();
 
@@ -265,60 +263,3 @@ export const AnimateCodeSlide = memo(
     );
   },
 );
-
-const Toolbar = memo(() => {
-  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
-
-  return (
-    <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
-      <div className="flex flex-1">
-        <img
-          src="./assets/icons/android-chrome-192x192.png "
-          className="w-4 h-4 self-center ml-4 rounded-xs"
-        />
-      </div>
-      <div className="flex flex-1 items-center justify-center">
-        <ToolbarTitle />
-      </div>
-      <div className="flex-1 flex items-center justify-end">
-        <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
-          <MinusIcon className="text-white" size={16} />
-        </div>
-        <div
-          className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
-          onClick={() => {
-            AppActions.TogglePreviewSize();
-          }}
-        >
-          {previewResizeDirection === PreviewResizeDirection.DOWN ? (
-            <Minimize2Icon className="text-white" size={16} />
-          ) : (
-            <Maximize2Icon className="text-white" size={16} />
-          )}
-        </div>
-        <div
-          className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
-          onClick={() => {
-            AppActions.SetMode(Mode.Edit);
-            AppActions.SetPreviewSize(100);
-          }}
-        >
-          <XIcon className="text-white" size={16} />
-        </div>
-      </div>
-    </div>
-  );
-});
-
-export const ToolbarTitle = memo(() => {
-  const [title, setTitle] = useAtom(AppState.previewTitle);
-
-  return (
-    <input
-      type="text"
-      value={title}
-      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold"
-      onChange={(e) => setTitle(e.target.value)}
-    />
-  );
-});

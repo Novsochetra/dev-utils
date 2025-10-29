@@ -40,4 +40,8 @@ export const useShortcutKeys = () => {
     },
     { enabled: mode === Mode.Preview, enableOnFormTags: true },
   );
+
+  useHotkeys("mod+enter, F5", () => AppActions.SetMode(Mode.Preview), {
+    enableOnFormTags: true,
+  });
 };
