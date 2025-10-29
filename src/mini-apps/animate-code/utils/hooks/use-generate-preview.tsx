@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 import hljs from "highlight.js/lib/core";
 import html2canvas from "html2canvas-pro";
-import { AppState, store } from "../../screens/home-screen";
+
+import { AppState, store } from "../../state/state";
 
 const generateSlidePreview = async (slideData: string) => {
   const div = document.createElement("div");

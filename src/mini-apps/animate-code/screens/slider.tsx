@@ -7,19 +7,15 @@ import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import {
-  AppActions,
-  AppState,
-  createPreviewImage,
-  fallbackAtom,
-  store,
-} from "./home-screen";
-import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/vendor/shadcn/components/ui/context-menu";
 import { useGlobalLazyPreview } from "../utils/hooks/use-generate-preview";
+import { AppState, fallbackAtom, store } from "../state/state";
+import { AppActions } from "../state/actions";
+import { createPreviewImage } from "../utils/helpers";
 
 type SliderProps = {
   codeEditorRef: RefObject<HTMLDivElement | null>;
@@ -30,11 +26,9 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
     <div className="flex flex-1 min-h-0">
       <LeftSidebarSlider />
 
-      <AnimatePresence>
-        <motion.div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0">
-          <CodeEditorWithAtom ref={codeEditorRef} />
-        </motion.div>
-      </AnimatePresence>
+      <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0">
+        <CodeEditorWithAtom ref={codeEditorRef} />
+      </div>
     </div>
   );
 });

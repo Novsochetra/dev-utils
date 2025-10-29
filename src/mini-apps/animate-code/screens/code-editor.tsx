@@ -73,6 +73,12 @@ const CodeEditorWithHighlight = ({
       className={`relative aspect-video w-full h-auto max-h-full max-w-full ${className}`}
       layoutId={layoutId}
       ref={ref}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 18,
+        mass: 0.6,
+      }}
     >
       {/* Highlighted code background */}
       <pre
