@@ -1,10 +1,26 @@
-import { useState, useMemo, useEffect } from "react";
+import { memo, useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
 import hljs from "highlight.js/lib/core";
 import("highlight.js/lib/common");
 import "highlight.js/styles/atom-one-dark.css"; // any theme
+import { Separator } from "@/vendor/shadcn/components/ui/separator";
+import {
+  CrossIcon,
+  Maximize2Icon,
+  MaximizeIcon,
+  Minimize2Icon,
+  MinusIcon,
+  XIcon,
+} from "lucide-react";
+import {
+  AppActions,
+  AppState,
+  Mode,
+  PreviewResizeDirection,
+} from "./home-screen";
+import { useAtomValue } from "jotai";
 
 const dmp = new DiffMatchPatch();
 
@@ -44,6 +60,7 @@ export default function MultiLineDiffAnimator({
   oldText,
   newText,
 }: MultiLineDiffAnimatorProps) {
+  const previewSize = useAtomValue(AppState.previewSize);
   const [bgColor, setBgColor] = useState("white");
   const supportLanguages = useMemo(
     () => hljs.listLanguages().filter((l) => !unsupportedLanguages.includes(l)),
@@ -170,12 +187,21 @@ export default function MultiLineDiffAnimator({
   }, []);
 
   return (
-    <div
-      className="w-full hljs h-full p-4 font-jetbrains-mono min-h-60 rounded-md"
+    <motion.div
+      className="hljs h-full aspect-video p-4 font-jetbrains-mono min-h-60 rounded-md pt-10 relative overflow-hidden"
       style={{
         backgroundColor: bgColor,
       }}
+      animate={{ height: `${previewSize}%` }}
+      transition={{
+        type: "spring",
+        stiffness: 200,
+        damping: 18,
+        mass: 0.6,
+      }}
     >
+      <Toolbar />
+
       <motion.div
         // INFO: ensure the animation across slide has uniq animation key
         // otherwise some character transtion (add, modified, removed)
@@ -244,6 +270,45 @@ export default function MultiLineDiffAnimator({
           );
         })}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
+
+const Toolbar = memo(() => {
+  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+
+  return (
+    <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
+      <div className="flex-1"></div>
+      <div className="flex flex-1 items-center justify-center">
+        <p className="text-sm font-bold text-white">index.html</p>
+      </div>
+      <div className="flex-1 flex items-center justify-end">
+        <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
+          <MinusIcon className="text-white" size={16} />
+        </div>
+        <div
+          className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
+          onClick={() => {
+            AppActions.TogglePreviewSize();
+          }}
+        >
+          {previewResizeDirection === PreviewResizeDirection.DOWN ? (
+            <Minimize2Icon className="text-white" size={16} />
+          ) : (
+            <Maximize2Icon className="text-white" size={16} />
+          )}
+        </div>
+        <div
+          className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
+          onClick={() => {
+            AppActions.SetMode(Mode.Edit);
+            AppActions.SetPreviewSize(100);
+          }}
+        >
+          <XIcon className="text-white" size={16} />
+        </div>
+      </div>
+    </div>
+  );
+});

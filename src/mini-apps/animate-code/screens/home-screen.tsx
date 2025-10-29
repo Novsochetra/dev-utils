@@ -13,7 +13,12 @@ import {
   getDefaultStore,
   type PrimitiveAtom,
 } from "jotai";
-import { EyeClosed, EyeIcon, SidebarIcon } from "lucide-react";
+import {
+  EyeClosed,
+  EyeIcon,
+  MapPinPlusInside,
+  SidebarIcon,
+} from "lucide-react";
 
 import AnimateSlides from "./animate-slide";
 import { APP_ID } from "../utils/constants";
@@ -99,10 +104,22 @@ const PreviewState = {
 
 export type PreviewState = (typeof PreviewState)[keyof typeof PreviewState];
 
+export const PreviewResizeDirection = {
+  UP: 1,
+  DOWN: -1,
+} as const;
+
+export type PreviewResizeDirection =
+  (typeof PreviewResizeDirection)[keyof typeof PreviewResizeDirection];
+
 export const store = getDefaultStore();
 
 const AnimationInterval = 3000;
 let previewAnimationInterval: NodeJS.Timeout | null = null;
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
 
 function keyBy<T extends Record<string, any>, K extends keyof T>(
   arr: T[],
@@ -145,6 +162,8 @@ export type AppState = {
   previewState: PrimitiveAtom<PreviewState>;
   imagePreviews: PrimitiveAtom<Record<string, PrimitiveAtom<string>>>;
   slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
+  previewSize: PrimitiveAtom<number>;
+  previewResizeDirection: PrimitiveAtom<PreviewResizeDirection>;
 };
 
 export const fallbackAtom = atom();
@@ -157,6 +176,10 @@ export const AppState: AppState = {
   previewState: atom<PreviewState>(PreviewState.IDLE),
   imagePreviews: keyByAtom(defaultSlides),
   slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
+  previewSize: atom(100), // percentage
+  previewResizeDirection: atom<PreviewResizeDirection>(
+    PreviewResizeDirection.DOWN,
+  ),
 };
 
 export const slideIdsAtom = atom((get) =>
@@ -239,6 +262,36 @@ export const AppActions = {
     const isOpen = store.get(AppState.sidebarOpen);
     store.set(AppState.sidebarOpen, !isOpen);
   },
+
+  SetMode: (mode: Mode) => {
+    store.set(AppState.mode, mode);
+  },
+
+  SetPreviewSize: (size: number) => {
+    store.set(AppState.previewSize, size);
+  },
+
+  TogglePreviewSize: () => {
+    const MIN_SIZE = 50;
+    const MAX_SIZE = 100;
+    const step = 10;
+    const currentDirection = store.get(AppState.previewResizeDirection);
+
+    let currentSize = store.get(AppState.previewSize);
+    currentSize += step * currentDirection;
+
+    if (currentSize === MIN_SIZE) {
+      currentSize = MIN_SIZE;
+      store.set(AppState.previewResizeDirection, PreviewResizeDirection.UP);
+    }
+
+    if (currentSize === MAX_SIZE) {
+      currentSize = MAX_SIZE;
+      store.set(AppState.previewResizeDirection, PreviewResizeDirection.DOWN);
+    }
+
+    store.set(AppState.previewSize, currentSize);
+  },
 };
 
 export const createPreviewImage = async (slideData: string) => {
@@ -285,23 +338,24 @@ export const AnimateCodeHomeScreen = () => {
     const handleKey = (e: KeyboardEvent) => {
       const mode = store.get(AppState.mode);
 
-      if (mode != Mode.Preview) return;
+      if (mode === Mode.Preview) {
+        const currentSlideIdx = store.get(AppState.currentSlideIdx);
+        const slides = store.get(AppState.slides);
 
-      const currentSlideIdx = store.get(AppState.currentSlideIdx);
-      const slides = store.get(AppState.slides);
+        if (e.key === "ArrowRight") {
+          AppActions.SelectSlide(
+            Math.min(currentSlideIdx + 1, slides.length - 1),
+          );
+        } else if (e.key === "ArrowLeft") {
+          AppActions.SelectSlide(Math.max(currentSlideIdx - 1, 0));
+        } else if (e.key === "Escape") {
+          AppActions.SetPreviewSize(100);
+          AppActions.SetMode(Mode.Edit);
 
-      if (e.key === "ArrowRight") {
-        AppActions.SelectSlide(
-          Math.min(currentSlideIdx + 1, slides.length - 1),
-        );
-      } else if (e.key === "ArrowLeft") {
-        AppActions.SelectSlide(Math.max(currentSlideIdx - 1, 0));
-      } else if (e.key === "Escape") {
-        store.set(AppState.mode, Mode.Edit);
-
-        if (previewAnimationInterval) {
-          clearInterval(previewAnimationInterval);
-          previewAnimationInterval = null;
+          if (previewAnimationInterval) {
+            clearInterval(previewAnimationInterval);
+            previewAnimationInterval = null;
+          }
         }
       }
     };
@@ -349,7 +403,7 @@ export const PreviewSlide = memo(() => {
 
   return (
     <motion.div
-      className="absolute w-full h-full"
+      className="absolute w-full h-full p-8 bg-white flex items-center justify-center"
       layout
       key="code-editor-preview"
       layoutId="code-editor"
@@ -360,7 +414,7 @@ export const PreviewSlide = memo(() => {
         mass: 0.6,
       }}
     >
-      <AnimateSlides newText={currentSlide} oldText={prevSlide} />;
+      <AnimateSlides newText={currentSlide} oldText={prevSlide} />
     </motion.div>
   );
 });
