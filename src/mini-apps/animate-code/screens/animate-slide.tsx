@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
@@ -15,23 +15,22 @@ const addDuration = 1;
 const addedDelayPerChar = 0.08;
 const lineDelay = 0.05;
 
-// Traverse HLJS DOM to extract per-character colors
-function traverseHighlightDynamic(node: Node, parentColor?: string): string[] {
-  let colors: string[] = [];
+function traverseHighlightByClass(node: Node, parentClass?: string): string[] {
+  const classes: string[] = [];
 
-  if (node.nodeType === Node.TEXT_NODE) {
-    const color = parentColor || "#fff";
-    colors.push(...Array.from(node.textContent || "").map(() => color));
-  } else if (node.nodeType === Node.ELEMENT_NODE) {
-    const el = node as HTMLElement;
-    const computed = window.getComputedStyle(el);
-    const newColor = computed.color || parentColor; // fallback to parent
-    node.childNodes.forEach((child) => {
-      colors.push(...traverseHighlightDynamic(child, newColor));
-    });
-  }
+  const walk = (n: Node, inheritedClass?: string) => {
+    if (n.nodeType === Node.TEXT_NODE) {
+      const cls = inheritedClass || "default";
+      classes.push(...Array.from(n.textContent || "").map(() => cls));
+    } else if (n.nodeType === Node.ELEMENT_NODE) {
+      const el = n as HTMLElement;
+      const clsToUse = el.classList[0] || inheritedClass;
+      n.childNodes.forEach((child) => walk(child, clsToUse));
+    }
+  };
 
-  return colors;
+  walk(node, parentClass);
+  return classes;
 }
 
 type MultiLineDiffAnimatorProps = {
@@ -39,12 +38,17 @@ type MultiLineDiffAnimatorProps = {
   newText: string;
 };
 
+const unsupportedLanguages = ["perl", "ini", "vbnet", "wasm"];
+
 export default function MultiLineDiffAnimator({
   oldText,
   newText,
 }: MultiLineDiffAnimatorProps) {
   const [bgColor, setBgColor] = useState("white");
-  const [animate, setAnimate] = useState(true);
+  const supportLanguages = useMemo(
+    () => hljs.listLanguages().filter((l) => !unsupportedLanguages.includes(l)),
+    [],
+  );
 
   // Compute diff
   const diffs = useMemo(
@@ -52,21 +56,22 @@ export default function MultiLineDiffAnimator({
     [oldText, newText],
   );
 
-  // Compute highlight colors dynamically
-  const highlightColors = useMemo(() => {
+  const highlightClasses = useMemo(() => {
     if (typeof window === "undefined") return [];
 
+    const highlightCode = hljs.highlightAuto(newText, supportLanguages);
     // Create temporary container
     const container = document.createElement("pre");
     container.className = "hljs"; // ensures theme colors applied
     container.style.display = "none";
-    container.innerHTML = hljs.highlightAuto(newText).value;
+    container.innerHTML = highlightCode.value;
+
     document.body.appendChild(container);
 
-    const colors = traverseHighlightDynamic(container);
+    const classes = traverseHighlightByClass(container);
 
     document.body.removeChild(container);
-    return colors;
+    return classes;
   }, [newText]);
 
   // Compute positions for characters
@@ -107,6 +112,7 @@ export default function MultiLineDiffAnimator({
     col: number;
     index: number;
     color?: string;
+    classes?: string;
   }[] = [];
 
   let oldIndex = 0;
@@ -144,7 +150,7 @@ export default function MultiLineDiffAnimator({
         line: newPos?.line ?? 0,
         col: newPos?.col ?? 0,
         index: charIndex,
-        color: highlightColors[newIndex - 1],
+        classes: highlightClasses[charIndex],
       });
 
       charIndex++;
@@ -165,7 +171,7 @@ export default function MultiLineDiffAnimator({
 
   return (
     <div
-      className="w-full h-full p-4 font-jetbrains-mono min-h-60 rounded-md"
+      className="w-full hljs h-full p-4 font-jetbrains-mono min-h-60 rounded-md"
       style={{
         backgroundColor: bgColor,
       }}
@@ -177,85 +183,66 @@ export default function MultiLineDiffAnimator({
         key={v4()}
         style={{ position: "relative", minHeight: 200 }}
       >
-        {!animate &&
-          oldText.split("").map((c, i) => {
-            const pos = oldPositions[i];
-            return (
-              <span
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: pos.x,
-                  top: pos.y,
-                  width: charWidth,
-                  display: "inline-block",
-                }}
-              >
-                {c}
-              </span>
-            );
-          })}
+        {chars.map((c, i) => {
+          let initial: any, animateProps: any;
 
-        {animate &&
-          chars.map((c) => {
-            let initial: any, animateProps: any, style: any;
+          if (c.type === 0) {
+            initial = { x: c.oldX, y: c.oldY, opacity: 1 };
+            animateProps = {
+              x: c.finalX,
+              y: c.finalY,
+              opacity: 1,
+              transition: { duration: addDuration },
+            };
+          } else if (c.type === -1) {
+            initial = {
+              x: c.oldX,
+              y: c.oldY,
+              opacity: 1,
+              textDecoration: "line-through",
+            };
+            animateProps = {
+              opacity: 0,
+              transition: { duration: removeDuration },
+            };
+          } else if (c.type === 1) {
+            const delay = addDuration + addedDelayPerChar + c.line * lineDelay;
+            initial = {
+              x: c.finalX,
+              y: c.finalY,
+              opacity: 0,
+            };
+            animateProps = {
+              x: c.finalX,
+              y: c.finalY,
+              opacity: 1,
+              color: c.color,
+              transition: {
+                duration: addDuration,
+                delay,
+                type: "spring",
+                stiffness: 300,
+                damping: 20,
+              },
+            };
+          }
 
-            if (c.type === 0) {
-              initial = { x: c.oldX, y: c.oldY, opacity: 1 };
-              animateProps = {
-                x: c.finalX,
-                y: c.finalY,
-                opacity: 1,
-                transition: { duration: addDuration },
-              };
-              style = { color: c.color || "#fff" };
-            } else if (c.type === -1) {
-              initial = {
-                x: c.oldX,
-                y: c.oldY,
-                opacity: 1,
-                textDecoration: "line-through",
-              };
-              animateProps = {
-                opacity: 0,
-                transition: { duration: removeDuration },
-              };
-              style = { textDecoration: "line-through", color: "#f87171" };
-            } else if (c.type === 1) {
-              const delay =
-                addDuration + addedDelayPerChar + c.line * lineDelay;
-              initial = { x: c.finalX, y: c.finalY, opacity: 0 };
-              animateProps = {
-                x: c.finalX,
-                y: c.finalY,
-                opacity: 1,
-                transition: {
-                  duration: addDuration,
-                  delay,
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 20,
-                },
-              };
-              style = { color: c.color || "#34d399" };
-            }
-
-            return (
-              <motion.span
-                key={c.key}
-                initial={initial}
-                animate={animateProps}
-                style={{
-                  position: "absolute",
-                  width: charWidth,
-                  display: "inline-block",
-                  ...style,
-                }}
-              >
-                {c.char === "\n" ? "" : c.char}
-              </motion.span>
-            );
-          })}
+          return (
+            <motion.span
+              key={c.key}
+              initial={initial}
+              className={`${c.classes}`}
+              animate={animateProps}
+              style={{
+                position: "absolute",
+                width: charWidth,
+                display: "inline-block",
+              }}
+            >
+              {c.char === "\n" ? "" : c.char}
+            </motion.span>
+          );
+        })}
       </motion.div>
     </div>
   );

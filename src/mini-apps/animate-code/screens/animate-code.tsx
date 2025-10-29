@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import hljs from "highlight.js/lib/core";
 import javascript from "highlight.js/lib/languages/javascript";
 import "highlight.js/styles/github-dark.css";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { diffLines } from "diff";
 
 hljs.registerLanguage("javascript", javascript);
