@@ -10,6 +10,9 @@ import hljs from "highlight.js/lib/core";
 import("highlight.js/lib/common");
 import { motion } from "framer-motion";
 import "highlight.js/styles/atom-one-dark.css";
+import { useAtomValue } from "jotai";
+import { AppState } from "../state/state";
+import { Mode } from "../utils/constants";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -34,8 +37,17 @@ const CodeEditorWithHighlight = ({
   const [highlighted, setHighlighted] = useState("");
   const preRef = useRef<HTMLPreElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
+  const mode = useAtomValue(AppState.mode);
 
   useEffect(() => setCode(value), [value]);
+
+  useEffect(() => {
+    if (mode === Mode.Preview) {
+      taRef.current?.blur();
+    } else {
+      taRef.current?.focus();
+    }
+  }, [mode]);
 
   useEffect(() => {
     try {
@@ -105,7 +117,6 @@ const CodeEditorWithHighlight = ({
         onScroll={onScroll}
         onKeyDown={onKeyDown}
         spellCheck={false}
-        autoFocus
         className="absolute inset-0 text-transparent bg-transparent caret-white text-base p-3 rounded-lg 
                focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none font-mono mt-[2px] ml-[2px]"
         style={{
