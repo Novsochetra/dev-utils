@@ -45,7 +45,7 @@ export const AnimateCodeHomeScreen = () => {
               <AnimatePresence>
                 <Slider codeEditorRef={codeEditorRef} />
 
-                {mode === Mode.Preview && <Preview />}
+                {mode === Mode.Preview && <Preview key={`preview`} />}
               </AnimatePresence>
             </div>
           </div>
