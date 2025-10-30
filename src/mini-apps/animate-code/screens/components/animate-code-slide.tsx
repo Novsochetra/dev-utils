@@ -133,10 +133,12 @@ export const AnimateCodeSlide = memo(
       const splitChars = text.split("");
       splitChars.forEach((c) => {
         let oldPos, newPos;
+        let charClass = "";
 
         if (type === 0) {
           oldPos = oldPositions[oldIndex];
           newPos = newPositions[newIndex];
+          charClass = highlightClasses[newIndex];
           oldIndex++;
           newIndex++;
         } else if (type === -1) {
@@ -144,6 +146,7 @@ export const AnimateCodeSlide = memo(
           newPos = { x: 0, y: 0, line: 0, col: 0 };
           oldIndex++;
         } else if (type === 1) {
+          charClass = highlightClasses[newIndex];
           oldPos = { x: 0, y: 0, line: 0, col: 0 };
           newPos = newPositions[newIndex];
           newIndex++;
@@ -160,7 +163,7 @@ export const AnimateCodeSlide = memo(
           line: newPos?.line ?? 0,
           col: newPos?.col ?? 0,
           index: charIndex,
-          classes: highlightClasses[charIndex],
+          classes: charClass || "",
         });
 
         charIndex++;
