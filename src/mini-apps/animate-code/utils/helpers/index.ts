@@ -1,3 +1,6 @@
+import hljs from "highlight.js/lib/core";
+import html2canvas from "html2canvas-pro";
+
 export const createPreviewImage = async (slideData: string) => {
   if (!document) {
     return;
@@ -35,4 +38,9 @@ export const createPreviewImage = async (slideData: string) => {
   document.body.removeChild(div);
 
   return res;
+};
+
+export const isApplePlatform = () => {
+  if (typeof navigator === "undefined") return false;
+  return /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
 };

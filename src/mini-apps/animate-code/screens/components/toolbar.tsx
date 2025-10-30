@@ -22,18 +22,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/vendor/shadcn/components/ui/tooltip";
-import { Preview } from "./preview";
+import { isApplePlatform } from "../../utils/helpers";
 
 export const Toolbar = memo(() => {
   return (
     <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
-      <LeftToolbar />
+      {isApplePlatform() ? <LeftMacControls /> : <LeftToolbar />}
 
-      <div className="flex flex-1 items-center justify-center">
+      <div className="flex flex-1 items-center justify-center px-4">
         <ToolbarTitle />
       </div>
 
-      <RightToolbar />
+      {isApplePlatform() ? <RightMacControls /> : <RightToolbar />}
     </div>
   );
 });
@@ -60,6 +60,56 @@ export const RightToolbar = memo(() => {
         )}
       </div>
       <ButtonClose />
+    </div>
+  );
+});
+
+const RightMacControls = memo(() => {
+  const previewState = useAtomValue(AppState.previewState);
+  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+
+  const renderPlayPause = () => {
+    if (previewState === PreviewState.PLAY) return <PauseIcon size={16} />;
+    if (previewState === PreviewState.FINISH) return <RotateCcw size={16} />;
+    return <PlayIcon size={16} />;
+  };
+
+  return (
+    <div className="flex items-center gap-2 px-4">
+      {/* Play/Pause */}
+      <div
+        className="p-1 rounded hover:bg-white/20 cursor-pointer"
+        onClick={() => {
+          switch (previewState) {
+            case PreviewState.PAUSE:
+            case PreviewState.IDLE:
+              AppActions.SetPreviewState(PreviewState.PLAY);
+              break;
+            case PreviewState.FINISH:
+              AppActions.SetPreviewState(PreviewState.PLAY);
+              AppActions.SetPreviewSlideIdx(0);
+              break;
+            case PreviewState.RESUME:
+            case PreviewState.PLAY:
+              AppActions.SetPreviewState(PreviewState.PAUSE);
+              break;
+          }
+        }}
+      >
+        {renderPlayPause()}
+      </div>
+
+      {/* Minimize / Maximize */}
+      <div
+        className="p-1 rounded hover:bg-white/20 cursor-pointer"
+        onClick={() => AppActions.TogglePreviewSize()}
+      >
+        {previewResizeDirection === PreviewResizeDirection.DOWN ? (
+          <Minimize2Icon size={16} />
+        ) : (
+          <Maximize2Icon size={16} />
+        )}
+      </div>
     </div>
   );
 });
@@ -117,7 +167,7 @@ export const LeftToolbar = memo(() => {
   const totalSlides = useAtomValue(slideLengthAtom);
 
   return (
-    <div className="flex flex-1 gap-4">
+    <div className="flex sm:flex-1 gap-4">
       <div className="flex">
         <img
           src="./assets/icons/android-chrome-192x192.png "
@@ -125,11 +175,44 @@ export const LeftToolbar = memo(() => {
         />
       </div>
 
-      <div className="flex items-center">
+      <div className="items-center hidden sm:flex">
         <p className="text-sm font-bold">
           {(previewSlideIdx || 0) + 1} / {totalSlides}
         </p>
       </div>
+    </div>
+  );
+});
+
+const LeftMacControls = memo(() => {
+  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
+  const totalSlides = useAtomValue(slideLengthAtom);
+
+  return (
+    <div className="flex items-center gap-2 pl-4 shrink">
+      {/* Traffic lights */}
+      <div className="flex gap-2">
+        <div
+          className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
+          onClick={() => {
+            AppActions.SetMode(Mode.Edit);
+            AppActions.SetPreviewSize(100);
+          }}
+        />
+        <div className="w-3 h-3 rounded-full bg-yellow-400 hover:bg-yellow-500 cursor-pointer" />
+        <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer" />
+      </div>
+
+      {/* Optional app icon */}
+      <img
+        src="./assets/icons/android-chrome-192x192.png"
+        className="w-4 h-4 rounded-xs ml-4"
+      />
+
+      {/* Slide counter */}
+      <span className="hidden sm:text-sm font-medium">
+        {(previewSlideIdx || 0) + 1} / {totalSlides}
+      </span>
     </div>
   );
 });
@@ -141,7 +224,7 @@ export const ToolbarTitle = memo(() => {
     <input
       type="text"
       value={title}
-      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold"
+      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate"
       onChange={(e) => setTitle(e.target.value)}
     />
   );
