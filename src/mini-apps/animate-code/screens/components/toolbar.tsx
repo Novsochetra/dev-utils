@@ -1,8 +1,9 @@
 import { useAtom, useAtomValue } from "jotai";
-import { memo } from "react";
+import { createContext, memo, useContext } from "react";
 import {
   ChevronsLeftRightIcon,
   ChevronsRightLeftIcon,
+  EyeIcon,
   Maximize2Icon,
   Minimize2Icon,
   MinusIcon,
@@ -35,69 +36,144 @@ import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Slider } from "@/vendor/shadcn/components/ui/slider";
 
-export const Toolbar = memo(() => {
-  return (
-    <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
-      {isApplePlatform() ? <LeftMacToolbar /> : <LeftToolbar />}
+type ToolbarProps = {
+  enableButtonClose?: boolean | undefined;
+  enableButtonPlay?: boolean | undefined;
+  enableButtonMinimize?: boolean | undefined;
+  enableButtonResize?: boolean | undefined;
+  enableButtonChangeBackground?: boolean | undefined;
+  enableButtonPreview?: boolean | undefined;
 
-      <div className="flex flex-1 items-center justify-center px-4">
-        <ToolbarTitle />
-      </div>
+  enableActionButtonClose?: boolean | undefined;
+  enableActionButtonPlay?: boolean | undefined;
+  enableActionButtonMinimize?: boolean | undefined;
+  enableActionButtonResize?: boolean | undefined;
+  enableActionButtonChangeBackground?: boolean | undefined;
+  enableActionButtonPreview?: boolean | undefined;
+};
 
-      {isApplePlatform() ? <RightMacToolbar /> : <RightToolbar />}
-    </div>
-  );
+const ToolbarContext = createContext<ToolbarProps>({
+  enableButtonClose: true,
+  enableButtonPlay: true,
+  enableButtonMinimize: true,
+  enableButtonResize: true,
+  enableButtonChangeBackground: true,
+  enableButtonPreview: false,
+
+  enableActionButtonClose: true,
+  enableActionButtonPlay: true,
+  enableActionButtonMinimize: true,
+  enableActionButtonResize: true,
+  enableActionButtonChangeBackground: true,
+  enableActionButtonPreview: false,
 });
 
-export const RightToolbar = memo(() => {
-  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
-  return (
-    <div className="flex-1 flex items-center justify-end">
-      <GradientButton />
+export const Toolbar = memo(
+  ({
+    enableButtonClose = true,
+    enableButtonPlay = true,
+    enableButtonMinimize = true,
+    enableButtonResize = true,
+    enableButtonChangeBackground = true,
+    enableButtonPreview = false,
 
-      <ButtonPlayPaused />
-
-      <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
-        <MinusIcon className="text-white" size={16} />
-      </div>
-      <div
-        className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
-        onClick={() => {
-          AppActions.TogglePreviewSize();
+    enableActionButtonClose = true,
+    enableActionButtonPlay = true,
+    enableActionButtonMinimize = true,
+    enableActionButtonResize = true,
+    enableActionButtonChangeBackground = true,
+    enableActionButtonPreview = false,
+  }: ToolbarProps) => {
+    return (
+      <ToolbarContext.Provider
+        value={{
+          enableButtonClose,
+          enableButtonPlay,
+          enableButtonMinimize,
+          enableButtonResize,
+          enableButtonChangeBackground,
+          enableButtonPreview,
+          enableActionButtonClose,
+          enableActionButtonPlay,
+          enableActionButtonMinimize,
+          enableActionButtonResize,
+          enableActionButtonChangeBackground,
+          enableActionButtonPreview,
         }}
       >
-        {previewResizeDirection === PreviewResizeDirection.DOWN ? (
-          <Minimize2Icon size={16} />
-        ) : (
-          <Maximize2Icon size={16} />
-        )}
-      </div>
+        <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
+          {isApplePlatform() ? <LeftMacToolbar /> : <LeftToolbar />}
+
+          <div className="flex flex-1 items-center justify-center px-4">
+            <ToolbarTitle />
+          </div>
+
+          {isApplePlatform() ? <RightMacToolbar /> : <RightToolbar />}
+        </div>
+      </ToolbarContext.Provider>
+    );
+  },
+);
+
+export const RightToolbar = memo(() => {
+  const {
+    enableButtonChangeBackground,
+    enableButtonPlay,
+    enableButtonMinimize,
+    enableButtonResize,
+    enableButtonPreview,
+  } = useContext(ToolbarContext);
+  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+
+  return (
+    <div className="flex-1 flex items-center justify-end">
+      {enableButtonPreview ? <ButtonPreview /> : null}
+
+      {enableButtonChangeBackground ? <GradientButton /> : null}
+
+      {enableButtonPlay ? <ButtonPlayPaused /> : null}
+
+      {enableButtonMinimize ? (
+        <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
+          <MinusIcon className="text-white" size={16} />
+        </div>
+      ) : null}
+
+      {enableButtonResize ? (
+        <div
+          className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
+          onClick={() => {
+            AppActions.TogglePreviewSize();
+          }}
+        >
+          {previewResizeDirection === PreviewResizeDirection.DOWN ? (
+            <Minimize2Icon size={16} />
+          ) : (
+            <Maximize2Icon size={16} />
+          )}
+        </div>
+      ) : null}
+
       <ButtonClose />
     </div>
   );
 });
 
 const RightMacToolbar = memo(() => {
-  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+  const {
+    enableButtonChangeBackground,
+    enableButtonPlay,
+    enableButtonPreview,
+  } = useContext(ToolbarContext);
 
   return (
     <div className="flex items-center gap-2 px-4">
-      <GradientButton />
+      {enableButtonPreview ? <ButtonPreview /> : null}
+
+      {enableButtonChangeBackground ? <GradientButton /> : null}
 
       {/* Play/Pause */}
-      <ButtonPlayPaused />
-
-      {/* Minimize / Maximize */}
-      <div
-        className="p-1 rounded hover:bg-white/20 cursor-pointer"
-        onClick={() => AppActions.TogglePreviewSize()}
-      >
-        {previewResizeDirection === PreviewResizeDirection.DOWN ? (
-          <Minimize2Icon size={16} />
-        ) : (
-          <Maximize2Icon size={16} />
-        )}
-      </div>
+      {enableButtonPlay ? <ButtonPlayPaused /> : null}
     </div>
   );
 });
@@ -106,7 +182,43 @@ const adaptiveWrapperStyle = isApplePlatform()
   ? "flex items-center justify-center p-1 rounded hover:bg-white/20 cursor-pointer transition-colors"
   : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full aspect-square";
 
+export const ButtonPreview = () => {
+  const { enableActionButtonPreview } = useContext(ToolbarContext);
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className={adaptiveWrapperStyle}
+          onClick={() => {
+            if (!enableActionButtonPreview) {
+              return;
+            }
+
+            AppActions.SetMode(Mode.Preview);
+          }}
+        >
+          <EyeIcon size={16} />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="flex items-center">
+          <span className="mr-4">Present</span>
+
+          <kbd className="bg-white text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none">
+            <span className="text-xs">
+              {navigator.platform.includes("Mac") ? "⌘" : "Ctrl"}
+            </span>
+            <span className="text-xs"> + ⏎</span>
+          </kbd>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+};
+
 const ButtonPlayPaused = memo(() => {
+  const { enableActionButtonPlay } = useContext(ToolbarContext);
   const previewState = useAtomValue(AppState.previewState);
 
   const renderContent = () => {
@@ -129,6 +241,10 @@ const ButtonPlayPaused = memo(() => {
         <div
           className={adaptiveWrapperStyle}
           onClick={() => {
+            if (!enableActionButtonPlay) {
+              return;
+            }
+
             switch (previewState) {
               case PreviewState.PAUSE:
               case PreviewState.IDLE: {
@@ -190,6 +306,12 @@ export const LeftToolbar = memo(() => {
 });
 
 const LeftMacToolbar = memo(() => {
+  const {
+    enableButtonResize,
+    enableButtonMinimize,
+    enableButtonClose,
+    enableActionButtonClose,
+  } = useContext(ToolbarContext);
   const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
   const totalSlides = useAtomValue(slideLengthAtom);
 
@@ -197,26 +319,32 @@ const LeftMacToolbar = memo(() => {
     <div className="flex items-center gap-2 pl-4 shrink">
       {/* Traffic lights */}
       <div className="flex gap-2">
-        <div
-          className="group w-3 h-3 rounded-full bg-red-500 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-400"
-          onClick={() => {
-            AppActions.SetMode(Mode.Edit);
-            AppActions.SetPreviewSize(100);
-          }}
-        >
-          <XIcon
-            className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-            size={10}
-          />
-        </div>
-        <div className="group w-3 h-3 rounded-full bg-yellow-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-yellow-400">
-          <MinusIcon
-            className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-            size={10}
-          />
-        </div>
+        {enableButtonClose ? (
+          <div
+            className="group w-3 h-3 rounded-full bg-red-500 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-400"
+            onClick={() => {
+              if (!enableActionButtonClose) return;
 
-        <ButtonMacResizeToolbar />
+              AppActions.SetMode(Mode.Edit);
+              AppActions.SetPreviewSize(100);
+            }}
+          >
+            <XIcon
+              className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              size={10}
+            />
+          </div>
+        ) : null}
+        {enableButtonMinimize ? (
+          <div className="group w-3 h-3 rounded-full bg-yellow-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-yellow-400">
+            <MinusIcon
+              className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              size={10}
+            />
+          </div>
+        ) : null}
+
+        {enableButtonResize ? <ButtonMacResizeToolbar /> : null}
       </div>
 
       {/* Optional app icon */}
@@ -234,12 +362,15 @@ const LeftMacToolbar = memo(() => {
 });
 
 export const ButtonMacResizeToolbar = memo(() => {
+  const { enableActionButtonResize } = useContext(ToolbarContext);
   const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
 
   return (
     <div
       className="group w-3 h-3 rounded-full bg-green-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-green-400"
       onClick={() => {
+        if (!enableActionButtonResize) return;
+
         AppActions.TogglePreviewSize();
       }}
     >
@@ -272,12 +403,16 @@ export const ToolbarTitle = memo(() => {
 });
 
 const ButtonClose = () => {
+  const { enableActionButtonClose } = useContext(ToolbarContext);
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
           className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
           onClick={() => {
+            if (!enableActionButtonClose) return;
+
             AppActions.SetMode(Mode.Edit);
             AppActions.SetPreviewSize(100);
           }}

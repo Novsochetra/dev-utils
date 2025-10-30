@@ -13,6 +13,9 @@ import "highlight.js/styles/atom-one-dark.css";
 import { useAtomValue } from "jotai";
 import { AppState } from "../state/state";
 import { Mode } from "../utils/constants";
+import { Toolbar } from "./components/toolbar";
+import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
+import { Background } from "./components/preview";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -82,7 +85,7 @@ const CodeEditorWithHighlight = ({
   return (
     <motion.div
       key={animationKey}
-      className={`relative aspect-video w-full h-auto max-h-full max-w-full ${className}`}
+      className={`relative aspect-video w-full h-auto max-h-full max-w-full ${className} overflow-hidden`}
       layoutId={layoutId}
       ref={ref}
       transition={{
@@ -92,37 +95,53 @@ const CodeEditorWithHighlight = ({
         mass: 0.6,
       }}
     >
-      {/* Highlighted code background */}
-      <pre
-        ref={preRef}
-        aria-hidden="true"
-        className="absolute inset-0 text-base font-mono hljs border-2 border-red-500 rounded-lg p-3 overflow-auto"
-        style={{
-          fontSize: 12,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-        }}
-      >
-        <code dangerouslySetInnerHTML={{ __html: highlighted || " " }} />
-      </pre>
+      <div className="w-full h-full hljs border-2 border-red-500 rounded-lg flex flex-col overflow-hidden">
+        <div className="w-full h-10">
+          <Toolbar
+            enableButtonPlay={false}
+            enableButtonPreview
+            enableActionButtonPreview
+            enableActionButtonClose={false}
+            enableActionButtonMinimize={false}
+            enableActionButtonResize={false}
+          />
+        </div>
 
-      {/* Editable overlay */}
-      <textarea
-        ref={taRef as any}
-        value={code}
-        onChange={(e) => {
-          setCode(e.target.value);
-          onChange?.(e.target.value);
-        }}
-        onScroll={onScroll}
-        onKeyDown={onKeyDown}
-        spellCheck={false}
-        className="absolute inset-0 text-transparent bg-transparent caret-white text-base p-3 rounded-lg 
-               focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none font-mono mt-[2px] ml-[2px]"
-        style={{
-          fontSize: 12,
-        }}
-      />
+        <div id="code-block" className="relative flex-1 overflow-auto">
+          <pre
+            ref={preRef}
+            aria-hidden="true"
+            className="absolute inset-0 font-mono hljs p-3 overflow-auto text-green-500"
+            style={{
+              fontSize: 12,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            }}
+          >
+            <code dangerouslySetInnerHTML={{ __html: highlighted || " " }} />
+          </pre>
+
+          {/* Editable overlay */}
+          <textarea
+            ref={taRef as any}
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value);
+              onChange?.(e.target.value);
+            }}
+            onScroll={onScroll}
+            onKeyDown={onKeyDown}
+            spellCheck={false}
+            className="absolute inset-0 text-transparent bg-transparent caret-white focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none p-3 font-mono"
+            style={{
+              fontSize: 12,
+            }}
+          ></textarea>
+        </div>
+        <div className="w-full h-8">
+          <AnimateCodeStatusBar />
+        </div>
+      </div>
     </motion.div>
   );
 };

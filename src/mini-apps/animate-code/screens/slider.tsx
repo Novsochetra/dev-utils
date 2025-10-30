@@ -16,6 +16,7 @@ import { useGlobalLazyPreview } from "../utils/hooks/use-generate-preview";
 import { AppState, fallbackAtom, store } from "../state/state";
 import { AppActions } from "../state/actions";
 import { createPreviewImage } from "../utils/helpers";
+import { Background } from "./components/preview";
 
 type SliderProps = {
   codeEditorRef: RefObject<HTMLDivElement | null>;
@@ -26,7 +27,9 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
     <div className="flex flex-1 min-h-0">
       <LeftSidebarSlider />
 
-      <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0">
+      <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0 relative">
+        <Background />
+
         <CodeEditorWithAtom ref={codeEditorRef} />
       </div>
     </div>
