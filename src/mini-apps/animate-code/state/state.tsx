@@ -21,6 +21,11 @@ export type AppState = {
   slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
   previewSize: PrimitiveAtom<number>;
   previewTitle: PrimitiveAtom<string>;
+  previewBackground: {
+    angle: PrimitiveAtom<number>;
+    from: PrimitiveAtom<string>;
+    to: PrimitiveAtom<string>;
+  };
   previewResizeDirection: PrimitiveAtom<PreviewResizeDirection>;
   previewLanguage: PrimitiveAtom<string>;
 };
@@ -43,6 +48,11 @@ export const AppState: AppState = {
   previewResizeDirection: atom<PreviewResizeDirection>(
     PreviewResizeDirection.DOWN,
   ),
+  previewBackground: {
+    angle: atom(135),
+    from: atom("#93c5fd"),
+    to: atom("#c4b5fd"),
+  },
   previewLanguage: atom("javascript"),
 };
 

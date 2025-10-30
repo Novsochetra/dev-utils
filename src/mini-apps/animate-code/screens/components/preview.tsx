@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { memo, useEffect, useState, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { AppState, store } from "../../state/state";
 import { AnimateCodeSlide } from "./animate-code-slide";
@@ -59,9 +59,25 @@ export const Preview = memo(() => {
         mass: 0.6,
       }}
     >
+      <Background />
       {prevSlideIdx !== undefined ? (
         <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
       ) : null}
     </motion.div>
+  );
+});
+
+export const Background = memo(() => {
+  const angle = useAtomValue(AppState.previewBackground.angle);
+  const from = useAtomValue(AppState.previewBackground.from);
+  const to = useAtomValue(AppState.previewBackground.to);
+
+  return (
+    <motion.div
+      className="absolute top-0 left-0 select-none w-full h-full"
+      style={{
+        background: `linear-gradient(${angle}deg, ${from}, ${to})`,
+      }}
+    ></motion.div>
   );
 });

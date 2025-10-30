@@ -1,16 +1,19 @@
 import { useAtom, useAtomValue } from "jotai";
 import { memo } from "react";
 import {
+  ChevronsLeftRightIcon,
+  ChevronsRightLeftIcon,
   Maximize2Icon,
   Minimize2Icon,
   MinusIcon,
+  PaletteIcon,
   PauseIcon,
   PlayIcon,
   RotateCcw,
   XIcon,
 } from "lucide-react";
 
-import { AppState, slideLengthAtom } from "../../state/state";
+import { AppState, slideLengthAtom, store } from "../../state/state";
 import { AppActions } from "../../state/actions";
 import {
   Mode,
@@ -23,6 +26,14 @@ import {
   TooltipTrigger,
 } from "@/vendor/shadcn/components/ui/tooltip";
 import { isApplePlatform } from "../../utils/helpers";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/vendor/shadcn/components/ui/popover";
+import { Input } from "@/vendor/shadcn/components/ui/input";
+import { Label } from "@/vendor/shadcn/components/ui/label";
+import { Slider } from "@/vendor/shadcn/components/ui/slider";
 
 export const Toolbar = memo(() => {
   return (
@@ -42,6 +53,8 @@ export const RightToolbar = memo(() => {
   const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
   return (
     <div className="flex-1 flex items-center justify-end">
+      <GradientButton />
+
       <ButtonPlayPaused />
 
       <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
@@ -69,6 +82,8 @@ const RightMacToolbar = memo(() => {
 
   return (
     <div className="flex items-center gap-2 px-4">
+      <GradientButton />
+
       {/* Play/Pause */}
       <ButtonPlayPaused />
 
@@ -183,14 +198,25 @@ const LeftMacToolbar = memo(() => {
       {/* Traffic lights */}
       <div className="flex gap-2">
         <div
-          className="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer"
+          className="group w-3 h-3 rounded-full bg-red-500 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-400"
           onClick={() => {
             AppActions.SetMode(Mode.Edit);
             AppActions.SetPreviewSize(100);
           }}
-        />
-        <div className="w-3 h-3 rounded-full bg-yellow-400 hover:bg-yellow-500 cursor-pointer" />
-        <div className="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer" />
+        >
+          <XIcon
+            className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+            size={10}
+          />
+        </div>
+        <div className="group w-3 h-3 rounded-full bg-yellow-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-yellow-400">
+          <MinusIcon
+            className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+            size={10}
+          />
+        </div>
+
+        <ButtonMacResizeToolbar />
       </div>
 
       {/* Optional app icon */}
@@ -203,6 +229,31 @@ const LeftMacToolbar = memo(() => {
       <span className="hidden sm:text-sm font-medium">
         {(previewSlideIdx || 0) + 1} / {totalSlides}
       </span>
+    </div>
+  );
+});
+
+export const ButtonMacResizeToolbar = memo(() => {
+  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+
+  return (
+    <div
+      className="group w-3 h-3 rounded-full bg-green-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-green-400"
+      onClick={() => {
+        AppActions.TogglePreviewSize();
+      }}
+    >
+      {previewResizeDirection === PreviewResizeDirection.DOWN ? (
+        <ChevronsRightLeftIcon
+          className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          size={10}
+        />
+      ) : (
+        <ChevronsLeftRightIcon
+          className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          size={10}
+        />
+      )}
     </div>
   );
 });
@@ -246,3 +297,80 @@ const ButtonClose = () => {
     </Tooltip>
   );
 };
+
+export const GradientButton = memo(() => {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className={adaptiveWrapperStyle}>
+          <PaletteIcon size={16} />
+        </div>
+      </PopoverTrigger>
+
+      <PopoverContent className="w-64">
+        <div className="flex flex-col gap-2">
+          <GradientFieldAngle />
+
+          <div className="flex flex-1 gap-4">
+            <GradientFieldFrom />
+
+            <GradientFieldTo />
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+});
+
+export const GradientFieldAngle = memo(() => {
+  const angle = useAtomValue(AppState.previewBackground.angle);
+
+  return (
+    <div>
+      <Label className="text-xs mb-2">Angle ({angle}°)</Label>
+      <Slider
+        value={[angle]}
+        max={360}
+        min={0}
+        step={1}
+        onValueChange={(v) => {
+          store.set(AppState.previewBackground.angle, Number(v));
+        }}
+      />
+    </div>
+  );
+});
+
+export const GradientFieldFrom = memo(() => {
+  const from = useAtomValue(AppState.previewBackground.from);
+
+  return (
+    <div className="flex-1">
+      <Label className="text-xs mb-2">From</Label>
+      <Input
+        type="color"
+        value={from}
+        onChange={(e) => {
+          store.set(AppState.previewBackground.from, e.target.value);
+        }}
+      />
+    </div>
+  );
+});
+
+export const GradientFieldTo = memo(() => {
+  const to = useAtomValue(AppState.previewBackground.to);
+
+  return (
+    <div className="flex-1">
+      <Label className="text-xs mb-2">To</Label>
+      <Input
+        type="color"
+        value={to}
+        onChange={(e) => {
+          store.set(AppState.previewBackground.to, e.target.value);
+        }}
+      />
+    </div>
+  );
+});
