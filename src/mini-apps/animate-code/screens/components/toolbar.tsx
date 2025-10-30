@@ -54,9 +54,9 @@ export const RightToolbar = memo(() => {
         }}
       >
         {previewResizeDirection === PreviewResizeDirection.DOWN ? (
-          <Minimize2Icon className="text-white" size={16} />
+          <Minimize2Icon size={16} />
         ) : (
-          <Maximize2Icon className="text-white" size={16} />
+          <Maximize2Icon size={16} />
         )}
       </div>
       <ButtonClose />
@@ -65,39 +65,12 @@ export const RightToolbar = memo(() => {
 });
 
 const RightMacToolbar = memo(() => {
-  const previewState = useAtomValue(AppState.previewState);
   const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
-
-  const renderPlayPause = () => {
-    if (previewState === PreviewState.PLAY) return <PauseIcon size={16} />;
-    if (previewState === PreviewState.FINISH) return <RotateCcw size={16} />;
-    return <PlayIcon size={16} />;
-  };
 
   return (
     <div className="flex items-center gap-2 px-4">
       {/* Play/Pause */}
-      <div
-        className="p-1 rounded hover:bg-white/20 cursor-pointer"
-        onClick={() => {
-          switch (previewState) {
-            case PreviewState.PAUSE:
-            case PreviewState.IDLE:
-              AppActions.SetPreviewState(PreviewState.PLAY);
-              break;
-            case PreviewState.FINISH:
-              AppActions.SetPreviewState(PreviewState.PLAY);
-              AppActions.SetPreviewSlideIdx(0);
-              break;
-            case PreviewState.RESUME:
-            case PreviewState.PLAY:
-              AppActions.SetPreviewState(PreviewState.PAUSE);
-              break;
-          }
-        }}
-      >
-        {renderPlayPause()}
-      </div>
+      <ButtonPlayPaused />
 
       {/* Minimize / Maximize */}
       <div
@@ -114,6 +87,10 @@ const RightMacToolbar = memo(() => {
   );
 });
 
+const adaptiveWrapperStyle = isApplePlatform()
+  ? "flex items-center justify-center p-1 rounded hover:bg-white/20 cursor-pointer transition-colors"
+  : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full aspect-square";
+
 const ButtonPlayPaused = memo(() => {
   const previewState = useAtomValue(AppState.previewState);
 
@@ -125,40 +102,53 @@ const ButtonPlayPaused = memo(() => {
     }
 
     if (previewState === PreviewState.FINISH) {
-      return <RotateCcw className="text-white" size={16} />;
+      return <RotateCcw size={16} />;
     }
 
-    return <PlayIcon className="text-white" size={16} />;
+    return <PlayIcon size={16} />;
   };
 
   return (
-    <div
-      className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
-      onClick={() => {
-        switch (previewState) {
-          case PreviewState.PAUSE:
-          case PreviewState.IDLE: {
-            AppActions.SetPreviewState(PreviewState.PLAY);
-            break;
-          }
-          case PreviewState.FINISH: {
-            AppActions.SetPreviewState(PreviewState.PLAY);
-            AppActions.SetPreviewSlideIdx(0);
-            break;
-          }
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className={adaptiveWrapperStyle}
+          onClick={() => {
+            switch (previewState) {
+              case PreviewState.PAUSE:
+              case PreviewState.IDLE: {
+                AppActions.SetPreviewState(PreviewState.PLAY);
+                break;
+              }
+              case PreviewState.FINISH: {
+                AppActions.SetPreviewState(PreviewState.PLAY);
+                AppActions.SetPreviewSlideIdx(0);
+                break;
+              }
 
-          case PreviewState.RESUME:
-          case PreviewState.PLAY: {
-            AppActions.SetPreviewState(PreviewState.PAUSE);
-            break;
-          }
-          default:
-            break;
-        }
-      }}
-    >
-      {renderContent()}
-    </div>
+              case PreviewState.RESUME:
+              case PreviewState.PLAY: {
+                AppActions.SetPreviewState(PreviewState.PAUSE);
+                break;
+              }
+              default:
+                break;
+            }
+          }}
+        >
+          {renderContent()}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="flex items-center">
+          <span className="mr-4">Press</span>
+
+          <kbd className="bg-white text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none">
+            <span className="text-xs">Space</span>
+          </kbd>
+        </div>
+      </TooltipContent>
+    </Tooltip>
   );
 });
 
@@ -241,7 +231,7 @@ const ButtonClose = () => {
             AppActions.SetPreviewSize(100);
           }}
         >
-          <XIcon className="text-white" size={16} />
+          <XIcon size={16} />
         </div>
       </TooltipTrigger>
       <TooltipContent>
