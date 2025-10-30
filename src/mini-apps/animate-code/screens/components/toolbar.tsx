@@ -1,48 +1,118 @@
 import { useAtom, useAtomValue } from "jotai";
 import { memo } from "react";
-import { Maximize2Icon, Minimize2Icon, MinusIcon, XIcon } from "lucide-react";
+import {
+  Maximize2Icon,
+  Minimize2Icon,
+  MinusIcon,
+  PauseIcon,
+  PlayIcon,
+  RotateCcw,
+  XIcon,
+} from "lucide-react";
 
 import { AppState, slideLengthAtom } from "../../state/state";
 import { AppActions } from "../../state/actions";
-import { Mode, PreviewResizeDirection } from "../../utils/constants";
+import {
+  Mode,
+  PreviewResizeDirection,
+  PreviewState,
+} from "../../utils/constants";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/vendor/shadcn/components/ui/tooltip";
+import { Preview } from "./preview";
 
 export const Toolbar = memo(() => {
-  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
-
   return (
     <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
       <LeftToolbar />
+
       <div className="flex flex-1 items-center justify-center">
         <ToolbarTitle />
       </div>
-      <div className="flex-1 flex items-center justify-end">
-        <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
-          <MinusIcon className="text-white" size={16} />
-        </div>
-        <div
-          className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
-          onClick={() => {
-            AppActions.TogglePreviewSize();
-          }}
-        >
-          {previewResizeDirection === PreviewResizeDirection.DOWN ? (
-            <Minimize2Icon className="text-white" size={16} />
-          ) : (
-            <Maximize2Icon className="text-white" size={16} />
-          )}
-        </div>
-        <ButtonClose />
-      </div>
+
+      <RightToolbar />
     </div>
   );
 });
 
-export const LeftToolbar = () => {
+export const RightToolbar = memo(() => {
+  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+  return (
+    <div className="flex-1 flex items-center justify-end">
+      <ButtonPlayPaused />
+
+      <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
+        <MinusIcon className="text-white" size={16} />
+      </div>
+      <div
+        className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
+        onClick={() => {
+          AppActions.TogglePreviewSize();
+        }}
+      >
+        {previewResizeDirection === PreviewResizeDirection.DOWN ? (
+          <Minimize2Icon className="text-white" size={16} />
+        ) : (
+          <Maximize2Icon className="text-white" size={16} />
+        )}
+      </div>
+      <ButtonClose />
+    </div>
+  );
+});
+
+const ButtonPlayPaused = memo(() => {
+  const previewState = useAtomValue(AppState.previewState);
+
+  const renderContent = () => {
+    const isPlaying = previewState === PreviewState.PLAY;
+
+    if (isPlaying) {
+      return <PauseIcon className="text-white" size={16} />;
+    }
+
+    if (previewState === PreviewState.FINISH) {
+      return <RotateCcw className="text-white" size={16} />;
+    }
+
+    return <PlayIcon className="text-white" size={16} />;
+  };
+
+  return (
+    <div
+      className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
+      onClick={() => {
+        switch (previewState) {
+          case PreviewState.PAUSE:
+          case PreviewState.IDLE: {
+            AppActions.SetPreviewState(PreviewState.PLAY);
+            break;
+          }
+          case PreviewState.FINISH: {
+            AppActions.SetPreviewState(PreviewState.PLAY);
+            AppActions.SetPreviewSlideIdx(0);
+            break;
+          }
+
+          case PreviewState.RESUME:
+          case PreviewState.PLAY: {
+            AppActions.SetPreviewState(PreviewState.PAUSE);
+            break;
+          }
+          default:
+            break;
+        }
+      }}
+    >
+      {renderContent()}
+    </div>
+  );
+});
+
+export const LeftToolbar = memo(() => {
   const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
   const totalSlides = useAtomValue(slideLengthAtom);
 
@@ -62,7 +132,7 @@ export const LeftToolbar = () => {
       </div>
     </div>
   );
-};
+});
 
 export const ToolbarTitle = memo(() => {
   const [title, setTitle] = useAtom(AppState.previewTitle);

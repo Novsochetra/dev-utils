@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { AppState, store } from "./state";
 import { atom } from "jotai";
-import { Mode, PreviewResizeDirection } from "../utils/constants";
+import { Mode, PreviewResizeDirection, PreviewState } from "../utils/constants";
 
 export const AppActions = {
   SelectSlide: (index: number) => {
@@ -115,5 +115,9 @@ export const AppActions = {
 
   SetPreviewSlideIdx: (idx: number) => {
     store.set(AppState.previewSlideIdx, idx);
+  },
+
+  SetPreviewState: (mode: PreviewState) => {
+    store.set(AppState.previewState, mode);
   },
 };
