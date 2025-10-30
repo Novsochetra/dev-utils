@@ -5,6 +5,7 @@ import { memo, useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
+import("highlight.js/lib/languages/javascript");
 
 import hljs from "highlight.js/lib/core";
 import { AppState } from "../../state/state";

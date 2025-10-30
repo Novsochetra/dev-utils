@@ -2,7 +2,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { memo } from "react";
 import { Maximize2Icon, Minimize2Icon, MinusIcon, XIcon } from "lucide-react";
 
-import { AppState } from "../../state/state";
+import { AppState, slideLengthAtom } from "../../state/state";
 import { AppActions } from "../../state/actions";
 import { Mode, PreviewResizeDirection } from "../../utils/constants";
 import {
@@ -16,12 +16,7 @@ export const Toolbar = memo(() => {
 
   return (
     <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
-      <div className="flex flex-1">
-        <img
-          src="./assets/icons/android-chrome-192x192.png "
-          className="w-4 h-4 self-center ml-4 rounded-xs"
-        />
-      </div>
+      <LeftToolbar />
       <div className="flex flex-1 items-center justify-center">
         <ToolbarTitle />
       </div>
@@ -46,6 +41,28 @@ export const Toolbar = memo(() => {
     </div>
   );
 });
+
+export const LeftToolbar = () => {
+  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
+  const totalSlides = useAtomValue(slideLengthAtom);
+
+  return (
+    <div className="flex flex-1 gap-4">
+      <div className="flex">
+        <img
+          src="./assets/icons/android-chrome-192x192.png "
+          className="w-4 h-4 self-center ml-4 rounded-xs"
+        />
+      </div>
+
+      <div className="flex items-center">
+        <p className="text-sm font-bold">
+          {currentSlideIdx + 1} / {totalSlides}
+        </p>
+      </div>
+    </div>
+  );
+};
 
 export const ToolbarTitle = memo(() => {
   const [title, setTitle] = useAtom(AppState.previewTitle);

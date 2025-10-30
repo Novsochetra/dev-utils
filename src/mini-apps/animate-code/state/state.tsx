@@ -48,6 +48,8 @@ export const slideIdsAtom = atom((get) =>
   get(AppState.slides).map((s) => s.id),
 );
 
+export const slideLengthAtom = atom((get) => get(AppState.slides).length);
+
 function keyByAtom(arr: any[]) {
   const res = atom({});
   arr.forEach((slide) => {
