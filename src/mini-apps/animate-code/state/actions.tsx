@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 import { AppState, store } from "./state";
 import { atom } from "jotai";
-import { PreviewResizeDirection } from "../utils/constants";
+import { Mode, PreviewResizeDirection } from "../utils/constants";
 
 export const AppActions = {
   SelectSlide: (index: number) => {
@@ -111,5 +111,9 @@ export const AppActions = {
 
   SetPreviewLanguage: (lang: string) => {
     store.set(AppState.previewLanguage, lang);
+  },
+
+  SetPreviewSlideIdx: (idx: number) => {
+    store.set(AppState.previewSlideIdx, idx);
   },
 };

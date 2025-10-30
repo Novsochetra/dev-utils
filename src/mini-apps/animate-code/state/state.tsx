@@ -14,6 +14,7 @@ export type AppState = {
   projects: PrimitiveAtom<string[]>;
   sidebarOpen: PrimitiveAtom<boolean>;
   currentSlideIdx: PrimitiveAtom<number>;
+  previewSlideIdx: PrimitiveAtom<number | undefined>;
   mode: PrimitiveAtom<Mode>;
   previewState: PrimitiveAtom<PreviewState>;
   imagePreviews: PrimitiveAtom<Record<string, PrimitiveAtom<string>>>;
@@ -32,6 +33,7 @@ export const AppState: AppState = {
   projects: atom([defaultProjectId]),
   sidebarOpen: atom(true),
   currentSlideIdx: atom(0),
+  previewSlideIdx: atom(), // INFO: why undefined value ? since we need to since the currentSlideIdx with previewSlideIdx on <Preview />
   mode: atom<Mode>(Mode.Edit),
   previewState: atom<PreviewState>(PreviewState.IDLE),
   imagePreviews: keyByAtom(defaultSlides),

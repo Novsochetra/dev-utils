@@ -43,7 +43,7 @@ export const Toolbar = memo(() => {
 });
 
 export const LeftToolbar = () => {
-  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
+  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
   const totalSlides = useAtomValue(slideLengthAtom);
 
   return (
@@ -57,7 +57,7 @@ export const LeftToolbar = () => {
 
       <div className="flex items-center">
         <p className="text-sm font-bold">
-          {currentSlideIdx + 1} / {totalSlides}
+          {(previewSlideIdx || 0) + 1} / {totalSlides}
         </p>
       </div>
     </div>

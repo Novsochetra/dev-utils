@@ -11,8 +11,8 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowLeft",
     () => {
-      const currentSlideIdx = store.get(AppState.currentSlideIdx);
-      AppActions.SelectSlide(Math.max(currentSlideIdx - 1, 0));
+      const previewSlideIdx = store.get(AppState.previewSlideIdx);
+      AppActions.SetPreviewSlideIdx(Math.max(previewSlideIdx - 1, 0));
     },
     { enabled: mode === Mode.Preview },
   );
@@ -20,9 +20,11 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowRight",
     () => {
-      const currentSlideIdx = store.get(AppState.currentSlideIdx);
+      const previewSlideIdx = store.get(AppState.previewSlideIdx);
       const slides = store.get(AppState.slides);
-      AppActions.SelectSlide(Math.min(currentSlideIdx + 1, slides.length - 1));
+      AppActions.SetPreviewSlideIdx(
+        Math.min(previewSlideIdx + 1, slides.length - 1),
+      );
     },
     { enabled: mode === Mode.Preview },
   );

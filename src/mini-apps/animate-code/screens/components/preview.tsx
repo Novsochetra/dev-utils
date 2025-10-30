@@ -1,16 +1,21 @@
 import { useAtomValue } from "jotai";
-import { memo } from "react";
+import { memo, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { AppState } from "../../state/state";
+import { AppState, store } from "../../state/state";
 import { AnimateCodeSlide } from "./animate-code-slide";
 
 export const Preview = memo(() => {
   const slides = useAtomValue(AppState.slides);
-  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
-  const prevSlideIdx = currentSlideIdx == 0 ? 0 : currentSlideIdx - 1;
+  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
+  const prevSlideIdx = !previewSlideIdx ? 0 : previewSlideIdx - 1;
 
   const prevSlide = useAtomValue(slides[prevSlideIdx]?.data) || "";
-  const currentSlide = useAtomValue(slides[currentSlideIdx]?.data) || "";
+  const currentSlide = useAtomValue(slides[previewSlideIdx || 0]?.data) || "";
+
+  useEffect(() => {
+    const currentSlideIdx = store.get(AppState.currentSlideIdx);
+    store.set(AppState.previewSlideIdx, currentSlideIdx);
+  }, []);
 
   return (
     <motion.div
@@ -25,7 +30,9 @@ export const Preview = memo(() => {
         mass: 0.6,
       }}
     >
-      <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
+      {prevSlideIdx !== undefined ? (
+        <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
+      ) : null}
     </motion.div>
   );
 });
