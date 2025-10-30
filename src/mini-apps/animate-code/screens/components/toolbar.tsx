@@ -27,13 +27,13 @@ import { isApplePlatform } from "../../utils/helpers";
 export const Toolbar = memo(() => {
   return (
     <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
-      {isApplePlatform() ? <LeftMacControls /> : <LeftToolbar />}
+      {isApplePlatform() ? <LeftMacToolbar /> : <LeftToolbar />}
 
       <div className="flex flex-1 items-center justify-center px-4">
         <ToolbarTitle />
       </div>
 
-      {isApplePlatform() ? <RightMacControls /> : <RightToolbar />}
+      {isApplePlatform() ? <RightMacToolbar /> : <RightToolbar />}
     </div>
   );
 });
@@ -64,7 +64,7 @@ export const RightToolbar = memo(() => {
   );
 });
 
-const RightMacControls = memo(() => {
+const RightMacToolbar = memo(() => {
   const previewState = useAtomValue(AppState.previewState);
   const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
 
@@ -184,7 +184,7 @@ export const LeftToolbar = memo(() => {
   );
 });
 
-const LeftMacControls = memo(() => {
+const LeftMacToolbar = memo(() => {
   const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
   const totalSlides = useAtomValue(slideLengthAtom);
 
