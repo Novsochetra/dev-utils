@@ -184,7 +184,7 @@ export const AnimateCodeSlide = memo(
 
     return (
       <motion.div
-        className="hljs h-full aspect-video p-4 font-jetbrains-mono min-h-60 rounded-md pt-10 pb-8 relative overflow-hidden"
+        className="hljs h-full aspect-video p-4 font-jetbrains-mono min-h-60 rounded-md pt-10 pb-8 relative overflow-hidden select-none"
         style={{
           backgroundColor: bgColor,
         }}
