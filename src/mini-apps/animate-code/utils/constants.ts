@@ -93,6 +93,6 @@ const person = new Person("Alice");
 console.log("person: ", person)
 `;
 
-const d = [slide0, slide1, slide1];
+const d = [slide0, slide1, slide2, slide3, slide4, slide5, slide6];
 
 export const defaultSlides = d.map((v, i) => ({ id: v4(), data: atom(v) }));

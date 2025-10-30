@@ -29,7 +29,6 @@ export const useGlobalLazyPreview = (slides: { id: string }[]) => {
   const elementsRef = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
-    console.log("HI");
     const observer = new IntersectionObserver(
       async (entries) => {
         for (const entry of entries) {

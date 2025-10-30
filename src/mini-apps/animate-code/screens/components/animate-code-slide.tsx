@@ -9,6 +9,7 @@ import DiffMatchPatch from "diff-match-patch";
 import hljs from "highlight.js/lib/core";
 import { AppState } from "../../state/state";
 import { Toolbar } from "./toolbar";
+import { AnimateCodeStatusBar } from "./animate-code-status-bar";
 
 const dmp = new DiffMatchPatch();
 
@@ -48,6 +49,7 @@ export const AnimateCodeSlide = memo(
   ({ oldText, newText }: MultiLineDiffAnimatorProps) => {
     const previewSize = useAtomValue(AppState.previewSize);
     const [bgColor, setBgColor] = useState("white");
+    const previewLanguage = useAtomValue(AppState.previewLanguage);
     const supportLanguages = useMemo(
       () =>
         hljs.listLanguages().filter((l) => !unsupportedLanguages.includes(l)),
@@ -63,7 +65,9 @@ export const AnimateCodeSlide = memo(
     const highlightClasses = useMemo(() => {
       if (typeof window === "undefined") return [];
 
-      const highlightCode = hljs.highlightAuto(newText, supportLanguages);
+      const highlightCode = hljs.highlight(newText, {
+        language: previewLanguage,
+      });
       // Create temporary container
       const container = document.createElement("pre");
       container.className = "hljs"; // ensures theme colors applied
@@ -75,8 +79,9 @@ export const AnimateCodeSlide = memo(
       const classes = traverseHighlightByClass(container);
 
       document.body.removeChild(container);
+
       return classes;
-    }, [newText]);
+    }, [newText, previewLanguage]);
 
     // Compute positions for characters
     const computePositions = (text: string) => {
@@ -176,7 +181,7 @@ export const AnimateCodeSlide = memo(
 
     return (
       <motion.div
-        className="hljs h-full aspect-video p-4 font-jetbrains-mono min-h-60 rounded-md pt-10 relative overflow-hidden"
+        className="hljs h-full aspect-video p-4 font-jetbrains-mono min-h-60 rounded-md pt-10 pb-8 relative overflow-hidden"
         style={{
           backgroundColor: bgColor,
         }}
@@ -259,6 +264,8 @@ export const AnimateCodeSlide = memo(
             );
           })}
         </motion.div>
+
+        <AnimateCodeStatusBar />
       </motion.div>
     );
   },

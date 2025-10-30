@@ -21,6 +21,7 @@ export type AppState = {
   previewSize: PrimitiveAtom<number>;
   previewTitle: PrimitiveAtom<string>;
   previewResizeDirection: PrimitiveAtom<PreviewResizeDirection>;
+  previewLanguage: PrimitiveAtom<string>;
 };
 
 export const fallbackAtom = atom();
@@ -40,6 +41,7 @@ export const AppState: AppState = {
   previewResizeDirection: atom<PreviewResizeDirection>(
     PreviewResizeDirection.DOWN,
   ),
+  previewLanguage: atom("javascript"),
 };
 
 export const slideIdsAtom = atom((get) =>

@@ -108,4 +108,8 @@ export const AppActions = {
 
     store.set(AppState.previewSize, currentSize);
   },
+
+  SetPreviewLanguage: (lang: string) => {
+    store.set(AppState.previewLanguage, lang);
+  },
 };
