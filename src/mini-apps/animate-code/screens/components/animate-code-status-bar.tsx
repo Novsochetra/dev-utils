@@ -1,27 +1,16 @@
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
 
-import { cn } from "@/vendor/shadcn/lib/utils";
-import { Button } from "@/vendor/shadcn/components/ui/button";
 import {
-  Command,
   CommandDialog,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
 } from "@/vendor/shadcn/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/vendor/shadcn/components/ui/popover";
 import { useAtom } from "jotai";
 import { AppState } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
-import { useHotkeys } from "react-hotkeys-hook";
 
 const supportLanguages = [
   "xml",
@@ -109,27 +98,23 @@ export const AnimateCodeStatusBar = () => {
             <CommandList className="h-96">
               <CommandEmpty>No results found.</CommandEmpty>
 
-              {!search ? (
-                <>
-                  {languages?.map((a) => {
-                    return (
-                      <CommandItem
-                        id={`language-${a.value}`}
-                        key={`language-${a.value}`}
-                        className="h-10 text-sm overflow-hidden "
-                        onSelect={() => {
-                          setPreviewLanguage(a.value);
-                        }}
-                        value={a.label}
-                      >
-                        <span className="truncate line-clamp-1">{a.label}</span>
-                      </CommandItem>
-                    );
-                  })}
+              {languages?.map((a) => {
+                return (
+                  <CommandItem
+                    key={`language-${a.value}`}
+                    className="h-10 text-sm overflow-hidden "
+                    onSelect={() => {
+                      setPreviewLanguage(a.value);
+                      setOpen(false);
+                    }}
+                    value={a.value}
+                  >
+                    <span className="truncate line-clamp-1">{a.label}</span>
+                  </CommandItem>
+                );
+              })}
 
-                  <CommandSeparator className="my-2" />
-                </>
-              ) : null}
+              <CommandSeparator className="my-2" />
             </CommandList>
           </div>
           <div className="h-10 w-full bg-accent px-4 flex items-center">
