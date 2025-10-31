@@ -54,7 +54,12 @@ export const AnimateCodeStatusBar = React.memo(() => {
           }}
         >
           <div className="p-2">
-            <CommandInput placeholder="Search Languages ..." />
+            <CommandInput
+              placeholder="Search Languages ..."
+              onBlur={() => {
+                setOpen(false);
+              }}
+            />
           </div>
           <Separator />
           <div className="p-2">
