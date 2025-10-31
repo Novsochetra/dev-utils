@@ -8,7 +8,7 @@ import { AppActions } from "../../state/actions";
 
 export const MenuBarItem = memo(() => {
   return (
-    <div className="flex w-full rounded-xl mb-4">
+    <div className="flex flex-1 flex-col sm:flex-row rounded-xl mb-4 gap-4 ">
       <div>
         <ButtonGroup>
           <ToggleSidebarButton />
@@ -24,9 +24,7 @@ export const MenuBarItem = memo(() => {
         </ButtonGroup>
       </div>
 
-      <div className="flex flex-1 justify-center sm:gap-4 md:gap-8">
-        <ShortCutsCheatSheet />
-      </div>
+      <ShortCutsCheatSheet />
     </div>
   );
 });
@@ -39,17 +37,23 @@ export const ShortCutsCheatSheet = memo(() => {
   ];
 
   return (
-    <>
+    <div className="hidden sm:flex flex-1 flex-col sm:flex-row justify-center md:gap-8 gap-1 overflow-hidden">
       {shortcuts.map((shortcut, idx) => (
-        <div key={idx} className="flex items-center space-x-1 text-xs">
+        <div
+          key={idx}
+          className="flex items-center space-x-1 text-xs flex-1  overflow-hidden"
+        >
           {shortcut.keys.map((key, i) => (
-            <kbd key={i} className="px-1 py-0.5 rounded border bg-gray-100">
+            <kbd
+              key={i}
+              className="px-1 py-0.5 rounded border bg-gray-100 flex-shrink-0"
+            >
               {key}
             </kbd>
           ))}
-          <span>{shortcut.label}</span>
+          <span className="truncate">{shortcut.label}</span>
         </div>
       ))}
-    </>
+    </div>
   );
 });
