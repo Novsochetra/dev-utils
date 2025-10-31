@@ -296,7 +296,7 @@ export const LeftToolbar = memo(() => {
         />
       </div>
 
-      <div className="items-center hidden sm:flex">
+      <div className="items-center hidden sm:flex sm:visible">
         <p className="text-sm font-bold">
           {(previewSlideIdx || 0) + 1} / {totalSlides}
         </p>
@@ -376,7 +376,7 @@ const LeftMacToolbar = memo(() => {
       />
 
       {/* Slide counter */}
-      <span className="hidden sm:text-sm font-medium">
+      <span className="hidden sm:flex sm:text-sm font-medium">
         {(previewSlideIdx || 0) + 1} / {totalSlides}
       </span>
     </div>

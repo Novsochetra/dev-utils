@@ -11,8 +11,15 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowLeft",
     () => {
-      const previewSlideIdx = store.get(AppState.previewSlideIdx);
-      AppActions.SetPreviewSlideIdx(Math.max(previewSlideIdx || 0 - 1, 0));
+      const previewSlideIdx = store.get(AppState.previewSlideIdx) ?? 0;
+
+      if (previewSlideIdx <= 0) {
+        AppActions.SetPreviewState(PreviewState.PAUSE);
+        return;
+      }
+
+      AppActions.SetPreviewState(PreviewState.PAUSE);
+      AppActions.SetPreviewSlideIdx(Math.max((previewSlideIdx || 0) - 1, 0));
     },
     { enabled: mode === Mode.Preview },
   );
@@ -20,11 +27,19 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowRight",
     () => {
-      const previewSlideIdx = store.get(AppState.previewSlideIdx);
+      const previewSlideIdx = store.get(AppState.previewSlideIdx) ?? 0;
       const slides = store.get(AppState.slides);
-      AppActions.SetPreviewSlideIdx(
-        Math.min(previewSlideIdx || 0 + 1, slides.length - 1),
-      );
+      const lastIdx = slides.length - 1;
+
+      const nextIdx = Math.min(previewSlideIdx + 1, slides.length - 1);
+
+      if (nextIdx >= lastIdx) {
+        AppActions.SetPreviewState(PreviewState.FINISH);
+      } else {
+        AppActions.SetPreviewState(PreviewState.PAUSE);
+      }
+
+      AppActions.SetPreviewSlideIdx(nextIdx);
     },
     { enabled: mode === Mode.Preview },
   );
