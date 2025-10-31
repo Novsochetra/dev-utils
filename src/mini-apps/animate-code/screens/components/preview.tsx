@@ -52,7 +52,6 @@ export const Preview = memo(() => {
       layout
       key="code-editor-preview"
       layoutId="code-editor"
-      style={{ zIndex: 9999 }}
       transition={{
         type: "spring",
         stiffness: 200,
