@@ -6,11 +6,11 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
 } from "@/vendor/shadcn/components/ui/command";
 import { useAtom } from "jotai";
 import { AppState } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
+import { supportedHighlightJsLanguages } from "../../utils/constants";
 
 const supportLanguages = [
   "xml",
@@ -51,14 +51,19 @@ const supportLanguages = [
   "wasm",
 ];
 
-const languages = supportLanguages?.map((v) => ({ label: v, value: v }));
+const languages = supportedHighlightJsLanguages?.map((v) => ({
+  label: v.label,
+  value: v.value,
+}));
 
 export const AnimateCodeStatusBar = () => {
   const [open, setOpen] = React.useState(false);
-  const [search, setSearch] = React.useState("");
   const [previewLanguage, setPreviewLanguage] = useAtom(
     AppState.previewLanguage,
   );
+  const previewLanguageLabel = React.useMemo(() => {
+    return languages.find((v) => v.value === previewLanguage)?.label || "N/A";
+  }, [previewLanguage]);
 
   return (
     <div className="absolute bottom-0 left-0 w-full h-8 flex px-1 border-t border-t-black/20">
@@ -71,7 +76,9 @@ export const AnimateCodeStatusBar = () => {
             setOpen(true);
           }}
         >
-          <p className="text-muted-foreground text-xs">{previewLanguage}</p>
+          <p className="text-muted-foreground text-xs">
+            {previewLanguageLabel}
+          </p>
         </div>
 
         <CommandDialog
@@ -86,12 +93,7 @@ export const AnimateCodeStatusBar = () => {
           }}
         >
           <div className="p-2">
-            <CommandInput
-              placeholder="Search Languages ..."
-              onValueChange={(s) => {
-                setSearch(s);
-              }}
-            />
+            <CommandInput placeholder="Search Languages ..." />
           </div>
           <Separator />
           <div className="p-2">
@@ -107,14 +109,12 @@ export const AnimateCodeStatusBar = () => {
                       setPreviewLanguage(a.value);
                       setOpen(false);
                     }}
-                    value={a.value}
+                    value={a.label}
                   >
                     <span className="truncate line-clamp-1">{a.label}</span>
                   </CommandItem>
                 );
               })}
-
-              <CommandSeparator className="my-2" />
             </CommandList>
           </div>
           <div className="h-10 w-full bg-accent px-4 flex items-center">
