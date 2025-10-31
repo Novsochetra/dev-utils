@@ -29,7 +29,7 @@ export const AnimateCodeHomeScreen = () => {
   return (
     <AnimatePresence mode="wait">
       <AnimatedPage id={APP_ID}>
-        <div className="h-screen w-full flex flex-col">
+        <div className="h-dvh w-full flex flex-col overscroll-none">
           <Navbar
             showBack
             title="🤩"
@@ -37,7 +37,6 @@ export const AnimateCodeHomeScreen = () => {
             enableBackListener={mode === Mode.Edit}
             enableBackOnFormTags
           />
-
           <div className="flex flex-1 flex-col px-8 py-4 min-h-0">
             <MenuBarItem />
 

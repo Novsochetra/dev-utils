@@ -101,7 +101,7 @@ export const Toolbar = memo(
           enableActionButtonPreview,
         }}
       >
-        <div className="flex h-10 w-full absolute top-0 left-0 border-b border-b-black/20">
+        <div className="flex h-10 w-full border-b border-b-black/20">
           {isApplePlatform() ? <LeftMacToolbar /> : <LeftToolbar />}
 
           <div className="flex flex-1 items-center justify-center px-4">

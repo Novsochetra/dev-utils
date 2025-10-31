@@ -185,7 +185,7 @@ export const AnimateCodeSlide = memo(
 
     return (
       <motion.div
-        className="hljs h-full aspect-video p-4 font-jetbrains-mono min-h-60 rounded-lg pt-10 pb-8 relative overflow-hidden select-none border-2 border-white"
+        className="hljs h-full flex flex-col aspect-video font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
         style={{
           backgroundColor: bgColor,
         }}
@@ -203,8 +203,9 @@ export const AnimateCodeSlide = memo(
           // INFO: ensure the animation across slide has uniq animation key
           // otherwise some character transtion (add, modified, removed)
           // seem not animate correctly
+          className="flex-1 overflow-x-scroll p-4"
           key={v4()}
-          style={{ position: "relative", minHeight: 200 }}
+          style={{ position: "relative" }}
         >
           {chars.map((c, i) => {
             let initial: any, animateProps: any;

@@ -96,16 +96,14 @@ const CodeEditorWithHighlight = ({
       }}
     >
       <div className="w-full h-full hljs border-2 border-white rounded-lg flex flex-col overflow-hidden">
-        <div className="w-full h-10">
-          <Toolbar
-            enableButtonPlay={false}
-            enableButtonPreview
-            enableActionButtonPreview
-            enableActionButtonClose={false}
-            enableActionButtonMinimize={false}
-            enableActionButtonResize={false}
-          />
-        </div>
+        <Toolbar
+          enableButtonPlay={false}
+          enableButtonPreview
+          enableActionButtonPreview
+          enableActionButtonClose={false}
+          enableActionButtonMinimize={false}
+          enableActionButtonResize={false}
+        />
 
         <div id="code-block" className="relative flex-1 overflow-auto">
           <pre
@@ -138,9 +136,8 @@ const CodeEditorWithHighlight = ({
             }}
           ></textarea>
         </div>
-        <div className="w-full h-8">
-          <AnimateCodeStatusBar />
-        </div>
+
+        <AnimateCodeStatusBar />
       </div>
     </motion.div>
   );

@@ -66,7 +66,7 @@ export const AnimateCodeStatusBar = () => {
   }, [previewLanguage]);
 
   return (
-    <div className="absolute bottom-0 left-0 w-full h-8 flex px-1 border-t border-t-black/20">
+    <div className="w-full h-8 flex px-1 border-t border-t-black/20">
       <div className="flex flex-1"></div>
       <div className="flex flex-1"></div>
       <div className="flex flex-1 items-center justify-end">
@@ -76,7 +76,7 @@ export const AnimateCodeStatusBar = () => {
             setOpen(true);
           }}
         >
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-xs line-clamp-1 truncate">
             {previewLanguageLabel}
           </p>
         </div>

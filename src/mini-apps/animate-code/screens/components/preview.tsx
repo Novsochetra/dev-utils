@@ -48,10 +48,11 @@ export const Preview = memo(() => {
 
   return (
     <motion.div
-      className="absolute top-0 left-0 w-full h-full p-8 bg-white flex items-center justify-center"
+      className="fixed top-0 left-0 w-full h-full bg-red-500 p-8 flex items-center justify-center"
       layout
       key="code-editor-preview"
       layoutId="code-editor"
+      style={{ zIndex: 9999 }}
       transition={{
         type: "spring",
         stiffness: 200,
