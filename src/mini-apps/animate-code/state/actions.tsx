@@ -74,6 +74,35 @@ export const AppActions = {
     const currentIdx = store.get(AppState.currentSlideIdx);
     store.set(AppState.currentSlideIdx, currentIdx <= 0 ? 0 : currentIdx - 1);
   },
+
+  PreviewNextSlide: () => {
+    const previewSlideIdx = store.get(AppState.previewSlideIdx) ?? 0;
+    const slides = store.get(AppState.slides);
+    const lastIdx = slides.length - 1;
+
+    const nextIdx = Math.min(previewSlideIdx + 1, slides.length - 1);
+
+    if (nextIdx >= lastIdx) {
+      AppActions.SetPreviewState(PreviewState.FINISH);
+    } else {
+      AppActions.SetPreviewState(PreviewState.PAUSE);
+    }
+
+    AppActions.SetPreviewSlideIdx(nextIdx);
+  },
+
+  PreviewPreviousSlide: () => {
+    const previewSlideIdx = store.get(AppState.previewSlideIdx) ?? 0;
+
+    if (previewSlideIdx <= 0) {
+      AppActions.SetPreviewState(PreviewState.PAUSE);
+      return;
+    }
+
+    AppActions.SetPreviewState(PreviewState.PAUSE);
+    AppActions.SetPreviewSlideIdx(Math.max((previewSlideIdx || 0) - 1, 0));
+  },
+
   ToggleSidebar: () => {
     const isOpen = store.get(AppState.sidebarOpen);
     store.set(AppState.sidebarOpen, !isOpen);
@@ -119,5 +148,13 @@ export const AppActions = {
 
   SetPreviewState: (mode: PreviewState) => {
     store.set(AppState.previewState, mode);
+  },
+
+  SetEditorTheme: (v: string) => {
+    store.set(AppState.editorTheme, v);
+  },
+
+  SetEditorPreviewTheme: (v: string) => {
+    store.set(AppState.previewEditorTheme, v);
   },
 };

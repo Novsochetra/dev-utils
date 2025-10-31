@@ -2,7 +2,6 @@ import { memo } from "react";
 
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { ButtonGroup } from "@/vendor/shadcn/components/ui/button-group";
-import { PreviewButton } from "./preview-button";
 import { ToggleSidebarButton } from "./toggle-sidebar-button";
 import { AppActions } from "../../state/actions";
 
@@ -30,11 +29,7 @@ export const MenuBarItem = memo(() => {
 });
 
 export const ShortCutsCheatSheet = memo(() => {
-  const shortcuts = [
-    { keys: ["⌘", "Enter"], label: "Enter Preview Mode" },
-    { keys: ["Esc"], label: "Exit Presentation Mode" },
-    { keys: ["Space"], label: "Toggle Animation Play/Pause" },
-  ];
+  const shortcuts = [{ keys: ["⌘", "k"], label: "Show Command Menu" }];
 
   return (
     <div className="hidden sm:flex flex-1 flex-col sm:flex-row justify-center md:gap-8 gap-1 overflow-hidden">
