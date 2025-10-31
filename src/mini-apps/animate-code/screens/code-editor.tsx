@@ -40,6 +40,7 @@ const CodeEditorWithHighlight = ({
   const preRef = useRef<HTMLPreElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const mode = useAtomValue(AppState.mode);
+  const previewLanguage = useAtomValue(AppState.previewLanguage);
 
   useEffect(() => setCode(value), [value]);
 
@@ -53,12 +54,12 @@ const CodeEditorWithHighlight = ({
 
   useEffect(() => {
     try {
-      const result = hljs.highlight(code || "", { language });
+      const result = hljs.highlight(code || "", { language: previewLanguage });
       setHighlighted(result.value);
     } catch {
       setHighlighted(escapeHtml(code));
     }
-  }, [code, language]);
+  }, [code, language, previewLanguage]);
 
   const onScroll = () => {
     if (!taRef.current || !preRef.current) return;
