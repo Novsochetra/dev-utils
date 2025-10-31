@@ -12,51 +12,12 @@ import { AppState } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import { supportedHighlightJsLanguages } from "../../utils/constants";
 
-const supportLanguages = [
-  "xml",
-  "bash",
-  "c",
-  "cpp",
-  "csharp",
-  "css",
-  "markdown",
-  "diff",
-  "ruby",
-  "go",
-  "graphql",
-  "ini",
-  "java",
-  "javascript",
-  "json",
-  "kotlin",
-  "less",
-  "lua",
-  "makefile",
-  "perl",
-  "objectivec",
-  "php",
-  "php-template",
-  "plaintext",
-  "python",
-  "python-repl",
-  "r",
-  "rust",
-  "scss",
-  "shell",
-  "sql",
-  "swift",
-  "yaml",
-  "typescript",
-  "vbnet",
-  "wasm",
-];
-
 const languages = supportedHighlightJsLanguages?.map((v) => ({
   label: v.label,
   value: v.value,
 }));
 
-export const AnimateCodeStatusBar = () => {
+export const AnimateCodeStatusBar = React.memo(() => {
   const [open, setOpen] = React.useState(false);
   const [previewLanguage, setPreviewLanguage] = useAtom(
     AppState.previewLanguage,
@@ -135,4 +96,4 @@ export const AnimateCodeStatusBar = () => {
       </div>
     </div>
   );
-};
+});
