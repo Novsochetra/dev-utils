@@ -9,12 +9,12 @@ import React, {
 import hljs from "highlight.js/lib/core";
 import("highlight.js/lib/common");
 import { motion } from "framer-motion";
-import "highlight.js/styles/atom-one-dark.css";
 import { useAtomValue } from "jotai";
 import { AppState } from "../state/state";
 import { Mode } from "../utils/constants";
 import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
+import { useEditorThemes } from "../utils/hooks/use-editor-themes";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -35,6 +35,8 @@ const CodeEditorWithHighlight = ({
   language = "javascript",
   className = "",
 }: Props) => {
+  useEditorThemes();
+
   const [code, setCode] = useState(value);
   const [highlighted, setHighlighted] = useState("");
   const preRef = useRef<HTMLPreElement | null>(null);

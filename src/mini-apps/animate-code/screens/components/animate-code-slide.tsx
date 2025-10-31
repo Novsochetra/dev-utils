@@ -1,5 +1,4 @@
 import("highlight.js/lib/common");
-import "highlight.js/styles/atom-one-dark.css"; // any theme
 import { useAtomValue } from "jotai";
 import { memo, useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -11,6 +10,7 @@ import hljs from "highlight.js/lib/core";
 import { AppState } from "../../state/state";
 import { Toolbar } from "./toolbar";
 import { AnimateCodeStatusBar } from "./animate-code-status-bar";
+import { useEditorThemes } from "../../utils/hooks/use-editor-themes";
 
 const dmp = new DiffMatchPatch();
 
@@ -44,18 +44,12 @@ type MultiLineDiffAnimatorProps = {
   newText: string;
 };
 
-const unsupportedLanguages = ["perl", "ini", "vbnet", "wasm"];
-
 export const AnimateCodeSlide = memo(
   ({ oldText, newText }: MultiLineDiffAnimatorProps) => {
+    useEditorThemes();
+
     const previewSize = useAtomValue(AppState.previewSize);
-    const [bgColor, setBgColor] = useState("white");
     const previewLanguage = useAtomValue(AppState.previewLanguage);
-    const supportLanguages = useMemo(
-      () =>
-        hljs.listLanguages().filter((l) => !unsupportedLanguages.includes(l)),
-      [],
-    );
 
     // Compute diff
     const diffs = useMemo(
@@ -171,24 +165,10 @@ export const AnimateCodeSlide = memo(
       });
     });
 
-    // Get background color from theme
-    useEffect(() => {
-      if (typeof window === "undefined") return;
-      const temp = document.createElement("pre");
-      temp.className = "hljs";
-      temp.style.display = "none";
-      document.body.appendChild(temp);
-      const computed = window.getComputedStyle(temp);
-      setBgColor(computed.backgroundColor || "#1e1e1e");
-      document.body.removeChild(temp);
-    }, []);
-
     return (
       <motion.div
         className="hljs h-full flex flex-col aspect-video font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
-        style={{
-          backgroundColor: bgColor,
-        }}
+        style={{}}
         animate={{ height: `${previewSize}%` }}
         transition={{
           type: "spring",

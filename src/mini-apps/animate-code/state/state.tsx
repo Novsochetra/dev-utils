@@ -19,6 +19,8 @@ export type AppState = {
   previewState: PrimitiveAtom<PreviewState>;
   imagePreviews: PrimitiveAtom<Record<string, PrimitiveAtom<string>>>;
   slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
+  editorTheme: PrimitiveAtom<string>;
+  previewEditorTheme: PrimitiveAtom<string>;
   previewSize: PrimitiveAtom<number>;
   previewTitle: PrimitiveAtom<string>;
   previewBackground: {
@@ -41,6 +43,8 @@ export const AppState: AppState = {
   previewSlideIdx: atom(), // INFO: why undefined value ? since we need to since the currentSlideIdx with previewSlideIdx on <Preview />
   mode: atom<Mode>(Mode.Edit),
   previewState: atom<PreviewState>(PreviewState.IDLE),
+  editorTheme: atom("atom-one-light"),
+  previewEditorTheme: atom(""),
   imagePreviews: keyByAtom(defaultSlides),
   slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
   previewSize: atom(100), // percentage
