@@ -320,28 +320,50 @@ const LeftMacToolbar = memo(() => {
       {/* Traffic lights */}
       <div className="flex gap-2">
         {enableButtonClose ? (
-          <div
-            className="group w-3 h-3 rounded-full bg-red-500 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-400"
-            onClick={() => {
-              if (!enableActionButtonClose) return;
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className="group w-3 h-3 rounded-full bg-red-500 flex items-center justify-center cursor-pointer transition-colors hover:bg-red-400"
+                onClick={() => {
+                  if (!enableActionButtonClose) return;
 
-              AppActions.SetMode(Mode.Edit);
-              AppActions.SetPreviewSize(100);
-            }}
-          >
-            <XIcon
-              className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-              size={10}
-            />
-          </div>
+                  AppActions.SetMode(Mode.Edit);
+                  AppActions.SetPreviewSize(100);
+                }}
+              >
+                <XIcon
+                  className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  size={10}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="flex items-center">
+                <span className="mr-4">Exit</span>
+
+                <kbd className="bg-white text-muted-foreground pointer-events-none inline-flex h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none">
+                  <span className="text-xs">Esc</span>
+                </kbd>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         ) : null}
         {enableButtonMinimize ? (
-          <div className="group w-3 h-3 rounded-full bg-yellow-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-yellow-400">
-            <MinusIcon
-              className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-              size={10}
-            />
-          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="group w-3 h-3 rounded-full bg-yellow-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-yellow-400">
+                <MinusIcon
+                  className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                  size={10}
+                />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="flex items-center">
+                <span className="mr-4">Minimize ( View Only 😅 )</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         ) : null}
 
         {enableButtonResize ? <ButtonMacResizeToolbar /> : null}
@@ -366,26 +388,40 @@ export const ButtonMacResizeToolbar = memo(() => {
   const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
 
   return (
-    <div
-      className="group w-3 h-3 rounded-full bg-green-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-green-400"
-      onClick={() => {
-        if (!enableActionButtonResize) return;
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className="group w-3 h-3 rounded-full bg-green-500 cursor-pointer flex items-center justify-center transition-colors hover:bg-green-400"
+          onClick={() => {
+            if (!enableActionButtonResize) return;
 
-        AppActions.TogglePreviewSize();
-      }}
-    >
-      {previewResizeDirection === PreviewResizeDirection.DOWN ? (
-        <ChevronsRightLeftIcon
-          className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-          size={10}
-        />
-      ) : (
-        <ChevronsLeftRightIcon
-          className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
-          size={10}
-        />
-      )}
-    </div>
+            AppActions.TogglePreviewSize();
+          }}
+        >
+          {previewResizeDirection === PreviewResizeDirection.DOWN ? (
+            <ChevronsRightLeftIcon
+              className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              size={10}
+            />
+          ) : (
+            <ChevronsLeftRightIcon
+              className="text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+              size={10}
+            />
+          )}
+        </div>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="flex items-center">
+          <span className="mr-4">
+            Resize{" "}
+            {PreviewResizeDirection.DOWN === previewResizeDirection
+              ? "Down"
+              : "Up"}
+          </span>
+        </div>
+      </TooltipContent>
+    </Tooltip>
   );
 });
 

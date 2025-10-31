@@ -15,7 +15,6 @@ import { AppState } from "../state/state";
 import { Mode } from "../utils/constants";
 import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
-import { Background } from "./components/preview";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -95,7 +94,7 @@ const CodeEditorWithHighlight = ({
         mass: 0.6,
       }}
     >
-      <div className="w-full h-full hljs border-2 border-red-500 rounded-lg flex flex-col overflow-hidden">
+      <div className="w-full h-full hljs border-2 border-white rounded-lg flex flex-col overflow-hidden">
         <div className="w-full h-10">
           <Toolbar
             enableButtonPlay={false}
