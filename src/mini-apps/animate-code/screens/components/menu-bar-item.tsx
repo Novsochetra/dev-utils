@@ -41,7 +41,7 @@ export const ShortCutsCheatSheet = memo(() => {
       {shortcuts.map((shortcut, idx) => (
         <div
           key={idx}
-          className="flex items-center space-x-1 text-xs flex-1  overflow-hidden"
+          className="flex items-center space-x-1 text-xs shrink grow-0  overflow-hidden"
         >
           {shortcut.keys.map((key, i) => (
             <kbd
