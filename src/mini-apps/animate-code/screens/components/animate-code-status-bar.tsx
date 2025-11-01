@@ -14,6 +14,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { AppState, slideLengthAtom } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
+  Mode,
   supportedHighlightJsLanguages,
   supportedHighlightJsThemes,
 } from "../../utils/constants";
@@ -40,6 +41,12 @@ export const AnimateCodeStatusBar = React.memo(() => {
 });
 
 export const LeftStatusBar = React.memo(() => {
+  const mode = useAtomValue(AppState.mode);
+
+  if (mode === Mode.Edit) {
+    return null;
+  }
+
   return (
     <div className="flex items-center gap-2">
       <PrevSlideButton />
