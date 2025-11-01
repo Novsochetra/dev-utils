@@ -9,6 +9,7 @@ import {
 } from "@/vendor/shadcn/components/ui/command";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 
 import { AppState, slideLengthAtom } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
@@ -16,6 +17,8 @@ import {
   supportedHighlightJsLanguages,
   supportedHighlightJsThemes,
 } from "../../utils/constants";
+import { isApplePlatform } from "../../utils/helpers";
+import { AppActions } from "../../state/actions";
 
 const languages = supportedHighlightJsLanguages?.map((v) => ({
   label: v.label,
@@ -37,13 +40,52 @@ export const AnimateCodeStatusBar = React.memo(() => {
 });
 
 export const LeftStatusBar = React.memo(() => {
+  return (
+    <div className="flex items-center gap-2">
+      <PrevSlideButton />
+
+      <SliderInfo />
+
+      <NextSlideButton />
+    </div>
+  );
+});
+
+export const SliderInfo = React.memo(() => {
   const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
   const totalSlides = useAtomValue(slideLengthAtom);
+
   return (
     <div className="flex items-center overflow-hidden truncate shrink-0">
       <p className="text-xs text-muted-foreground font-bold whitespace-nowrap overflow-hidden truncate text-ellipsis">
         {(previewSlideIdx || 0) + 1} / {totalSlides}
       </p>
+    </div>
+  );
+});
+
+const adaptiveStyle = isApplePlatform()
+  ? "p-1 hover:bg-white/20 rounded transition-colors"
+  : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full aspect-square";
+
+export const PrevSlideButton = React.memo(() => {
+  return (
+    <div
+      className={adaptiveStyle}
+      onClick={() => AppActions.PreviewPreviousSlide()}
+    >
+      <ChevronLeftIcon size={16} />
+    </div>
+  );
+});
+
+export const NextSlideButton = React.memo(() => {
+  return (
+    <div
+      className={adaptiveStyle}
+      onClick={() => AppActions.PreviewNextSlide()}
+    >
+      <ChevronRightIcon size={16} />
     </div>
   );
 });
