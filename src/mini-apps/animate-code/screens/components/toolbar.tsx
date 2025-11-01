@@ -14,7 +14,7 @@ import {
   XIcon,
 } from "lucide-react";
 
-import { AppState, slideLengthAtom, store } from "../../state/state";
+import { AppState, store } from "../../state/state";
 import { AppActions } from "../../state/actions";
 import {
   Mode,
@@ -104,7 +104,7 @@ export const Toolbar = memo(
         <div className="flex h-10 w-full border-b border-b-black/20">
           {isApplePlatform() ? <LeftMacToolbar /> : <LeftToolbar />}
 
-          <div className="flex flex-1 items-center justify-center px-4">
+          <div className="flex flex-1 items-center justify-center px-4 shrink-0 box-border">
             <ToolbarTitle />
           </div>
 
@@ -116,26 +116,15 @@ export const Toolbar = memo(
 );
 
 export const RightToolbar = memo(() => {
-  const {
-    enableButtonChangeBackground,
-    enableButtonPlay,
-    enableButtonMinimize,
-    enableButtonResize,
-    enableButtonPreview,
-  } = useContext(ToolbarContext);
+  const { enableButtonMinimize, enableButtonResize } =
+    useContext(ToolbarContext);
   const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
 
   return (
-    <div className="flex-1 flex items-center justify-end">
-      {enableButtonPreview ? <ButtonPreview /> : null}
-
-      {enableButtonChangeBackground ? <GradientButton /> : null}
-
-      {enableButtonPlay ? <ButtonPlayPaused /> : null}
-
+    <div className="flex flex-1 items-center justify-end">
       {enableButtonMinimize ? (
         <div className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors">
-          <MinusIcon className="text-white" size={16} />
+          <MinusIcon size={16} />
         </div>
       ) : null}
 
@@ -167,7 +156,7 @@ const RightMacToolbar = memo(() => {
   } = useContext(ToolbarContext);
 
   return (
-    <div className="flex items-center gap-2 px-4">
+    <div className="flex flex-1 items-center justify-end gap-2 pr-2 box-border">
       {enableButtonPreview ? <ButtonPreview /> : null}
 
       {enableButtonChangeBackground ? <GradientButton /> : null}
@@ -225,7 +214,7 @@ const ButtonPlayPaused = memo(() => {
     const isPlaying = previewState === PreviewState.PLAY;
 
     if (isPlaying) {
-      return <PauseIcon className="text-white" size={16} />;
+      return <PauseIcon size={16} />;
     }
 
     if (previewState === PreviewState.FINISH) {
@@ -284,23 +273,26 @@ const ButtonPlayPaused = memo(() => {
 });
 
 export const LeftToolbar = memo(() => {
-  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
-  const totalSlides = useAtomValue(slideLengthAtom);
+  const {
+    enableButtonPlay,
+    enableButtonPreview,
+    enableButtonChangeBackground,
+  } = useContext(ToolbarContext);
 
   return (
-    <div className="flex sm:flex-1 gap-4">
-      <div className="flex">
+    <div className="flex flex-1">
+      <div className="h-full aspect-square flex items-center justify-center">
         <img
           src="./assets/icons/android-chrome-192x192.png "
-          className="w-4 h-4 self-center ml-4 rounded-xs"
+          className="w-4 h-4 rounded-xs"
         />
       </div>
 
-      <div className="items-center hidden sm:flex sm:visible">
-        <p className="text-sm font-bold">
-          {(previewSlideIdx || 0) + 1} / {totalSlides}
-        </p>
-      </div>
+      {enableButtonPreview ? <ButtonPreview /> : null}
+
+      {enableButtonChangeBackground ? <GradientButton /> : null}
+
+      {enableButtonPlay ? <ButtonPlayPaused /> : null}
     </div>
   );
 });
@@ -312,11 +304,9 @@ const LeftMacToolbar = memo(() => {
     enableButtonClose,
     enableActionButtonClose,
   } = useContext(ToolbarContext);
-  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
-  const totalSlides = useAtomValue(slideLengthAtom);
 
   return (
-    <div className="flex items-center gap-2 pl-4 shrink">
+    <div className="flex flex-1 items-center gap-2 shrink overflow-hidden pl-2 box-border">
       {/* Traffic lights */}
       <div className="flex gap-2">
         {enableButtonClose ? (
@@ -369,16 +359,12 @@ const LeftMacToolbar = memo(() => {
         {enableButtonResize ? <ButtonMacResizeToolbar /> : null}
       </div>
 
-      {/* Optional app icon */}
-      <img
-        src="./assets/icons/android-chrome-192x192.png"
-        className="w-4 h-4 rounded-xs ml-4"
-      />
-
-      {/* Slide counter */}
-      <span className="hidden sm:flex sm:text-sm font-medium">
-        {(previewSlideIdx || 0) + 1} / {totalSlides}
-      </span>
+      <div className="h-full aspect-square hidden sm:flex items-center justify-center">
+        <img
+          src="./assets/icons/android-chrome-192x192.png"
+          className="w-2 h-2 sm:w-4 sm:h-4 rounded-xs"
+        />
+      </div>
     </div>
   );
 });
@@ -432,7 +418,7 @@ export const ToolbarTitle = memo(() => {
     <input
       type="text"
       value={title}
-      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate"
+      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate text-ellipsis line-clamp-1"
       onChange={(e) => setTitle(e.target.value)}
     />
   );

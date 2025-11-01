@@ -7,10 +7,10 @@ import {
   CommandItem,
   CommandList,
 } from "@/vendor/shadcn/components/ui/command";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 
-import { AppState } from "../../state/state";
+import { AppState, slideLengthAtom } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
   supportedHighlightJsLanguages,
@@ -24,13 +24,26 @@ const languages = supportedHighlightJsLanguages?.map((v) => ({
 
 export const AnimateCodeStatusBar = React.memo(() => {
   return (
-    <div className="w-full h-8 flex px-1 border-t border-t-black/20">
-      <div className="flex flex-1"></div>
-      <div className="flex flex-1"></div>
-      <div className="flex flex-1 items-center justify-end">
+    <div className="max-h-8 flex flex-1 px-2 border-t border-t-black/20 gap-4">
+      <LeftStatusBar />
+
+      <div className="flex flex-1 min-w-0 gap-2 justify-end items-center">
         <ChangeThemeStatusBarItem />
+        <div className="h-4 w-[1px] bg-border" />
         <ChangeLanguangeStatusBarItem />
       </div>
+    </div>
+  );
+});
+
+export const LeftStatusBar = React.memo(() => {
+  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
+  const totalSlides = useAtomValue(slideLengthAtom);
+  return (
+    <div className="flex items-center overflow-hidden truncate shrink-0">
+      <p className="text-xs text-muted-foreground font-bold whitespace-nowrap overflow-hidden truncate text-ellipsis">
+        {(previewSlideIdx || 0) + 1} / {totalSlides}
+      </p>
     </div>
   );
 });
@@ -77,17 +90,10 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
   }, [editorTheme]);
 
   return (
-    <div>
-      <div
-        className="px-2 py-1 hover:bg-black/20 rounded-sm"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        <p className="text-muted-foreground text-xs line-clamp-1 truncate">
-          {editorThemeLabel}
-        </p>
-      </div>
+    <div className="flex min-w-0" onClick={() => setOpen(true)}>
+      <p className="text-muted-foreground text-xs line-clamp-1 truncate text-ellipsis">
+        {editorThemeLabel}
+      </p>
 
       <CommandDialog
         open={open}
@@ -158,17 +164,15 @@ export const ChangeLanguangeStatusBarItem = React.memo(() => {
   }, [previewLanguage]);
 
   return (
-    <div>
-      <div
-        className="px-2 py-1 hover:bg-black/20 rounded-sm"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        <p className="text-muted-foreground text-xs line-clamp-1 truncate">
-          {previewLanguageLabel}
-        </p>
-      </div>
+    <div
+      className="flex min-w-0"
+      onClick={() => {
+        setOpen(true);
+      }}
+    >
+      <p className="text-muted-foreground text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+        {previewLanguageLabel}
+      </p>
 
       <CommandDialog
         open={open}
