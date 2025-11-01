@@ -57,7 +57,9 @@ export const CommandMenu = React.memo(() => {
       onOpenChange={setOpen}
       className="border-4 border-stone-200 rounded-3xl"
       showCloseButton={false}
-      onEscapeKeyDown={() => {
+      onEscapeKeyDown={(e) => {
+        e.stopPropagation();
+
         setOpen(false);
         // page specific behaviour
         if (page === "theme") {
