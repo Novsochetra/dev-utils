@@ -157,7 +157,7 @@ export const ListThemesCommandItem = React.memo(
           key={`language-${a.value}`}
           className="h-10 text-sm overflow-hidden "
           onSelect={() => {
-            AppActions.SetEditorPreviewTheme(a.value);
+            AppActions.SetEditorTheme(a.value);
             setOpen(false);
           }}
           value={a.label}
