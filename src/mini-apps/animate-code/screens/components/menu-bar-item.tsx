@@ -7,8 +7,8 @@ import { AppActions } from "../../state/actions";
 
 export const MenuBarItem = memo(() => {
   return (
-    <div className="flex flex-1 flex-col sm:flex-row rounded-xl mb-4 gap-4 ">
-      <div>
+    <div className="flex flex-row gap-4 rounded-xl mb-4">
+      <div className="flex gap-2">
         <ButtonGroup>
           <ToggleSidebarButton />
           <Button
@@ -32,11 +32,11 @@ export const ShortCutsCheatSheet = memo(() => {
   const shortcuts = [{ keys: ["⌘", "k"], label: "Show Command Menu" }];
 
   return (
-    <div className="hidden sm:flex flex-1 flex-col sm:flex-row justify-center md:gap-8 gap-1 overflow-hidden">
+    <div className="flex flex-1 items-center justify-center gap-8">
       {shortcuts.map((shortcut, idx) => (
         <div
           key={idx}
-          className="flex items-center space-x-1 text-xs shrink grow-0  overflow-hidden"
+          className="flex items-center space-x-1 text-xs shrink grow-0 overflow-hidden"
         >
           {shortcut.keys.map((key, i) => (
             <kbd
