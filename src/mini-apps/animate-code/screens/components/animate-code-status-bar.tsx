@@ -27,7 +27,7 @@ const languages = supportedHighlightJsLanguages?.map((v) => ({
 
 export const AnimateCodeStatusBar = React.memo(() => {
   return (
-    <div className="max-h-8 flex flex-1 px-2 border-t border-t-black/20 gap-4">
+    <div className="max-h-8 flex flex-1 px-2 border-t border-t-black/20 gap-4 overflow-hidden">
       <LeftStatusBar />
 
       <div className="flex flex-1 min-w-0 gap-2 justify-end items-center">
@@ -66,7 +66,7 @@ export const SliderInfo = React.memo(() => {
 
 const adaptiveStyle = isApplePlatform()
   ? "p-1 hover:bg-white/20 rounded transition-colors"
-  : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full aspect-square";
+  : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full p-1";
 
 export const PrevSlideButton = React.memo(() => {
   return (
@@ -132,8 +132,14 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
   }, [editorTheme]);
 
   return (
-    <div className="flex min-w-0" onClick={() => setOpen(true)}>
-      <p className="text-muted-foreground text-xs line-clamp-1 truncate text-ellipsis">
+    <div className="flex min-w-0 h-full items-center">
+      <p
+        className={`text-muted-foreground text-xs line-clamp-1 truncate cursor-pointer text-ellipsis ${adaptiveStyle}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
+      >
         {editorThemeLabel}
       </p>
 
@@ -169,6 +175,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
                   key={`language-${a.value}`}
                   className="h-10 text-sm overflow-hidden "
                   onSelect={() => {
+                    setPreviewEditorTheme("");
                     setEditorTheme(a.value);
                     setOpen(false);
                   }}
@@ -206,13 +213,13 @@ export const ChangeLanguangeStatusBarItem = React.memo(() => {
   }, [previewLanguage]);
 
   return (
-    <div
-      className="flex min-w-0"
-      onClick={() => {
-        setOpen(true);
-      }}
-    >
-      <p className="text-muted-foreground text-xs whitespace-nowrap overflow-hidden text-ellipsis">
+    <div className="flex min-w-0 h-full items-center">
+      <p
+        className={`text-muted-foreground text-xs whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer ${adaptiveStyle}`}
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
         {previewLanguageLabel}
       </p>
 
