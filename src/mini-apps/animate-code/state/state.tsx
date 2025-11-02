@@ -17,7 +17,6 @@ export type AppState = {
   previewSlideIdx: PrimitiveAtom<number | undefined>;
   mode: PrimitiveAtom<Mode>;
   previewState: PrimitiveAtom<PreviewState>;
-  imagePreviews: PrimitiveAtom<Record<string, PrimitiveAtom<string>>>;
   slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
   editorTheme: PrimitiveAtom<string>;
   previewEditorTheme: PrimitiveAtom<string>;
@@ -45,7 +44,6 @@ export const AppState: AppState = {
   previewState: atom<PreviewState>(PreviewState.IDLE),
   editorTheme: atom("atom-one-light"),
   previewEditorTheme: atom(""),
-  imagePreviews: keyByAtom(defaultSlides),
   slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
   previewSize: atom(100), // percentage
   previewTitle: atom("index.html"),

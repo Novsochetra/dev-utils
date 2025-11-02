@@ -1,8 +1,16 @@
-import { memo, type RefObject, useRef } from "react";
+import {
+  useState,
+  memo,
+  type RefObject,
+  useRef,
+  useEffect,
+  useMemo,
+} from "react";
 import clsx from "clsx";
 import { Trash2Icon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
+import hljs from "highlight.js/lib/core";
 
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -12,15 +20,17 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/vendor/shadcn/components/ui/context-menu";
-import { useGlobalLazyPreview } from "../utils/hooks/use-generate-preview";
 import { AppState, fallbackAtom, store } from "../state/state";
 import { AppActions } from "../state/actions";
-import { createPreviewImage } from "../utils/helpers";
 import { Background } from "./components/preview";
+import { codeEditorConfig } from "../utils/constants";
 
 type SliderProps = {
   codeEditorRef: RefObject<HTMLDivElement | null>;
 };
+
+const SLIDER_CONTENT_WIDTH = 128; // w-32
+const BORDER_WIDTH = 2;
 
 export const Slider = memo(({ codeEditorRef }: SliderProps) => {
   return (
@@ -36,8 +46,6 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
   );
 });
 
-const DEBOUNCE_MS = 500;
-
 const CodeEditorWithAtom = memo(
   ({ ref }: { ref: RefObject<HTMLDivElement | null> }) => {
     const slides = store.get(AppState.slides);
@@ -45,32 +53,10 @@ const CodeEditorWithAtom = memo(
     const [value, setValue] = useAtom(
       (slides[currentSlideIdx]?.data || fallbackAtom) as PrimitiveAtom<string>,
     );
-    const debounceTimeout = useRef<number | undefined>(undefined);
 
     const onChange = (newValue: string) => {
       if (slides[currentSlideIdx].data) {
         setValue(newValue);
-
-        // clear previous timer
-        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
-
-        // set new timer
-        debounceTimeout.current = window.setTimeout(() => {
-          updatePreviewImages(newValue);
-        }, DEBOUNCE_MS);
-      }
-    };
-
-    const updatePreviewImages = async (newValue: string) => {
-      if (ref.current) {
-        const s = store.get(AppState.slides);
-        const base64Image = await createPreviewImage(newValue);
-        const index = store.get(AppState.currentSlideIdx);
-        const previews = store.get(AppState.imagePreviews);
-        console.log("S: ", s);
-        const previewAtom = previews[s[index].id];
-
-        store.set(previewAtom, base64Image || "");
       }
     };
 
@@ -90,10 +76,9 @@ export const LeftSidebarSlider = memo(() => {
   const sidebarOpen = useAtomValue(AppState.sidebarOpen);
   const slides = useAtomValue(AppState.slides);
   const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
-  const { register } = useGlobalLazyPreview(slides);
 
   const padding = 16;
-  const sliderItemWidth = 128 + padding * 2;
+  const sliderItemWidth = SLIDER_CONTENT_WIDTH + padding * 2;
 
   return (
     <motion.div
@@ -111,10 +96,8 @@ export const LeftSidebarSlider = memo(() => {
             return (
               <SliderItem
                 key={`slider-item-${s.id}`}
-                id={s.id}
                 index={idx}
                 active={currentSlideIdx === idx}
-                register={register}
               />
             );
           })}
@@ -125,28 +108,22 @@ export const LeftSidebarSlider = memo(() => {
 });
 
 type SliderItemProps = {
-  id: string;
   index: number;
   active: boolean;
-  imageData?: string | null;
-  register: (id: string, el: HTMLDivElement | null) => void;
 };
 
 const SliderItem = memo(
-  ({ active, id, index, register }: SliderItemProps) => {
-    const imagePreviews = store.get(AppState.imagePreviews);
-
-    const imageData = useAtomValue(imagePreviews[id] || fallbackAtom);
-
+  ({ active, index }: SliderItemProps) => {
     return (
-      <div ref={(el) => register(id, el)}>
+      <div>
         <ContextMenu>
           <ContextMenuTrigger>
             <motion.div
               className={clsx(
-                "group w-32 max-h-[72px] min-h-[72px] rounded-md overflow-hidden relative transition-border",
-                active ? "border-2 border-sky-400" : "border-2",
+                `group w-[${SLIDER_CONTENT_WIDTH}px] max-h-[72px] min-h-[72px] rounded-md overflow-hidden relative transition-border`,
+                active ? "border-sky-400" : "",
               )}
+              style={{ borderWidth: BORDER_WIDTH }}
               onClick={() => AppActions.SelectSlide(index)}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -160,15 +137,7 @@ const SliderItem = memo(
               layout
             >
               <div className="w-full h-full bg-gray-50">
-                {imageData ? (
-                  <motion.img
-                    className="w-full aspect-video"
-                    src={imageData}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1 }}
-                  />
-                ) : null}
+                <PreviewImage index={index} />
               </div>
               <Button
                 variant="link"
@@ -214,3 +183,65 @@ const SliderItem = memo(
     prev.active === next.active &&
     prev.imageData === next.imageData,
 );
+
+export const PreviewImage = memo(({ index }: { index: number }) => {
+  const slides = useAtomValue(AppState.slides);
+  const slideData = useAtomValue(slides[index].data);
+  const previewLanguage = useAtomValue(AppState.previewLanguage);
+  const [editorWidth, setEditorWidth] = useState<number | null>(null);
+  let timeout = useRef<NodeJS.Timeout | null>(null);
+
+  const highlighted = useMemo(() => {
+    return (
+      hljs.highlight(slideData || "", {
+        language: previewLanguage,
+      })?.value || ""
+    );
+  }, [slideData, previewLanguage]);
+
+  useEffect(() => {
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+    }
+
+    // INFO: delete a bit so the layout animation of code editor can be finish
+    setTimeout(() => {
+      const el = document.getElementById("code-block");
+      if (el) {
+        const editorWidth = el.clientWidth - 24;
+        setEditorWidth(editorWidth);
+      }
+    }, 500);
+
+    return () => {
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
+    };
+  }, []);
+
+  if (!editorWidth) {
+    return null;
+  }
+
+  const previewWidth = SLIDER_CONTENT_WIDTH - BORDER_WIDTH * 2;
+  const scaleFactor = previewWidth / editorWidth;
+  const previewFontSize = codeEditorConfig.fontSize * scaleFactor;
+
+  return (
+    <pre
+      aria-hidden="true"
+      className="aspect-video font-mono hljs overflow-auto text-green-500"
+      style={{
+        boxSizing: "border-box",
+        padding: 4,
+        width: previewWidth,
+        fontSize: previewFontSize,
+        whiteSpace: "pre-wrap",
+        wordBreak: "break-word",
+      }}
+    >
+      <code dangerouslySetInnerHTML={{ __html: highlighted || " " }} />
+    </pre>
+  );
+});

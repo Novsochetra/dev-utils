@@ -37,7 +37,6 @@
     "framer-motion": "^12.23.12",
     "fuse.js": "^7.1.0",
     "highlight.js": "^11.11.1",
-    "html2canvas-pro": "^1.5.12",
     "jose": "^6.1.0",
     "jotai": "^2.15.0",
     "jwt-decode": "^4.0.0",

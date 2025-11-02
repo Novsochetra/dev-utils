@@ -220,3 +220,7 @@ export const supportedHighlightJsThemes = [
   { label: "Xcode", value: "xcode" },
   { label: "XT256", value: "xt256" },
 ];
+
+export const codeEditorConfig = {
+  fontSize: 12,
+};

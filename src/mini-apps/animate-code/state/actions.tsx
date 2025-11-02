@@ -11,13 +11,6 @@ export const AppActions = {
     const newItem = { id: v4(), data: atom("") };
     const prev = store.get(AppState.slides);
     store.set(AppState.slides, [...prev, newItem]);
-
-    // Add Image Preview
-    const imagePreviews = store.get(AppState.imagePreviews);
-    store.set(AppState.imagePreviews, {
-      ...imagePreviews,
-      [newItem.id]: atom(""),
-    });
   },
   AddSlideBelow: (index: number) => {
     const newItem = { id: v4(), data: atom("") };
@@ -27,13 +20,6 @@ export const AppActions = {
       newItem,
       ...prev.slice(index + 1),
     ]);
-
-    // Add Image Preview
-    const imagePreviews = store.get(AppState.imagePreviews);
-    store.set(AppState.imagePreviews, {
-      ...imagePreviews,
-      [newItem.id]: atom(""),
-    });
   },
   AddSlideAbove: (index: number) => {
     const newItem = { id: v4(), data: atom("") };
@@ -43,13 +29,6 @@ export const AppActions = {
       newItem,
       ...prev.slice(index),
     ]);
-
-    // Add Image Preview
-    const imagePreviews = store.get(AppState.imagePreviews);
-    store.set(AppState.imagePreviews, {
-      ...imagePreviews,
-      [newItem.id]: atom(""),
-    });
   },
   RemoveSlide: (index: number) => {
     const prev = store.get(AppState.slides);
@@ -61,14 +40,6 @@ export const AppActions = {
       AppState.slides,
       prev.filter((_, i) => index !== i),
     );
-
-    // Update Image Preview
-    const imagePreviews = store.get(AppState.imagePreviews);
-    delete imagePreviews[prev[index].id];
-
-    store.set(AppState.imagePreviews, {
-      ...imagePreviews,
-    });
 
     // Auto select previous slide
     const currentIdx = store.get(AppState.currentSlideIdx);
