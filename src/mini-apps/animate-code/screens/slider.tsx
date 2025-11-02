@@ -11,6 +11,7 @@ import { Trash2Icon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
 import hljs from "highlight.js/lib/core";
+import("highlight.js/lib/common");
 
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";

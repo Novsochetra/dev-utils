@@ -63,20 +63,3 @@ export const slideIdsAtom = atom((get) =>
 );
 
 export const slideLengthAtom = atom((get) => get(AppState.slides).length);
-
-function keyByAtom(arr: any[]) {
-  const res = atom({});
-  arr.forEach((slide) => {
-    const previews = store.get(res) as Record<string, PrimitiveAtom<string>>;
-    let imageAtom = previews[slide.id];
-
-    if (!imageAtom) {
-      imageAtom = atom(""); // create atom with initial value
-      store.set(res, { ...previews, [slide.id]: imageAtom });
-    } else {
-      store.set(imageAtom, ""); // update existing atom
-    }
-  });
-
-  return res;
-}
