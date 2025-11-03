@@ -43,10 +43,15 @@ const CodeEditorWithHighlight = ({
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const mode = useAtomValue(AppState.mode);
   const previewLanguage = useAtomValue(AppState.previewLanguage);
+  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
 
   useAdaptiveCursorColor({ preTagRef: preRef, textareaRef: taRef });
 
   useEffect(() => setCode(value), [value]);
+
+  useEffect(() => {
+    taRef.current?.focus();
+  }, [currentSlideIdx]);
 
   useEffect(() => {
     if (mode === Mode.Preview) {
