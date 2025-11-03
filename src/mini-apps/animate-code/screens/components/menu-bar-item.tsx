@@ -5,6 +5,11 @@ import { ButtonGroup } from "@/vendor/shadcn/components/ui/button-group";
 import { ToggleSidebarButton } from "./toggle-sidebar-button";
 import { AppActions } from "../../state/actions";
 import { ShortCuts } from "./shortcuts";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/vendor/shadcn/components/ui/tooltip";
 
 export const MenuBarItem = memo(() => {
   return (
@@ -12,20 +17,37 @@ export const MenuBarItem = memo(() => {
       <div className="flex gap-2">
         <ButtonGroup>
           <ToggleSidebarButton />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              AppActions.AddSlide();
-            }}
-          >
-            Add Slide
-          </Button>
+          <AddSlideButton />
         </ButtonGroup>
       </div>
 
       <ShortCutsCheatSheet />
     </div>
+  );
+});
+
+export const AddSlideButton = memo(() => {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            AppActions.AddSlide();
+          }}
+        >
+          Add Slide
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <div className="flex items-center">
+          <span className="mr-4">Add Slide</span>
+
+          <ShortCuts keys={["⌘", "option", "n"]} className="text-zinc-800" />
+        </div>
+      </TooltipContent>
+    </Tooltip>
   );
 });
 
