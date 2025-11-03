@@ -198,7 +198,7 @@ export const MainPageMenu = React.memo(
     setOpen,
   }: {
     setSearch: (v: string) => void;
-    setPage: (v: string) => void;
+    setPage: (v: "main" | "theme" | "language") => void;
     setOpen: (v: boolean) => void;
   }) => {
     const previewMode = useAtomValue(AppState.mode);

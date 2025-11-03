@@ -93,9 +93,19 @@ const person = new Person("Alice");
 console.log("person: ", person)
 `;
 
+export const defaultDummySlides = [
+  slide0,
+  slide1,
+  slide2,
+  slide3,
+  slide4,
+  slide5,
+  slide6,
+];
+
 const d = [slide6];
 
-export const defaultSlides = d.map((v, i) => ({ id: v4(), data: atom(v) }));
+export const defaultSlides = d.map((v) => ({ id: v4(), data: atom(v) }));
 
 // highlightLanguages.ts
 export const supportedHighlightJsLanguages = [

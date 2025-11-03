@@ -1,4 +1,3 @@
-import React, { memo } from "react";
 import { useAtom, useSetAtom } from "jotai";
 import { AppState, store } from "../../state/state";
 import { Button } from "@/vendor/shadcn/components/ui/button";

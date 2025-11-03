@@ -185,7 +185,7 @@ export const AnimateCodeSlide = memo(
           key={v4()}
           style={{ position: "relative" }}
         >
-          {chars.map((c, i) => {
+          {chars.map((c) => {
             let initial: any, animateProps: any;
 
             if (c.type === 0) {
