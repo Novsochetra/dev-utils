@@ -12,7 +12,6 @@ export const ShortCuts = memo(
     keys: string[];
     label?: string;
   }) => {
-    console.log("classname: ", className);
     return (
       <div className="flex flex-1 items-center justify-center gap-8">
         <div className="flex items-center space-x-1 text-xs shrink grow-0 overflow-hidden">

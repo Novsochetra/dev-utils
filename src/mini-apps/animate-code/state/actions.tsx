@@ -11,11 +11,11 @@ export const AppActions = {
   AddSlide: () => {
     const newItem = { id: v4(), data: atom("") };
     const prev = store.get(AppState.slides);
-    store.set(AppState.slides, [...prev, newItem]);
+    const newSlides = [...prev, newItem];
+    store.set(AppState.slides, newSlides);
 
-    // auto select next slide
-    const currentSlideIdx = store.get(AppState.currentSlideIdx);
-    store.set(AppState.currentSlideIdx, currentSlideIdx + 1);
+    // auto select last slide
+    store.set(AppState.currentSlideIdx, newSlides.length - 1);
   },
 
   AddSlideBelow: (index: number) => {
