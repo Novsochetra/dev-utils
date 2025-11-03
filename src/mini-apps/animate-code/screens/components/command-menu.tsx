@@ -27,6 +27,7 @@ import {
   MonitorUpIcon,
   PaletteIcon,
 } from "lucide-react";
+import { ShortCuts } from "./shortcuts";
 
 export const CommandMenu = React.memo(() => {
   const [open, setOpen] = React.useState(false);
@@ -291,19 +292,26 @@ export const MainPageMenu = React.memo(
             </CommandItem>
           </>
         ) : (
-          <CommandItem
-            className="h-10 text-sm overflow-hidden "
-            onSelect={() => {
-              setOpen(false);
-              setSearch("");
-              AppActions.SetMode(Mode.Preview);
-            }}
-          >
-            <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-              <EyeIcon className="text-stone-500" />
-            </div>
-            Enter Preview Mode
-          </CommandItem>
+          <>
+            <CommandSeparator className="my-2" />
+
+            <CommandItem
+              className="h-10 text-sm overflow-hidden "
+              onSelect={() => {
+                setOpen(false);
+                setSearch("");
+                AppActions.SetMode(Mode.Preview);
+              }}
+            >
+              <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+                <EyeIcon className="text-stone-500" />
+              </div>
+              Enter Preview Mode
+              <div className="flex items-center space-x-1 text-xs shrink grow-0  overflow-hidden ml-auto">
+                <ShortCuts keys={["⌘", "Enter"]} />
+              </div>
+            </CommandItem>
+          </>
         )}
       </>
     );

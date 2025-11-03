@@ -4,6 +4,7 @@ import { Button } from "@/vendor/shadcn/components/ui/button";
 import { ButtonGroup } from "@/vendor/shadcn/components/ui/button-group";
 import { ToggleSidebarButton } from "./toggle-sidebar-button";
 import { AppActions } from "../../state/actions";
+import { ShortCuts } from "./shortcuts";
 
 export const MenuBarItem = memo(() => {
   return (
@@ -34,20 +35,11 @@ export const ShortCutsCheatSheet = memo(() => {
   return (
     <div className="flex flex-1 items-center justify-center gap-8">
       {shortcuts.map((shortcut, idx) => (
-        <div
-          key={idx}
-          className="flex items-center space-x-1 text-xs shrink grow-0 overflow-hidden"
-        >
-          {shortcut.keys.map((key, i) => (
-            <kbd
-              key={i}
-              className="px-1 py-0.5 rounded border bg-gray-100 flex-shrink-0"
-            >
-              {key}
-            </kbd>
-          ))}
-          <span className="truncate">{shortcut.label}</span>
-        </div>
+        <ShortCuts
+          key={`cheat-sheat-${idx}`}
+          keys={shortcut.keys}
+          label={shortcut.label}
+        />
       ))}
     </div>
   );
