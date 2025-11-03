@@ -9,6 +9,15 @@ export const useShortcutKeys = () => {
   const mode = useAtomValue(AppState.mode);
 
   useHotkeys(
+    "mod+alt+n", // (cmd / ctrl) + (option / alt) + n
+    (event) => {
+      event.preventDefault(); // prevent browser default actions
+      AppActions.AddSlide();
+    },
+    { enableOnFormTags: true, enabled: true, enableOnContentEditable: true },
+  );
+
+  useHotkeys(
     "ArrowLeft",
     () => {
       AppActions.PreviewPreviousSlide();
