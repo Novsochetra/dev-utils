@@ -44,8 +44,11 @@ export const SliderItem = memo(
               }}
               layout
             >
-              <div className="w-full h-full bg-gray-50">
+              <div className="w-full h-full bg-gray-50 relative">
                 <SliderPreviewImage index={index} />
+                <p className="absolute top-1 left-1 text-xs font-semibold text-gray-600 bg-border px-1 rounded">
+                  {index + 1}
+                </p>
               </div>
               <Button
                 variant="link"

@@ -118,6 +118,13 @@ export const LeftSidebarSlider = memo(() => {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={(e) => {
+          const idx = items.indexOf(e.active.id as string);
+
+          if (idx !== -1) {
+            AppActions.SetCurrentSlideIdx(idx);
+          }
+        }}
         onDragEnd={handleDragEnd}
         modifiers={[restrictToVerticalAxis]}
       >
