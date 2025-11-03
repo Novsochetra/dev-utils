@@ -164,7 +164,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
       >
         <div className="p-2">
           <CommandInput
-            placeholder="Search Languages ..."
+            placeholder="Search Themes ..."
             onBlur={() => {
               setOpen(false);
               setPreviewEditorTheme("");
