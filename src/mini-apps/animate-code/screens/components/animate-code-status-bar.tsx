@@ -72,7 +72,7 @@ export const SliderInfo = React.memo(() => {
 });
 
 const adaptiveStyle = isApplePlatform()
-  ? "p-1 hover:bg-white/20 rounded transition-colors"
+  ? "p-1 hover:bg-white/20 rounded transition-colors cursor-pointer"
   : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full p-1";
 
 export const PrevSlideButton = React.memo(() => {
