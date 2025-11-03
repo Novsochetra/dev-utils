@@ -18,7 +18,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 
 import CodeEditorWithHighlight from "./code-editor";
-import { AppState, fallbackAtom, store } from "../state/state";
+import { AppState, fallbackAtom, slideIdsAtom, store } from "../state/state";
 import { Background } from "./components/preview";
 import { SLIDER_CONTENT_WIDTH } from "./components/slider/constants";
 import { SliderItem } from "./components/slider/slider-item";
@@ -69,15 +69,15 @@ const CodeEditorWithAtom = memo(
 );
 
 export const LeftSidebarSlider = memo(() => {
-  const slides = useAtomValue(AppState.slides);
   const setSlides = useSetAtom(AppState.slides);
+  const slideIds = useAtomValue(slideIdsAtom);
   const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
-  const [items, setItems] = useState(slides.map((v) => v.id));
+  const [items, setItems] = useState(slideIds);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setItems(slides.map((v) => v.id));
-  }, [slides]);
+    setItems(slideIds);
+  }, [slideIds]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -99,6 +99,7 @@ export const LeftSidebarSlider = memo(() => {
       setItems(newItems);
 
       // Update Jotai state
+      const slides = store.get(AppState.slides);
       const sorted = [...slides].sort(
         (a, b) => newItems.indexOf(a.id) - newItems.indexOf(b.id),
       );
