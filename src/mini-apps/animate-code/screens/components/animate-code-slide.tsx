@@ -1,12 +1,10 @@
-import("highlight.js/lib/common");
 import { useAtomValue } from "jotai";
-import { memo, useState, useMemo, useEffect } from "react";
+import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
-import("highlight.js/lib/languages/javascript");
+import hljs from "highlight.js";
 
-import hljs from "highlight.js/lib/core";
 import { AppState } from "../../state/state";
 import { Toolbar } from "./toolbar";
 import { AnimateCodeStatusBar } from "./animate-code-status-bar";

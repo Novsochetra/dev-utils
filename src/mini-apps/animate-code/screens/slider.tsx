@@ -10,8 +10,7 @@ import clsx from "clsx";
 import { Trash2Icon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
-import hljs from "highlight.js/lib/core";
-import("highlight.js/lib/common");
+import hljs from "highlight.js";
 
 import CodeEditorWithHighlight from "./code-editor";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -178,11 +177,7 @@ const SliderItem = memo(
       </div>
     );
   },
-  (prev, next) =>
-    prev.id === next.id &&
-    prev.index === next.index &&
-    prev.active === next.active &&
-    prev.imageData === next.imageData,
+  (prev, next) => prev.index === next.index && prev.active === next.active,
 );
 
 export const PreviewImage = memo(({ index }: { index: number }) => {

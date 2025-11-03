@@ -6,8 +6,7 @@ import React, {
   useState,
   type RefObject,
 } from "react";
-import hljs from "highlight.js/lib/core";
-import("highlight.js/lib/common");
+import hljs from "highlight.js";
 import { motion } from "framer-motion";
 import { useAtomValue } from "jotai";
 import { AppState } from "../state/state";
