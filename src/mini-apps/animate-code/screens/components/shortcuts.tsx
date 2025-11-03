@@ -25,9 +25,7 @@ export const ShortCuts = memo(
             </kbd>
           ))}
           {label ? (
-            <span className={`truncate ${descClassName} text-red-500`}>
-              {label}
-            </span>
+            <span className={`truncate ${descClassName}`}>{label}</span>
           ) : null}
         </div>
       </div>
