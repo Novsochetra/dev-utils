@@ -14,6 +14,7 @@ import { Mode } from "../utils/constants";
 import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
 import { useEditorThemes } from "../utils/hooks/use-editor-themes";
+import { useAdaptiveCursorColor } from "../utils/hooks/use-adaptive-cursor-color";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -42,6 +43,8 @@ const CodeEditorWithHighlight = ({
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const mode = useAtomValue(AppState.mode);
   const previewLanguage = useAtomValue(AppState.previewLanguage);
+
+  useAdaptiveCursorColor({ preTagRef: preRef, textareaRef: taRef });
 
   useEffect(() => setCode(value), [value]);
 
@@ -123,6 +126,7 @@ const CodeEditorWithHighlight = ({
           {/* Editable overlay */}
           <textarea
             ref={taRef as any}
+            name="code-editor"
             value={code}
             onChange={(e) => {
               setCode(e.target.value);
@@ -131,7 +135,7 @@ const CodeEditorWithHighlight = ({
             onScroll={onScroll}
             onKeyDown={onKeyDown}
             spellCheck={false}
-            className="absolute inset-0 text-transparent bg-transparent caret-white focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none p-3 font-mono"
+            className="absolute text-transparent bg-transparent inset-0 focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none p-3 font-mono"
             style={{
               fontSize: 12,
             }}

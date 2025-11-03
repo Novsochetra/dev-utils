@@ -417,6 +417,7 @@ export const ToolbarTitle = memo(() => {
   return (
     <input
       type="text"
+      name="editor-title-input"
       value={title}
       className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate text-ellipsis line-clamp-1"
       onChange={(e) => setTitle(e.target.value)}
