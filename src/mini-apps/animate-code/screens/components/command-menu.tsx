@@ -159,6 +159,7 @@ export const ListThemesCommandItem = React.memo(
           key={`language-${a.value}`}
           className="h-10 text-sm overflow-hidden "
           onSelect={() => {
+            AppActions.SetEditorPreviewTheme("");
             AppActions.SetEditorTheme(a.value);
             setOpen(false);
           }}
@@ -209,6 +210,7 @@ export const MainPageMenu = React.memo(
           onSelect={() => {
             setPage("theme");
             setSearch("");
+            setOpen(true);
           }}
         >
           <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
@@ -221,6 +223,7 @@ export const MainPageMenu = React.memo(
           onSelect={() => {
             setPage("language");
             setSearch("");
+            setOpen(true);
           }}
         >
           <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
