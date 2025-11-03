@@ -7,11 +7,17 @@ export const AppActions = {
   SelectSlide: (index: number) => {
     store.set(AppState.currentSlideIdx, index);
   },
+
   AddSlide: () => {
     const newItem = { id: v4(), data: atom("") };
     const prev = store.get(AppState.slides);
     store.set(AppState.slides, [...prev, newItem]);
+
+    // auto select next slide
+    const currentSlideIdx = store.get(AppState.currentSlideIdx);
+    store.set(AppState.currentSlideIdx, currentSlideIdx + 1);
   },
+
   AddSlideBelow: (index: number) => {
     const newItem = { id: v4(), data: atom("") };
     const prev = store.get(AppState.slides);
@@ -20,7 +26,12 @@ export const AppActions = {
       newItem,
       ...prev.slice(index + 1),
     ]);
+
+    // auto select next slide
+    const currentSlideIdx = store.get(AppState.currentSlideIdx);
+    store.set(AppState.currentSlideIdx, currentSlideIdx + 1);
   },
+
   AddSlideAbove: (index: number) => {
     const newItem = { id: v4(), data: atom("") };
     const prev = store.get(AppState.slides);
@@ -30,6 +41,7 @@ export const AppActions = {
       ...prev.slice(index),
     ]);
   },
+
   RemoveSlide: (index: number) => {
     const prev = store.get(AppState.slides);
     if (prev.length === 1) {
