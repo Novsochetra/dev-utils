@@ -8,6 +8,10 @@ export const AppActions = {
     store.set(AppState.currentSlideIdx, index);
   },
 
+  SetCurrentSlideIdx: (index: number) => {
+    store.set(AppState.currentSlideIdx, index);
+  },
+
   AddSlide: () => {
     const newItem = { id: v4(), data: atom("") };
     const prev = store.get(AppState.slides);
