@@ -168,15 +168,13 @@ export const AnimateCodeSlide = memo(
     });
 
     return (
-      <motion.div
-        className="hljs h-full flex flex-col aspect-video font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
-        style={{}}
-        animate={{ height: `${previewSize}%` }}
-        transition={{
-          type: "spring",
-          stiffness: 200,
-          damping: 18,
-          mass: 0.6,
+      <div
+        className="hljs flex flex-col font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
+        style={{
+          width: `${previewSize}%`,
+          maxWidth: "100%",
+          maxHeight: "100%",
+          aspectRatio: "16 / 9",
         }}
       >
         <Toolbar />
@@ -253,7 +251,7 @@ export const AnimateCodeSlide = memo(
         </motion.div>
 
         <AnimateCodeStatusBar />
-      </motion.div>
+      </div>
     );
   },
 );
