@@ -181,7 +181,7 @@ export const AnimateCodeSlide = memo(
           // INFO: ensure the animation across slide has uniq animation key
           // otherwise some character transtion (add, modified, removed)
           // seem not animate correctly
-          className="flex-1 overflow-x-scroll p-4"
+          className="flex-1 overflow-x-auto p-4"
           key={v4()}
           style={{ position: "relative" }}
         >
