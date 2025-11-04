@@ -3,7 +3,6 @@ import hljs from "highlight.js";
 import { useAtomValue } from "jotai";
 
 import { AppState, fallbackAtom } from "@/mini-apps/animate-code/state/state";
-import { codeEditorConfig } from "@/mini-apps/animate-code/utils/constants";
 import { BORDER_WIDTH, SLIDER_CONTENT_WIDTH } from "./constants";
 
 export const SliderPreviewImage = memo(({ index }: { index: number }) => {

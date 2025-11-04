@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
