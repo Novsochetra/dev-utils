@@ -6,4 +6,13 @@ export const routes = [
       return { Component };
     },
   },
+  {
+    path: "/animate-code/landing",
+    lazy: async () => {
+      const { default: Component } = await import(
+        "./screens/landing-v2-screen.tsx"
+      );
+      return { Component };
+    },
+  },
 ];

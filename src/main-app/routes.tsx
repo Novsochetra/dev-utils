@@ -6,4 +6,11 @@ export const routes = [
       return { Component };
     },
   },
+  {
+    path: "*",
+    lazy: async () => {
+      const { default: Component } = await import("./not-found");
+      return { Component };
+    },
+  },
 ];
