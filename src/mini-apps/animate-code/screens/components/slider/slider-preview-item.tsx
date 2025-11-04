@@ -12,6 +12,7 @@ export const SliderPreviewImage = memo(({ index }: { index: number }) => {
   const previewLanguage = useAtomValue(AppState.previewLanguage);
   const [editorWidth, setEditorWidth] = useState<number | null>(null);
   let timeout = useRef<NodeJS.Timeout | null>(null);
+  const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
 
   const highlighted = useMemo(() => {
     return (
@@ -48,7 +49,7 @@ export const SliderPreviewImage = memo(({ index }: { index: number }) => {
 
   const previewWidth = SLIDER_CONTENT_WIDTH - BORDER_WIDTH * 2;
   const scaleFactor = previewWidth / editorWidth;
-  const previewFontSize = codeEditorConfig.fontSize * scaleFactor;
+  const previewFontSize = editorFontSize * scaleFactor;
 
   return (
     <pre

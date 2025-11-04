@@ -9,22 +9,37 @@ import {
 } from "@/vendor/shadcn/components/ui/command";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
 
 import { AppState, slideLengthAtom } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
+  codeEditorConfig,
   Mode,
   supportedHighlightJsLanguages,
   supportedHighlightJsThemes,
 } from "../../utils/constants";
 import { isApplePlatform } from "../../utils/helpers";
 import { AppActions } from "../../state/actions";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/vendor/shadcn/components/ui/tooltip";
 
 const languages = supportedHighlightJsLanguages?.map((v) => ({
   label: v.label,
   value: v.value,
 }));
+
+const adaptiveStyle = isApplePlatform()
+  ? "p-1 hover:bg-white/20 rounded transition-colors cursor-pointer"
+  : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full p-1";
 
 export const AnimateCodeStatusBar = React.memo(() => {
   return (
@@ -32,10 +47,22 @@ export const AnimateCodeStatusBar = React.memo(() => {
       <LeftStatusBar />
 
       <div className="flex flex-1 min-w-0 gap-2 justify-end items-center">
+        <FontSizeGroup />
+        <div className="h-4 w-[1px] bg-border" />
         <ChangeThemeStatusBarItem />
         <div className="h-4 w-[1px] bg-border" />
         <ChangeLanguangeStatusBarItem />
       </div>
+    </div>
+  );
+});
+
+export const FontSizeGroup = React.memo(() => {
+  return (
+    <div className="flex min-w-0 h-full items-center">
+      <DecrementFontSizeButton />
+      <FontSizeInfo />
+      <IncrementFontSizeButton />
     </div>
   );
 });
@@ -71,10 +98,6 @@ export const SliderInfo = React.memo(() => {
   );
 });
 
-const adaptiveStyle = isApplePlatform()
-  ? "p-1 hover:bg-white/20 rounded transition-colors cursor-pointer"
-  : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full p-1";
-
 export const PrevSlideButton = React.memo(() => {
   return (
     <div
@@ -93,6 +116,53 @@ export const NextSlideButton = React.memo(() => {
       onClick={() => AppActions.PreviewNextSlide()}
     >
       <ChevronRightIcon size={16} />
+    </div>
+  );
+});
+
+export const IncrementFontSizeButton = React.memo(() => {
+  return (
+    <div
+      className={adaptiveStyle}
+      onClick={() => AppActions.SetToggleEditorFontSIze("up")}
+    >
+      <ZoomInIcon size={16} />
+    </div>
+  );
+});
+
+export const FontSizeInfo = React.memo(() => {
+  const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          onClick={() => {
+            AppActions.SetEditorFontSize(codeEditorConfig.fontSize);
+          }}
+        >
+          <p className="text-xs text-muted-foreground font-bold whitespace-nowrap overflow-hidden truncate text-ellipsis">
+            {editorFontSize}px
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent className="bg-black">
+        <div className="flex items-center text-xs">
+          <span>Reset To Default</span>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+});
+
+export const DecrementFontSizeButton = React.memo(() => {
+  return (
+    <div
+      className={adaptiveStyle}
+      onClick={() => AppActions.SetToggleEditorFontSIze("down")}
+    >
+      <ZoomOutIcon size={16} />
     </div>
   );
 });

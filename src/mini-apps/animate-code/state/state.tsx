@@ -29,6 +29,9 @@ export type AppState = {
   };
   previewResizeDirection: PrimitiveAtom<PreviewResizeDirection>;
   previewLanguage: PrimitiveAtom<string>;
+  editorConfig: {
+    fontSize: PrimitiveAtom<number>;
+  };
 };
 
 export const fallbackAtom = atom();
@@ -56,6 +59,9 @@ export const AppState: AppState = {
     to: atom("#c4b5fd"),
   },
   previewLanguage: atom("javascript"),
+  editorConfig: {
+    fontSize: atom(12),
+  },
 };
 
 export const slideIdsAtom = atom((get) =>

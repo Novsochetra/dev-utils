@@ -1,7 +1,12 @@
 import { v4 } from "uuid";
 import { AppState, store } from "./state";
 import { atom } from "jotai";
-import { Mode, PreviewResizeDirection, PreviewState } from "../utils/constants";
+import {
+  Mode,
+  predefinedEditorFontSize,
+  PreviewResizeDirection,
+  PreviewState,
+} from "../utils/constants";
 
 export const AppActions = {
   SelectSlide: (index: number) => {
@@ -143,5 +148,23 @@ export const AppActions = {
 
   SetEditorPreviewTheme: (v: string) => {
     store.set(AppState.previewEditorTheme, v);
+  },
+
+  SetEditorFontSize: (size: number) => {
+    store.set(AppState.editorConfig.fontSize, size);
+  },
+
+  SetToggleEditorFontSIze: (direction: "up" | "down") => {
+    const current = store.get(AppState.editorConfig.fontSize);
+    const idx = predefinedEditorFontSize.findIndex((v) => v >= current);
+    const nextIdx =
+      direction === "up"
+        ? Math.min(idx + 1, predefinedEditorFontSize.length - 1)
+        : Math.max(idx - 1, 0);
+
+    store.set(
+      AppState.editorConfig.fontSize,
+      predefinedEditorFontSize[nextIdx],
+    );
   },
 };

@@ -234,3 +234,7 @@ export const supportedHighlightJsThemes = [
 export const codeEditorConfig = {
   fontSize: 12,
 };
+
+export const predefinedEditorFontSize = [
+  10, 12, 14, 16, 18, 20, 24, 30, 36, 48, 60, 72, 96,
+];

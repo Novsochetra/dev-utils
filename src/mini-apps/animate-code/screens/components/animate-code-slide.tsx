@@ -1,4 +1,4 @@
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { memo, useMemo } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
@@ -9,15 +9,9 @@ import { AppState } from "../../state/state";
 import { Toolbar } from "./toolbar";
 import { AnimateCodeStatusBar } from "./animate-code-status-bar";
 import { useEditorThemes } from "../../utils/hooks/use-editor-themes";
+import { measureFontMetrics } from "../../utils/helpers";
 
 const dmp = new DiffMatchPatch();
-
-const charWidth = 10;
-const lineHeight = 20;
-const removeDuration = 0.8;
-const addDuration = 1;
-const addedDelayPerChar = 0.08;
-const lineDelay = 0.05;
 
 function traverseHighlightByClass(node: Node, parentClass?: string): string[] {
   const classes: string[] = [];
@@ -48,6 +42,16 @@ export const AnimateCodeSlide = memo(
 
     const previewSize = useAtomValue(AppState.previewSize);
     const previewLanguage = useAtomValue(AppState.previewLanguage);
+    const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
+    const { charWidth, lineHeight } = useMemo(
+      () => measureFontMetrics(editorFontSize),
+      [editorFontSize],
+    );
+
+    const removeDuration = 0.8;
+    const addDuration = 1;
+    const addedDelayPerChar = 0.08;
+    const lineDelay = 0.05;
 
     // Compute diff
     const diffs = useMemo(
@@ -237,8 +241,8 @@ export const AnimateCodeSlide = memo(
                 className={`${c.classes}`}
                 animate={animateProps}
                 style={{
+                  fontSize: editorFontSize,
                   position: "absolute",
-                  width: charWidth,
                   display: "inline-block",
                 }}
               >

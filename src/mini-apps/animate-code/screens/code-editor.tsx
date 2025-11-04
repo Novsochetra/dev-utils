@@ -44,6 +44,7 @@ const CodeEditorWithHighlight = ({
   const mode = useAtomValue(AppState.mode);
   const previewLanguage = useAtomValue(AppState.previewLanguage);
   const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
+  const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
 
   useAdaptiveCursorColor({ preTagRef: preRef, textareaRef: taRef });
 
@@ -120,7 +121,7 @@ const CodeEditorWithHighlight = ({
             aria-hidden="true"
             className="absolute inset-0 font-mono hljs p-3 overflow-auto text-green-500"
             style={{
-              fontSize: 12,
+              fontSize: editorFontSize,
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
             }}
@@ -142,7 +143,7 @@ const CodeEditorWithHighlight = ({
             spellCheck={false}
             className="absolute text-transparent bg-transparent inset-0 focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none p-3 font-mono"
             style={{
-              fontSize: 12,
+              fontSize: editorFontSize,
             }}
           ></textarea>
         </div>
