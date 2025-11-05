@@ -136,6 +136,7 @@ html,
 body {
   overscroll-behavior: none; /* prevents bounce scrolling */
   -webkit-overflow-scrolling: auto; /* disables iOS rubber-band */
+  overflow: hidden;
 }
 
 body {

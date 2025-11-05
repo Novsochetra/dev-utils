@@ -56,18 +56,17 @@ export const Navbar = (props: NavbarProps) => {
 
   return (
     <>
-      <div className="flex px-8 py-4 gap-4">
-        <div className="h-10 flex items-center">
+      <div
+        data-tauri-drag-region
+        className="flex w-full min-h-12 gap-4 h-12 py-2"
+      >
+        <div className="flex items-center min-w-23">
           {props.showBack ? (
             <Link to="/" className="flex">
               <ChevronLeft className="mr-4" />
               <span className="hidden sm:block">Back</span>
             </Link>
-          ) : (
-            <Link to="/" className="flex">
-              Home
-            </Link>
-          )}
+          ) : null}
         </div>
 
         {props.showSearchBar ? (
@@ -80,10 +79,9 @@ export const Navbar = (props: NavbarProps) => {
           </div>
         )}
 
-        <div className="flex items-center">
-          <p className="text-nowrap line-clamp-1 text-ellipsis">Right Menu</p>
-        </div>
+        <div className="flex items-center min-w-23"></div>
       </div>
+
       <Separator />
     </>
   );
@@ -138,6 +136,7 @@ export function CommandDialogDemo() {
       >
         <div className="p-2">
           <CommandInput
+            className="h-8"
             placeholder="Search apps ..."
             onValueChange={(s) => {
               setSearch(s);

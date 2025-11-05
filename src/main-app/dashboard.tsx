@@ -11,26 +11,30 @@ function App() {
   const miniApps = getMiniApps();
 
   return (
-    <AnimatePresence mode="wait">
-      <AnimatedPage id="dashboard-main-app">
-        <div className="">
-          <Navbar showSearchBar />
+    <div className="h-screen flex flex-col">
+      <Navbar showSearchBar />
 
-          <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
-            {miniApps.map((a, index) => {
-              return (
-                <AppIcon
-                  key={`app-${index}`}
-                  icon={a.icon}
-                  path={a.basePath}
-                  name={a.name}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </AnimatedPage>
-    </AnimatePresence>
+      <div className="h-full overflow-y-auto flex-1">
+        <AnimatePresence mode="wait">
+          <AnimatedPage id="dashboard-main-app">
+            <div className="h-full flex-1">
+              <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+                {miniApps.map((a, index) => {
+                  return (
+                    <AppIcon
+                      key={`app-${index}`}
+                      icon={a.icon}
+                      path={a.basePath}
+                      name={a.name}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </AnimatedPage>
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
 
