@@ -12,6 +12,7 @@ import { Slider } from "./slider";
 import { AppState } from "../state/state";
 import { useShortcutKeys } from "../utils/hooks/use-shortcut-keys";
 import { CommandMenu } from "./components/command-menu";
+import FeedbackWidget from "./components/feedback-widget";
 
 export const AnimateCodeHomeScreen = () => {
   const mode = useAtomValue(AppState.mode);
@@ -50,6 +51,8 @@ export const AnimateCodeHomeScreen = () => {
             </div>
           </div>
           <CommandMenu />
+
+          <FeedbackWidget />
         </div>
       </AnimatedPage>
     </AnimatePresence>
