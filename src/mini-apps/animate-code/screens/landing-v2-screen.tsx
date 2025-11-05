@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { useState } from "react";
-import { useSetAtom } from "jotai";
 
 export default function LandingV2Screen() {
   const [success, setSuccess] = useState(false);
