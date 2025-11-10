@@ -60,7 +60,7 @@ export const Navbar = (props: NavbarProps) => {
       <div data-tauri-drag-region className="flex w-full min-h-12 h-12 py-2">
         {isDesktopApp ? <MacOSTrafficLight /> : <div className="w-8 h-full" />}
 
-        <div className="flex items-center">
+        <div data-tauri-drag-region className="flex items-center">
           {props.showBack ? (
             <Link to="/" className="flex items-center text-zinc-600">
               <ChevronLeft className="mr-4" size={24} />
@@ -70,16 +70,22 @@ export const Navbar = (props: NavbarProps) => {
         </div>
 
         {props.showSearchBar ? (
-          <div className="flex flex-1 justify-center">
+          <div data-tauri-drag-region className="flex flex-1 justify-center">
             <CommandDialogDemo />
           </div>
         ) : (
-          <div className="flex flex-1 justify-center items-center overflow-hidden">
+          <div
+            data-tauri-drag-region
+            className="flex flex-1 justify-center items-center overflow-hidden"
+          >
             <h3 className="text-lg font-semibold truncate">{props.title}</h3>
           </div>
         )}
 
-        <div className="flex items-center min-w-23"></div>
+        <div
+          data-tauri-drag-region
+          className="flex items-center min-w-23"
+        ></div>
       </div>
 
       <Separator />

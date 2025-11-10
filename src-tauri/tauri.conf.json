@@ -22,16 +22,19 @@
         "center": true,
         "hiddenTitle": true,
         "titleBarStyle": "Overlay",
-        "trafficLightPosition": { "x": 16, "y": 22 }
+        "trafficLightPosition": { "x": 16, "y": 22 },
+        "acceptFirstMouse": true
       }
     ],
     "security": {
       "csp": null,
       "capabilities": [
         {
-          "identifier": "main-window-capabilities",
-          "windows": ["*"],
-          "permissions": ["core:window:allow-start-dragging"]
+          "identifier": "draggable-window",
+          "windows": [ "*" ],
+          "permissions": [
+            "core:window:allow-start-dragging"
+          ]
         }
       ]
     }
