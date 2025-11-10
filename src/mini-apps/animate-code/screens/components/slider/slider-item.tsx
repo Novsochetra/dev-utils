@@ -64,6 +64,14 @@ export const SliderItem = memo(
             <ContextMenuItem
               className="text-xs"
               onClick={() => {
+                AppActions.DuplicateSlide();
+              }}
+            >
+              Duplicate Slide
+            </ContextMenuItem>
+            <ContextMenuItem
+              className="text-xs"
+              onClick={() => {
                 AppActions.AddSlideAbove(index);
               }}
             >

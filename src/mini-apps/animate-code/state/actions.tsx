@@ -9,6 +9,23 @@ import {
 } from "../utils/constants";
 
 export const AppActions = {
+  DuplicateSlide: () => {
+    const index = store.get(AppState.currentSlideIdx);
+    const slides = store.get(AppState.slides);
+    const currentSlideData = store.get(slides[index]?.data);
+
+    const newItem = { id: v4(), data: atom(currentSlideData) };
+    const prev = store.get(AppState.slides);
+    store.set(AppState.slides, [
+      ...prev.slice(0, index + 1),
+      newItem,
+      ...prev.slice(index + 1),
+    ]);
+
+    // auto select next slide
+    store.set(AppState.currentSlideIdx, index + 1);
+  },
+
   SelectSlide: (index: number) => {
     store.set(AppState.currentSlideIdx, index);
   },
