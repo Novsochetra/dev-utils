@@ -4,12 +4,13 @@ import { AppActions } from "../../state/actions";
 import { AppState, store } from "../../state/state";
 import { interval, Mode, PreviewState } from "../constants";
 import { useAtomValue } from "jotai";
+import { isDesktopApp } from "@/utils/is-desktop-mode";
 
 export const useShortcutKeys = () => {
   const mode = useAtomValue(AppState.mode);
 
   useHotkeys(
-    "mod+shift+d", // (cmd / ctrl) + (shift) + d
+    isDesktopApp ? "mod+d" : "mod+shift+d", // (cmd / ctrl) + (shift) + d
     (event) => {
       event.preventDefault(); // prevent browser default actions
       AppActions.DuplicateSlide();
@@ -18,7 +19,7 @@ export const useShortcutKeys = () => {
   );
 
   useHotkeys(
-    "mod+alt+n", // (cmd / ctrl) + (option / alt) + n
+    isDesktopApp ? "mod+n" : "mod+alt+n", // (cmd / ctrl) + (option / alt) + n
     (event) => {
       event.preventDefault(); // prevent browser default actions
       AppActions.AddSlide();

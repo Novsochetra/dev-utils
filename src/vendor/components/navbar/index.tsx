@@ -15,6 +15,7 @@ import {
 } from "@/vendor/shadcn/components/ui/command";
 import { getMiniApps } from "@/core/mini-app-registry";
 import { useAppSuggestions } from "./use-app-suggestions";
+import { isDesktopApp } from "@/utils/is-desktop-mode";
 
 type NavbarProps = {
   showBack?: boolean;
@@ -56,14 +57,13 @@ export const Navbar = (props: NavbarProps) => {
 
   return (
     <>
-      <div
-        data-tauri-drag-region
-        className="flex w-full min-h-12 gap-4 h-12 py-2"
-      >
-        <div className="flex items-center min-w-23">
+      <div data-tauri-drag-region className="flex w-full min-h-12 h-12 py-2">
+        {isDesktopApp ? <MacOSTrafficLight /> : <div className="w-8 h-full" />}
+
+        <div className="flex items-center">
           {props.showBack ? (
-            <Link to="/" className="flex">
-              <ChevronLeft className="mr-4" />
+            <Link to="/" className="flex items-center text-zinc-600">
+              <ChevronLeft className="mr-4" size={24} />
               <span className="hidden sm:block">Back</span>
             </Link>
           ) : null}
@@ -224,4 +224,8 @@ const AppIcon = ({ icon }: { icon?: string }) => {
       )}
     </div>
   );
+};
+
+export const MacOSTrafficLight = () => {
+  return <div className="min-w-23 h-full"></div>;
 };
