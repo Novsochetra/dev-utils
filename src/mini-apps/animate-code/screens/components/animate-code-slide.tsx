@@ -3,14 +3,8 @@ import { memo, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
-import hljs from "highlight.js";
-import { tags as t } from "@lezer/highlight";
 import { EditorState } from "@codemirror/state";
-import {
-  defaultHighlightStyle,
-  HighlightStyle,
-  syntaxTree,
-} from "@codemirror/language";
+import { HighlightStyle, syntaxTree } from "@codemirror/language";
 import { javascript } from "@codemirror/lang-javascript";
 import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
@@ -19,14 +13,12 @@ import { highlightTree } from "@lezer/highlight";
 import { AppState } from "../../state/state";
 import { Toolbar } from "./toolbar";
 import { AnimateCodeStatusBar } from "./animate-code-status-bar";
-import { useEditorThemes } from "../../utils/hooks/use-editor-themes";
 import { measureFontMetrics } from "../../utils/helpers";
 
 import {
-  gruvboxDark,
-  gruvboxDarkStyle,
-} from "./code-editor/extensions/themes/gruvbox";
-import { BaseThemeColor } from "./code-editor/extensions/themes";
+  BaseThemeColor,
+  BaseThemeStyle,
+} from "./code-editor/extensions/themes";
 
 function getLanguageExtension(lang: string) {
   switch (lang) {
@@ -42,65 +34,10 @@ function getLanguageExtension(lang: string) {
       return javascript(); // fallback
   }
 }
-console.log("D: ", { defaultHighlightStyle, gruvboxDarkStyle });
 
-// TODO: adjust the style
-const highlightStyle = HighlightStyle.define([
-  { tag: t.keyword, color: "#fb4934" },
-  {
-    tag: [t.name, t.deleted, t.character, t.propertyName, t.macroName],
-    color: "#8ec07c",
-  },
-  { tag: [t.variableName], color: "#83a598" },
-  { tag: [t.function(t.variableName)], color: "#b8bb26", fontStyle: "bold" },
-  { tag: [t.labelName], color: "#ebdbb2" },
-  { tag: [t.color, t.constant(t.name), t.standard(t.name)], color: "#d3869b" },
-  { tag: [t.definition(t.name), t.separator], color: "#ebdbb2" },
-  { tag: [t.brace], color: "#ebdbb2" },
-  { tag: [t.annotation], color: "#fb4934d" },
-  {
-    tag: [t.number, t.changed, t.annotation, t.modifier, t.self, t.namespace],
-    color: "#d3869b",
-  },
-  { tag: [t.typeName, t.className], color: "#fabd2f" },
-  { tag: [t.operator, t.operatorKeyword], color: "#fb4934" },
-  {
-    tag: [t.tagName],
-    color: "#8ec07c",
-    fontStyle: "bold",
-  },
-  { tag: [t.squareBracket], color: "#fe8019" },
-  { tag: [t.angleBracket], color: "#83a598" },
-  { tag: [t.attributeName], color: "#8ec07c" },
-  { tag: [t.regexp], color: "#8ec07c" },
-  { tag: [t.quote], color: "#928374" },
-  { tag: [t.string], color: "#ebdbb2" },
-  {
-    tag: t.link,
-    color: "#a89984",
-    textDecoration: "underline",
-    textUnderlinePosition: "under",
-  },
-  { tag: [t.url, t.escape, t.special(t.string)], color: "#d3869b" },
-  { tag: [t.meta], color: "#fabd2f" },
-  { tag: [t.comment], color: "#928374", fontStyle: "italic" },
-  { tag: t.strong, fontWeight: "bold", color: "#fe8019" },
-  { tag: t.emphasis, fontStyle: "italic", color: "#b8bb26" },
-  { tag: t.strikethrough, textDecoration: "line-through" },
-  { tag: t.heading, fontWeight: "bold", color: "#b8bb26" },
-  { tag: [t.heading1, t.heading2], fontWeight: "bold", color: "#b8bb26" },
-  {
-    tag: [t.heading3, t.heading4],
-    fontWeight: "bold",
-    color: "#fabd2f",
-  },
-  { tag: [t.heading5, t.heading6], color: "#fabd2f" },
-  { tag: [t.atom, t.bool, t.special(t.variableName)], color: "#d3869b" },
-  { tag: [t.processingInstruction, t.inserted], color: "#83a598" },
-  { tag: [t.contentSeparator], color: "#fb4934" },
-  { tag: t.invalid, color: "#fe8019", borderBottom: `1px dotted #fb4934d` },
-]);
+// const highlightStyle = HighlightStyle.define(BaseThemeStyle.GruvboxDark);
 
+const highlightStyle1 = HighlightStyle.define(BaseThemeStyle.GruvboxDark);
 /**
  * === INJECTOR: turn HighlightStyle into CSS classes ===
  */
@@ -109,22 +46,27 @@ export function injectHighlightStyleToDOM(
   id = "lezer-gruvbox",
 ) {
   // Prevent double injection
-  if (document.getElementById(id)) return;
+  const el = document.getElementById(id);
+  if (el) {
+    document.head.removeChild(el);
+  }
 
   const styleEl = document.createElement("style");
   styleEl.id = id;
-
-  console.log("Style: ", style);
 
   styleEl.textContent = style.module?.getRules() || "";
   document.head.appendChild(styleEl);
 }
 
-function getHighlightClasses(text: string, language: string) {
+function getHighlightClasses(
+  text: string,
+  language: string,
+  highlightStyle2: HighlightStyle,
+) {
   const langExt = getLanguageExtension(language);
   const state = EditorState.create({
     doc: text,
-    extensions: [langExt, gruvboxDark],
+    extensions: [langExt],
   });
 
   const tree = syntaxTree(state);
@@ -133,37 +75,16 @@ function getHighlightClasses(text: string, language: string) {
   const classes: string[] = Array.from({ length: text.length }, () => "");
 
   // Use default CodeMirror highlight style
-  highlightTree(tree, highlightStyle, (from, to, classesStr) => {
+  highlightTree(tree, highlightStyle2, (from, to, classesStr) => {
     for (let i = from; i < to; i++) {
       classes[i] = classesStr;
     }
   });
 
-  injectHighlightStyleToDOM(highlightStyle);
-
-  console.log("DONE: ");
   return classes;
 }
 
 const dmp = new DiffMatchPatch();
-
-function traverseHighlightByClass(node: Node, parentClass?: string): string[] {
-  const classes: string[] = [];
-
-  const walk = (n: Node, inheritedClass?: string) => {
-    if (n.nodeType === Node.TEXT_NODE) {
-      const cls = inheritedClass || "default";
-      classes.push(...Array.from(n.textContent || "").map(() => cls));
-    } else if (n.nodeType === Node.ELEMENT_NODE) {
-      const el = n as HTMLElement;
-      const clsToUse = el.classList[0] || inheritedClass;
-      n.childNodes.forEach((child) => walk(child, clsToUse));
-    }
-  };
-
-  walk(node, parentClass);
-  return classes;
-}
 
 type MultiLineDiffAnimatorProps = {
   oldText: string;
@@ -172,9 +93,9 @@ type MultiLineDiffAnimatorProps = {
 
 export const AnimateCodeSlide = memo(
   ({ oldText, newText }: MultiLineDiffAnimatorProps) => {
-    useEditorThemes();
-    injectHighlightStyleToDOM(highlightStyle);
+    // useEditorThemes();
 
+    const previewEditorTheme = useAtomValue(AppState.previewEditorTheme);
     const editorTheme = useAtomValue(AppState.editorTheme);
     const previewSize = useAtomValue(AppState.previewSize);
     const previewLanguage = useAtomValue(AppState.previewLanguage);
@@ -183,6 +104,13 @@ export const AnimateCodeSlide = memo(
       () => measureFontMetrics(editorFontSize),
       [editorFontSize],
     );
+    const highlightStyle = useMemo(() => {
+      return HighlightStyle.define(
+        BaseThemeStyle[previewEditorTheme || editorTheme],
+      );
+    }, [editorTheme, previewEditorTheme]);
+
+    injectHighlightStyleToDOM(highlightStyle);
 
     const removeDuration = 0.8;
     const addDuration = 1;
@@ -197,30 +125,8 @@ export const AnimateCodeSlide = memo(
 
     const highlightClasses = useMemo(() => {
       if (typeof window === "undefined") return [];
-      return getHighlightClasses(newText, previewLanguage);
-    }, [newText, previewLanguage]);
-    // console.log("highlightClasses1: ", highlightClasses1);
-
-    const highlightClasses1 = useMemo(() => {
-      if (typeof window === "undefined") return [];
-
-      const highlightCode = hljs.highlight(newText, {
-        language: previewLanguage,
-      });
-      // Create temporary container
-      const container = document.createElement("pre");
-      container.className = "hljs"; // ensures theme colors applied
-      container.style.display = "none";
-      container.innerHTML = highlightCode.value;
-
-      document.body.appendChild(container);
-
-      const classes = traverseHighlightByClass(container);
-
-      document.body.removeChild(container);
-
-      return classes;
-    }, [newText, previewLanguage]);
+      return getHighlightClasses(newText, previewLanguage, highlightStyle);
+    }, [newText, previewLanguage, highlightStyle]);
 
     // Compute positions for characters
     const computePositions = (text: string) => {
@@ -327,8 +233,9 @@ export const AnimateCodeSlide = memo(
           maxHeight: "100%",
           aspectRatio: "16 / 9",
 
-          backgroundColor: BaseThemeColor[editorTheme].background,
-          color: BaseThemeColor[editorTheme].foreground,
+          backgroundColor:
+            BaseThemeColor[previewEditorTheme || editorTheme].background,
+          color: BaseThemeColor[previewEditorTheme || editorTheme].foreground,
         }}
       >
         <Toolbar />

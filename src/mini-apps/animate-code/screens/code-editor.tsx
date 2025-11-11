@@ -1,4 +1,3 @@
-"use client";
 import { memo, useEffect, useRef, type RefObject } from "react";
 import {
   EditorView,
@@ -26,7 +25,6 @@ import {
   Themes,
 } from "./components/code-editor/extensions/themes";
 import { fontSizeExtension } from "./components/code-editor/extensions/fonts";
-import { abcdefInit } from "./components/code-editor/extensions/themes/abcdef";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -46,9 +44,6 @@ const CodeEditorWithHighlight = ({
   onChange,
   className = "",
 }: Props) => {
-  // TODO: need to check on preview mode and edit mode also
-  // useEditorThemes();
-
   const editorRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
@@ -90,7 +85,7 @@ const CodeEditorWithHighlight = ({
       view.dispatch({
         effects: StateEffect.reconfigure.of(
           createExtensions({
-            editorTheme,
+            editorTheme: previewEditorTheme || editorTheme,
             editorFontSize,
             previewLanguage,
             onChangeRef,
@@ -143,7 +138,7 @@ const CodeEditorWithHighlight = ({
       }}
     >
       <div
-        className="w-full h-full hljs border-2 border-white rounded-lg flex flex-col overflow-hidden"
+        className="w-full h-full border-2 border-white rounded-lg flex flex-col overflow-hidden"
         style={{
           backgroundColor:
             BaseThemeColor[previewEditorTheme || editorTheme].background,
@@ -197,7 +192,6 @@ function createExtensions({
   previewLanguage: string;
   onChangeRef: React.MutableRefObject<((v: string) => void) | undefined>;
 }): Extension[] {
-  console.log("THEME: ", abcdefInit());
   return [
     lineNumbers(),
     highlightActiveLine(),

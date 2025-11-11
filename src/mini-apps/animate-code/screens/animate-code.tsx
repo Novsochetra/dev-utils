@@ -47,7 +47,7 @@ export const AnimateCode: React.FC<AnimateCodeProps> = ({
 
   return (
     <motion.div
-      className={`hljs ${language} min-h-32`}
+      className={`min-h-32`}
       style={{ padding: "1rem", overflowX: "auto" }}
     >
       {lines.map((line, idx) => {
