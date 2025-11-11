@@ -106,45 +106,45 @@ const d = [slide0, slide1];
 
 export const defaultSlides = d.map((v) => ({ id: v4(), data: atom(v) }));
 
-// highlightLanguages.ts
+// INFO: make code editor support languages
 export const supportedHighlightJsLanguages = [
-  { label: "Bash / Shell (sh, zsh)", value: "bash", aliases: ["sh", "zsh"] },
-  { label: "C# (cs)", value: "csharp", aliases: ["cs"] },
-  {
-    label: "C++ (cxx, hpp, cc, hh)",
-    value: "cpp",
-    aliases: ["cxx", "hpp", "cc", "hh"],
-  },
+  // { label: "Bash / Shell (sh, zsh)", value: "bash", aliases: ["sh", "zsh"] },
+  // { label: "C# (cs)", value: "csharp", aliases: ["cs"] },
+  // {
+  //   label: "C++ (cxx, hpp, cc, hh)",
+  //   value: "cpp",
+  //   aliases: ["cxx", "hpp", "cc", "hh"],
+  // },
   { label: "CSS", value: "css" },
-  { label: "Go (golang)", value: "go", aliases: ["golang"] },
+  // { label: "Go (golang)", value: "go", aliases: ["golang"] },
   {
     label: "HTML / XML (html, xhtml, rss, atom, svg)",
     value: "xml",
     aliases: ["html", "xhtml", "rss", "atom", "svg"],
   },
-  { label: "Java (jsp)", value: "java", aliases: ["jsp"] },
+  // { label: "Java (jsp)", value: "java", aliases: ["jsp"] },
   {
     label: "JavaScript (js, jsx)",
     value: "javascript",
     aliases: ["js", "jsx"],
   },
-  { label: "JSON (json5, jsonc)", value: "json", aliases: ["json5", "jsonc"] },
-  {
-    label: "Markdown (md, mkdown, mkd)",
-    value: "markdown",
-    aliases: ["md", "mkdown", "mkd"],
-  },
-  { label: "PHP", value: "php" },
-  { label: "Python (py, gyp)", value: "python", aliases: ["py", "gyp"] },
-  { label: "Rust (rs)", value: "rust", aliases: ["rs"] },
-  { label: "SCSS", value: "scss" },
-  { label: "SQL", value: "sql" },
-  {
-    label: "TypeScript (ts, tsx)",
-    value: "typescript",
-    aliases: ["ts", "tsx"],
-  },
-  { label: "YAML (yml)", value: "yaml", aliases: ["yml"] },
+  // { label: "JSON (json5, jsonc)", value: "json", aliases: ["json5", "jsonc"] },
+  // {
+  //   label: "Markdown (md, mkdown, mkd)",
+  //   value: "markdown",
+  //   aliases: ["md", "mkdown", "mkd"],
+  // },
+  // { label: "PHP", value: "php" },
+  // { label: "Python (py, gyp)", value: "python", aliases: ["py", "gyp"] },
+  // { label: "Rust (rs)", value: "rust", aliases: ["rs"] },
+  // { label: "SCSS", value: "scss" },
+  // { label: "SQL", value: "sql" },
+  // {
+  //   label: "TypeScript (ts, tsx)",
+  //   value: "typescript",
+  //   aliases: ["ts", "tsx"],
+  // },
+  // { label: "YAML (yml)", value: "yaml", aliases: ["yml"] },
 ];
 
 export const supportedHighlightJsThemes: { label: string; value: ThemeName }[] =

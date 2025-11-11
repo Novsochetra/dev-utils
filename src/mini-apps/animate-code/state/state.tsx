@@ -23,7 +23,7 @@ export type AppState = {
   previewState: PrimitiveAtom<PreviewState>;
   slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
   editorTheme: PrimitiveAtom<ThemeNames>;
-  previewEditorTheme: PrimitiveAtom<ThemeNames | string>;
+  previewEditorTheme: PrimitiveAtom<ThemeNames | null>;
   previewSize: PrimitiveAtom<number>;
   previewTitle: PrimitiveAtom<string>;
   previewBackground: {
@@ -50,7 +50,7 @@ export const AppState: AppState = {
   mode: atom<Mode>(Mode.Edit),
   previewState: atom<PreviewState>(PreviewState.IDLE),
   editorTheme: atom(ThemeNames.GruvboxDark),
-  previewEditorTheme: atom(""),
+  previewEditorTheme: atom<ThemeNames | null>(null),
   slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
   previewSize: atom(100), // percentage
   previewTitle: atom("index.html"),

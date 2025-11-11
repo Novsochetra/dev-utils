@@ -1,14 +1,13 @@
 "use client";
-import React, {
-  memo,
-  useEffect,
-  useRef,
-  useState,
-  type RefObject,
-} from "react";
+import { memo, useEffect, useRef, type RefObject } from "react";
 import { EditorView, highlightActiveLine, lineNumbers } from "@codemirror/view";
 import { EditorState, StateEffect } from "@codemirror/state";
 import { html } from "@codemirror/lang-html";
+import { javascript } from "@codemirror/lang-javascript";
+import { css } from "@codemirror/lang-css";
+import { StreamLanguage } from "@codemirror/language";
+// import { xml, html } from "@codemirror/legacy-modes/mode/xml";
+
 import { motion } from "framer-motion";
 import { useAtomValue } from "jotai";
 
@@ -16,10 +15,7 @@ import { AppState } from "../state/state";
 import { Mode } from "../utils/constants";
 import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
-import { useEditorThemes } from "../utils/hooks/use-editor-themes";
 import { useAdaptiveCursorColor } from "../utils/hooks/use-adaptive-cursor-color";
-import { gruvboxDark } from "./components/code-editor/extensions/themes/gruvbox";
-import { xcodeLight } from "./components/code-editor/extensions/themes/xcode";
 import { Themes } from "./components/code-editor/extensions/themes";
 
 type Props = {
@@ -32,6 +28,13 @@ type Props = {
   className?: string;
 };
 
+export function fontSizeExtension(fontSize: number) {
+  return EditorView.theme({
+    "&": { fontSize: `${fontSize}px` }, // font size for entire editor
+    ".cm-content": { fontSize: `${fontSize}px` }, // content area
+  });
+}
+
 const CodeEditorWithHighlight = ({
   ref,
   animationKey,
@@ -41,6 +44,7 @@ const CodeEditorWithHighlight = ({
   language = "javascript",
   className = "",
 }: Props) => {
+  // TODO: need to check on preview mode and edit mode also
   // useEditorThemes();
 
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -51,6 +55,7 @@ const CodeEditorWithHighlight = ({
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const mode = useAtomValue(AppState.mode);
   const previewEditorTheme = useAtomValue(AppState.previewEditorTheme);
+  const editorTheme = useAtomValue(AppState.editorTheme);
   const previewLanguage = useAtomValue(AppState.previewLanguage);
   const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
   const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
@@ -76,7 +81,8 @@ const CodeEditorWithHighlight = ({
             onChangeRef.current?.(newValue);
           }
         }),
-        gruvboxDark,
+        Themes[editorTheme],
+        fontSizeExtension(editorFontSize),
       ],
     });
 
@@ -90,19 +96,29 @@ const CodeEditorWithHighlight = ({
     return () => view.destroy();
   }, []);
 
-  // when theme changes -> update extension
   useEffect(() => {
     const view = viewRef.current;
     if (!view) return;
 
-    console.log("previewEditorTheme: ", previewEditorTheme);
-    if (previewEditorTheme) {
+    if (previewEditorTheme || editorTheme) {
       view.dispatch({
-        // TODO: fix type error
-        effects: StateEffect.reconfigure.of([Themes[previewEditorTheme]]),
+        effects: StateEffect.reconfigure.of([
+          lineNumbers(),
+          highlightActiveLine(),
+          html(),
+
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged) {
+              const newValue = update.state.doc.toString();
+              onChangeRef.current?.(newValue);
+            }
+          }),
+          Themes[editorTheme],
+          fontSizeExtension(editorFontSize),
+        ]),
       });
     }
-  }, [previewEditorTheme]);
+  }, [previewEditorTheme, editorTheme, editorFontSize]);
 
   // 2️⃣ Sync external value -> editor
   useEffect(() => {
