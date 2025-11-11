@@ -40,13 +40,11 @@ export const AnimationInterval = 3000;
 
 // Example slides
 const slide0 = `
-// Create a simple class
+a
 `;
 
 const slide1 = `
-// Create a simple class
-class Person {
-}
+b
 `;
 
 const slide2 = `
@@ -103,7 +101,7 @@ export const defaultDummySlides = [
   slide6,
 ];
 
-const d = [slide6];
+const d = [slide0, slide1];
 
 export const defaultSlides = d.map((v) => ({ id: v4(), data: atom(v) }));
 

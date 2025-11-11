@@ -174,3 +174,22 @@ input[type="file"]::file-selector-button {
   -ms-overflow-style: none;
   /* IE 10+ */
 }
+
+/* editor style */
+
+.cm-editor {
+  height: 100%;
+}
+
+.ͼ1 .cm-lineNumbers > .cm-gutterElement {
+  width: 30px;
+  text-align: center;
+}
+
+.ͼ2 .cm-gutters {
+  background-color: white;
+}
+
+.ͼ2 .cm-gutters.cm-gutters-before {
+  border-right: 1px dashed var(--border);
+}

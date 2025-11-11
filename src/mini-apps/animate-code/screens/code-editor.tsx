@@ -6,15 +6,19 @@ import React, {
   useState,
   type RefObject,
 } from "react";
-import hljs from "highlight.js";
+import { EditorView, highlightActiveLine, lineNumbers } from "@codemirror/view";
+import { EditorState } from "@codemirror/state";
+import { html } from "@codemirror/lang-html";
 import { motion } from "framer-motion";
 import { useAtomValue } from "jotai";
+
 import { AppState } from "../state/state";
 import { Mode } from "../utils/constants";
 import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
 import { useEditorThemes } from "../utils/hooks/use-editor-themes";
 import { useAdaptiveCursorColor } from "../utils/hooks/use-adaptive-cursor-color";
+import { xcodeDarkInit, xcodeLightInit } from "../utils/helpers/xcode-theme";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -25,6 +29,8 @@ type Props = {
   language?: string;
   className?: string;
 };
+
+console.log("XCODE: ", xcodeLightInit());
 
 const CodeEditorWithHighlight = ({
   ref,
@@ -37,8 +43,10 @@ const CodeEditorWithHighlight = ({
 }: Props) => {
   useEditorThemes();
 
-  const [code, setCode] = useState(value);
-  const [highlighted, setHighlighted] = useState("");
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const viewRef = useRef<EditorView | null>(null);
+  const onChangeRef = useRef(onChange);
+
   const preRef = useRef<HTMLPreElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const mode = useAtomValue(AppState.mode);
@@ -48,49 +56,67 @@ const CodeEditorWithHighlight = ({
 
   useAdaptiveCursorColor({ preTagRef: preRef, textareaRef: taRef });
 
-  useEffect(() => setCode(value), [value]);
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
-    taRef.current?.focus();
-  }, [currentSlideIdx]);
+    if (!editorRef.current) return;
 
+    const state = EditorState.create({
+      doc: value,
+      extensions: [
+        lineNumbers(),
+        highlightActiveLine(),
+        html(),
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            const newValue = update.state.doc.toString();
+            onChangeRef.current?.(newValue);
+          }
+        }),
+        xcodeDarkInit(),
+      ],
+    });
+
+    const view = new EditorView({
+      state: state,
+      parent: editorRef.current,
+    });
+
+    viewRef.current = view;
+
+    return () => view.destroy();
+  }, []);
+
+  // 2️⃣ Sync external value -> editor
   useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+
+    const currentValue = view.state.doc.toString();
+    if (value !== currentValue) {
+      view.contentDOM.focus();
+
+      const transaction = view.state.update({
+        changes: { from: 0, to: view.state.doc.length, insert: value },
+      });
+
+      view.dispatch(transaction);
+    }
+  }, [value]);
+
+  // Handle focus in/out for preview mode
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+
     if (mode === Mode.Preview) {
-      taRef.current?.blur();
+      view.contentDOM.blur();
     } else {
-      taRef.current?.focus();
+      view.contentDOM.focus();
     }
   }, [mode]);
-
-  useEffect(() => {
-    try {
-      const result = hljs.highlight(code || "", { language: previewLanguage });
-      setHighlighted(result.value);
-    } catch {
-      setHighlighted(escapeHtml(code));
-    }
-  }, [code, language, previewLanguage]);
-
-  const onScroll = () => {
-    if (!taRef.current || !preRef.current) return;
-    preRef.current.scrollTop = taRef.current.scrollTop;
-    preRef.current.scrollLeft = taRef.current.scrollLeft;
-  };
-
-  const onKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (e.key === "Tab") {
-      e.preventDefault();
-      const ta = taRef.current!;
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
-      const newVal = code.slice(0, start) + "\t" + code.slice(end);
-      setCode(newVal);
-      onChange?.(newVal);
-      requestAnimationFrame(() => {
-        ta.selectionStart = ta.selectionEnd = start + 1;
-      });
-    }
-  };
 
   return (
     <motion.div
@@ -115,38 +141,11 @@ const CodeEditorWithHighlight = ({
           enableActionButtonResize={false}
         />
 
-        <div id="code-block" className="relative flex-1 overflow-auto">
-          <pre
-            ref={preRef}
-            aria-hidden="true"
-            className="absolute inset-0 font-mono hljs p-3 overflow-auto text-green-500"
-            style={{
-              fontSize: editorFontSize,
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
-            }}
-          >
-            <code dangerouslySetInnerHTML={{ __html: highlighted || " " }} />
-          </pre>
-
-          {/* Editable overlay */}
-          <textarea
-            ref={taRef as any}
-            name="code-editor"
-            value={code}
-            onChange={(e) => {
-              setCode(e.target.value);
-              onChange?.(e.target.value);
-            }}
-            onScroll={onScroll}
-            onKeyDown={onKeyDown}
-            spellCheck={false}
-            className="absolute text-transparent bg-transparent inset-0 focus-visible:outline-none focus-visible:ring-0 whitespace-pre-wrap overflow-auto resize-none p-3 font-mono"
-            style={{
-              fontSize: editorFontSize,
-            }}
-          ></textarea>
-        </div>
+        <div
+          ref={editorRef}
+          id="code-block"
+          className="relative flex-1 overflow-auto"
+        ></div>
 
         <AnimateCodeStatusBar />
       </div>
