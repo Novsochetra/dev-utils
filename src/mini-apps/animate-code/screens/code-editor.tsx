@@ -1,12 +1,16 @@
 "use client";
 import { memo, useEffect, useRef, type RefObject } from "react";
-import { EditorView, highlightActiveLine, lineNumbers } from "@codemirror/view";
-import { EditorState, StateEffect } from "@codemirror/state";
+import {
+  EditorView,
+  highlightActiveLine,
+  lineNumbers,
+  keymap,
+} from "@codemirror/view";
+import { EditorState, StateEffect, type Extension } from "@codemirror/state";
 import { html } from "@codemirror/lang-html";
-import { javascript } from "@codemirror/lang-javascript";
 import { css } from "@codemirror/lang-css";
-import { StreamLanguage } from "@codemirror/language";
-// import { xml, html } from "@codemirror/legacy-modes/mode/xml";
+import { javascript } from "@codemirror/lang-javascript";
+import { indentMore, indentLess } from "@codemirror/commands";
 
 import { motion } from "framer-motion";
 import { useAtomValue } from "jotai";
@@ -16,7 +20,13 @@ import { Mode } from "../utils/constants";
 import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
 import { useAdaptiveCursorColor } from "../utils/hooks/use-adaptive-cursor-color";
-import { Themes } from "./components/code-editor/extensions/themes";
+import {
+  BaseThemeColor,
+  ThemeNames,
+  Themes,
+} from "./components/code-editor/extensions/themes";
+import { fontSizeExtension } from "./components/code-editor/extensions/fonts";
+import { abcdefInit } from "./components/code-editor/extensions/themes/abcdef";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -28,20 +38,12 @@ type Props = {
   className?: string;
 };
 
-export function fontSizeExtension(fontSize: number) {
-  return EditorView.theme({
-    "&": { fontSize: `${fontSize}px` }, // font size for entire editor
-    ".cm-content": { fontSize: `${fontSize}px` }, // content area
-  });
-}
-
 const CodeEditorWithHighlight = ({
   ref,
   animationKey,
   layoutId,
   value = "",
   onChange,
-  language = "javascript",
   className = "",
 }: Props) => {
   // TODO: need to check on preview mode and edit mode also
@@ -57,7 +59,6 @@ const CodeEditorWithHighlight = ({
   const previewEditorTheme = useAtomValue(AppState.previewEditorTheme);
   const editorTheme = useAtomValue(AppState.editorTheme);
   const previewLanguage = useAtomValue(AppState.previewLanguage);
-  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
   const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
 
   useAdaptiveCursorColor({ preTagRef: preRef, textareaRef: taRef });
@@ -69,22 +70,7 @@ const CodeEditorWithHighlight = ({
   useEffect(() => {
     if (!editorRef.current) return;
 
-    const state = EditorState.create({
-      doc: value,
-      extensions: [
-        lineNumbers(),
-        highlightActiveLine(),
-        html(),
-        EditorView.updateListener.of((update) => {
-          if (update.docChanged) {
-            const newValue = update.state.doc.toString();
-            onChangeRef.current?.(newValue);
-          }
-        }),
-        Themes[editorTheme],
-        fontSizeExtension(editorFontSize),
-      ],
-    });
+    const state = EditorState.create({ doc: value });
 
     const view = new EditorView({
       state: state,
@@ -102,23 +88,17 @@ const CodeEditorWithHighlight = ({
 
     if (previewEditorTheme || editorTheme) {
       view.dispatch({
-        effects: StateEffect.reconfigure.of([
-          lineNumbers(),
-          highlightActiveLine(),
-          html(),
-
-          EditorView.updateListener.of((update) => {
-            if (update.docChanged) {
-              const newValue = update.state.doc.toString();
-              onChangeRef.current?.(newValue);
-            }
+        effects: StateEffect.reconfigure.of(
+          createExtensions({
+            editorTheme,
+            editorFontSize,
+            previewLanguage,
+            onChangeRef,
           }),
-          Themes[editorTheme],
-          fontSizeExtension(editorFontSize),
-        ]),
+        ),
       });
     }
-  }, [previewEditorTheme, editorTheme, editorFontSize]);
+  }, [previewEditorTheme, editorTheme, editorFontSize, previewLanguage]);
 
   // 2️⃣ Sync external value -> editor
   useEffect(() => {
@@ -162,7 +142,14 @@ const CodeEditorWithHighlight = ({
         mass: 0.6,
       }}
     >
-      <div className="w-full h-full hljs border-2 border-white rounded-lg flex flex-col overflow-hidden">
+      <div
+        className="w-full h-full hljs border-2 border-white rounded-lg flex flex-col overflow-hidden"
+        style={{
+          backgroundColor:
+            BaseThemeColor[previewEditorTheme || editorTheme].background,
+          color: BaseThemeColor[previewEditorTheme || editorTheme].foreground,
+        }}
+      >
         <Toolbar
           enableButtonPlay={false}
           enableButtonPreview
@@ -183,5 +170,62 @@ const CodeEditorWithHighlight = ({
     </motion.div>
   );
 };
+
+const tabKeymap = keymap.of([
+  {
+    key: "Tab",
+    run: indentMore,
+    preventDefault: true,
+  },
+  {
+    key: "Shift-Tab",
+    run: indentLess,
+    preventDefault: true,
+  },
+]);
+
+// TODO:
+// 1. auto indent not yet working
+function createExtensions({
+  editorTheme,
+  editorFontSize,
+  previewLanguage,
+  onChangeRef,
+}: {
+  editorTheme: ThemeNames;
+  editorFontSize: number;
+  previewLanguage: string;
+  onChangeRef: React.MutableRefObject<((v: string) => void) | undefined>;
+}): Extension[] {
+  console.log("THEME: ", abcdefInit());
+  return [
+    lineNumbers(),
+    highlightActiveLine(),
+    loadLanguage(previewLanguage),
+    EditorView.updateListener.of((update) => {
+      if (update.docChanged) {
+        const newValue = update.state.doc.toString();
+        onChangeRef.current?.(newValue);
+      }
+    }),
+    Themes[editorTheme],
+    fontSizeExtension(editorFontSize),
+    tabKeymap,
+  ].filter(Boolean) as Extension[];
+}
+
+export function loadLanguage(lang: string | null): Extension | null {
+  switch (lang) {
+    case "html":
+      return html({});
+    case "css":
+      return css();
+    case "javascript":
+      return javascript({});
+
+    default:
+      return null;
+  }
+}
 
 export default memo(CodeEditorWithHighlight);

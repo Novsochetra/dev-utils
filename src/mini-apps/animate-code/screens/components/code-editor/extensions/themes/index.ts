@@ -1,38 +1,94 @@
-import { abcdef } from "./abcdef";
-import { abyss } from "./abyss";
-import { androidstudio } from "./androidstudio";
-import { andromeda } from "./andromeda";
-import { atomone } from "./atomone";
-import { aura } from "./aura";
-import { basicDark, basicLight } from "./basic";
-import { bbedit } from "./bbedit";
-import { bespin } from "./bespin";
-import { consoleDark, consoleLight } from "./console";
-import { copilot } from "./copilot";
-import { darcula } from "./darcula";
-import { dracula } from "./dracula";
-import { duotoneDark, duotoneLight } from "./duotone";
-import { eclipse } from "./eclipse";
-import { githubDark, githubLight } from "./github";
-import { gruvboxDark, gruvboxLight } from "./gruvbox";
-import { kimbie } from "./kimbie";
-import { materialDark, materialLight } from "./material";
-import { monokai } from "./monokai";
-import { monokaiDimmed } from "./monokai-dimmed";
-import { noctisLilac } from "./noctis-lilac";
-import { nord } from "./nord";
-import { okaidia } from "./okaidia";
-import { quietlight } from "./quietlight";
-import { red } from "./red";
-import { solarizedDark, solarizedLight } from "./solarized";
-import { sublime } from "./sublime";
-import { tokyoNight } from "./tokyo-night";
-import { tokyoNightStorm } from "./tokyo-night-storm";
-import { tokyoNightDay } from "./tokyo-night-day";
-import { tomorrowNightBlue } from "./tomorrow-night-blue";
-import { vscodeDark, vscodeLight } from "./vscode";
-import { whiteDark, whiteLight } from "./white";
-import { xcodeDark, xcodeLight } from "./xcode";
+import { abcdef, defaultSettingsAbcdef } from "./abcdef";
+import { abyss, defaultSettingsAbyss } from "./abyss";
+import { androidstudio, defaultSettingsAndroidstudio } from "./androidstudio";
+import { andromeda, defaultSettingsAndromeda } from "./andromeda";
+import { atomone, defaultSettingsAtomone } from "./atomone";
+import { aura, defaultSettingsAura } from "./aura";
+import {
+  basicDark,
+  basicLight,
+  defaultSettingsBasicDark,
+  defaultSettingsBasicLight,
+} from "./basic";
+import { bbedit, defaultSettingsBbedit } from "./bbedit";
+import { bespin, defaultSettingsBespin } from "./bespin";
+import {
+  consoleDark,
+  consoleLight,
+  defaultSettingsConsoleDark,
+  defaultSettingsConsoleLight,
+} from "./console";
+import { copilot, defaultSettingsCopilot } from "./copilot";
+import { darcula, defaultSettingsDarcula } from "./darcula";
+import { defaultSettingsDracula, dracula } from "./dracula";
+import {
+  defaultSettingsDuotoneDark,
+  defaultSettingsDuotoneLight,
+  duotoneDark,
+  duotoneLight,
+} from "./duotone";
+import { defaultSettingsEclipse, eclipse } from "./eclipse";
+import {
+  defaultSettingsGithubDark,
+  defaultSettingsGithubLight,
+  githubDark,
+  githubLight,
+} from "./github";
+import {
+  defaultSettingsGruvboxDark,
+  defaultSettingsGruvboxLight,
+  gruvboxDark,
+  gruvboxLight,
+} from "./gruvbox";
+import { defaultSettingsKimbie, kimbie } from "./kimbie";
+import {
+  defaultSettingsMaterialDark,
+  defaultSettingsMaterialLight,
+  materialDark,
+  materialLight,
+} from "./material";
+import { defaultSettingsMonokai, monokai } from "./monokai";
+import { defaultSettingsMonokaiDimmed, monokaiDimmed } from "./monokai-dimmed";
+import { defaultSettingsNoctisLilac, noctisLilac } from "./noctis-lilac";
+import { defaultSettingsNord, nord } from "./nord";
+import { defaultSettingsOkaidia, okaidia } from "./okaidia";
+import { defaultSettingsQuietlight, quietlight } from "./quietlight";
+import { defaultSettingsRed, red } from "./red";
+import {
+  defaultSettingsSolarizedDark,
+  defaultSettingsSolarizedLight,
+  solarizedDark,
+  solarizedLight,
+} from "./solarized";
+import { defaultSettingsSublime, sublime } from "./sublime";
+import { defaultSettingsTokyoNight, tokyoNight } from "./tokyo-night";
+import {
+  defaultSettingsTokyoNightStorm,
+  tokyoNightStorm,
+} from "./tokyo-night-storm";
+import { defaultSettingsTokyoNightDay, tokyoNightDay } from "./tokyo-night-day";
+import {
+  defaultSettingsTomorrowNightBlue,
+  tomorrowNightBlue,
+} from "./tomorrow-night-blue";
+import {
+  defaultSettingsVscodeDark,
+  defaultSettingsVscodeLight,
+  vscodeDark,
+  vscodeLight,
+} from "./vscode";
+import {
+  defaultSettingsWhiteDark,
+  defaultSettingsWhiteLight,
+  whiteDark,
+  whiteLight,
+} from "./white";
+import {
+  defaultSettingsXcodeDark,
+  defaultSettingsXcodeLight,
+  xcodeDark,
+  xcodeLight,
+} from "./xcode";
 
 export const Themes = {
   Abcdef: abcdef,
@@ -96,6 +152,70 @@ export const Themes = {
 
   XcodeDark: xcodeDark,
   XcodeLight: xcodeLight,
+} as const;
+
+export const BaseThemeColor = {
+  Abcdef: defaultSettingsAbcdef,
+  Abyss: defaultSettingsAbyss,
+  AndroidStudio: defaultSettingsAndroidstudio,
+  Andromeda: defaultSettingsAndromeda,
+  Atomone: defaultSettingsAtomone,
+  Aura: defaultSettingsAura,
+
+  BasicDark: defaultSettingsBasicDark,
+  BasicLight: defaultSettingsBasicLight,
+  Bbedit: defaultSettingsBbedit,
+  Bespin: defaultSettingsBespin,
+
+  ConsoleDark: defaultSettingsConsoleDark,
+  ConsoleLight: defaultSettingsConsoleLight,
+  Copilot: defaultSettingsCopilot,
+
+  Darcula: defaultSettingsDarcula,
+  Dracula: defaultSettingsDracula,
+  DuotoneDark: defaultSettingsDuotoneDark,
+  DuotoneLight: defaultSettingsDuotoneLight,
+
+  Eclipse: defaultSettingsEclipse,
+
+  GithubDark: defaultSettingsGithubDark,
+  GithubLight: defaultSettingsGithubLight,
+  GruvboxDark: defaultSettingsGruvboxDark,
+  GruvboxLight: defaultSettingsGruvboxLight,
+
+  Kimbie: defaultSettingsKimbie,
+
+  MaterialDark: defaultSettingsMaterialDark,
+  MaterialLight: defaultSettingsMaterialLight,
+  Monokai: defaultSettingsMonokai,
+  MonokaiDimmed: defaultSettingsMonokaiDimmed,
+
+  NoctisLilac: defaultSettingsNoctisLilac,
+  Nord: defaultSettingsNord,
+
+  Okaidia: defaultSettingsOkaidia,
+
+  Quietlight: defaultSettingsQuietlight,
+
+  Red: defaultSettingsRed,
+
+  SolarizedDark: defaultSettingsSolarizedDark,
+  SolarizedLight: defaultSettingsSolarizedLight,
+  Sublime: defaultSettingsSublime,
+
+  TokyoNight: defaultSettingsTokyoNight,
+  TokyoNightStorm: defaultSettingsTokyoNightStorm,
+  TokyoNightDay: defaultSettingsTokyoNightDay,
+  TomorrowNightBlue: defaultSettingsTomorrowNightBlue,
+
+  VscodeDark: defaultSettingsVscodeDark,
+  VscodeLight: defaultSettingsVscodeLight,
+
+  WhiteDark: defaultSettingsWhiteDark,
+  WhiteLight: defaultSettingsWhiteLight,
+
+  XcodeDark: defaultSettingsXcodeDark,
+  XcodeLight: defaultSettingsXcodeLight,
 } as const;
 
 export type ThemeNames = keyof typeof Themes;

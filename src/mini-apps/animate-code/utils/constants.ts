@@ -1,6 +1,6 @@
 import { v4 } from "uuid";
 import { atom } from "jotai";
-import type { ThemeName } from "../screens/components/code-editor/extensions/themes";
+import { type ThemeNames } from "../screens/components/code-editor/extensions/themes";
 
 export const APP_NAME = "Animate Code";
 
@@ -40,12 +40,20 @@ export const interval: { previewAnimationInterval: NodeJS.Timeout | null } = {
 export const AnimationInterval = 3000;
 
 // Example slides
-const slide0 = `
-a
+const slide0 = `<!DOCTYPE html>
+<html>
+<body>
+  <p>This is a paragraph.</p>
+</body>
+</html>
 `;
 
-const slide1 = `
-b
+const slide1 = `<!DOCTYPE html>
+<html>
+<body>
+  <p class="container">This is a paragraph.</p>
+</body>
+</html>
 `;
 
 const slide2 = `
@@ -119,7 +127,7 @@ export const supportedHighlightJsLanguages = [
   // { label: "Go (golang)", value: "go", aliases: ["golang"] },
   {
     label: "HTML / XML (html, xhtml, rss, atom, svg)",
-    value: "xml",
+    value: "html",
     aliases: ["html", "xhtml", "rss", "atom", "svg"],
   },
   // { label: "Java (jsp)", value: "java", aliases: ["jsp"] },
@@ -147,70 +155,72 @@ export const supportedHighlightJsLanguages = [
   // { label: "YAML (yml)", value: "yaml", aliases: ["yml"] },
 ];
 
-export const supportedHighlightJsThemes: { label: string; value: ThemeName }[] =
-  [
-    { label: "Abcdef", value: "Abcdef" },
-    { label: "Abyss", value: "Abyss" },
-    { label: "Androidstudio", value: "AndroidStudio" },
-    { label: "Andromeda", value: "Andromeda" },
-    { label: "Atomone", value: "Atomone" },
-    { label: "Aura", value: "Aura" },
+export const supportedHighlightJsThemes: {
+  label: string;
+  value: ThemeNames;
+}[] = [
+  { label: "Abcdef", value: "Abcdef" },
+  { label: "Abyss", value: "Abyss" },
+  { label: "Androidstudio", value: "AndroidStudio" },
+  { label: "Andromeda", value: "Andromeda" },
+  { label: "Atomone", value: "Atomone" },
+  { label: "Aura", value: "Aura" },
 
-    { label: "Basic Dark", value: "BasicDark" },
-    { label: "Basic Light", value: "BasicLight" },
-    { label: "Bbedit", value: "Bbedit" },
-    { label: "Bespin", value: "Bespin" },
+  { label: "Basic Dark", value: "BasicDark" },
+  { label: "Basic Light", value: "BasicLight" },
+  { label: "Bbedit", value: "Bbedit" },
+  { label: "Bespin", value: "Bespin" },
 
-    { label: "Console Dark", value: "ConsoleDark" },
-    { label: "Console Light", value: "ConsoleLight" },
-    { label: "Copilot", value: "Copilot" },
+  { label: "Console Dark", value: "ConsoleDark" },
+  { label: "Console Light", value: "ConsoleLight" },
+  { label: "Copilot", value: "Copilot" },
 
-    { label: "Darcula", value: "Darcula" },
-    { label: "Dracula", value: "Dracula" },
-    { label: "Duotone Dark", value: "DuotoneDark" },
-    { label: "Duotone Light", value: "DuotoneLight" },
+  { label: "Darcula", value: "Darcula" },
+  { label: "Dracula", value: "Dracula" },
+  { label: "Duotone Dark", value: "DuotoneDark" },
+  { label: "Duotone Light", value: "DuotoneLight" },
 
-    { label: "Eclipse", value: "Eclipse" },
+  { label: "Eclipse", value: "Eclipse" },
 
-    { label: "Github Dark", value: "GithubDark" },
-    { label: "Github Light", value: "GithubLight" },
-    { label: "Gruvbox Dark", value: "GruvboxDark" },
-    { label: "Gruvbox Light", value: "GruvboxLight" },
+  { label: "Github Dark", value: "GithubDark" },
+  { label: "Github Light", value: "GithubLight" },
+  { label: "Gruvbox Dark", value: "GruvboxDark" },
+  { label: "Gruvbox Light", value: "GruvboxLight" },
 
-    { label: "Kimbie", value: "Kimbie" },
+  { label: "Kimbie", value: "Kimbie" },
 
-    { label: "Material Dark", value: "MaterialDark" },
-    { label: "Material Light", value: "MaterialLight" },
-    { label: "Monokai", value: "Monokai" },
-    { label: "Monokai Dimmed", value: "MonokaiDimmed" },
+  { label: "Material Dark", value: "MaterialDark" },
+  { label: "Material Light", value: "MaterialLight" },
+  { label: "Monokai", value: "Monokai" },
+  { label: "Monokai Dimmed", value: "MonokaiDimmed" },
 
-    { label: "Noctis Lilac", value: "NoctisLilac" },
-    { label: "Nord", value: "Nord" },
+  { label: "Noctis Lilac", value: "NoctisLilac" },
+  { label: "Nord", value: "Nord" },
 
-    { label: "Okaidia", value: "Okaidia" },
+  { label: "Okaidia", value: "Okaidia" },
 
-    { label: "Quietlight", value: "Quietlight" },
+  { label: "Quietlight", value: "Quietlight" },
 
-    { label: "Red", value: "Red" },
+  { label: "Red", value: "Red" },
 
-    { label: "Solarized Dark", value: "SolarizedDark" },
-    { label: "Solarized Light", value: "SolarizedLight" },
-    { label: "Sublime", value: "Sublime" },
+  { label: "Solarized Dark", value: "SolarizedDark" },
+  { label: "Solarized Light", value: "SolarizedLight" },
+  { label: "Sublime", value: "Sublime" },
 
-    { label: "Tokyo Night", value: "TokyoNight" },
-    { label: "Tokyo Night Storm", value: "TokyoNightStorm" },
-    { label: "Tokyo Night Day", value: "TokyoNightDay" },
-    { label: "Tomorrow Night Blue", value: "TomorrowNightBlue" },
+  { label: "Tokyo Night", value: "TokyoNight" },
+  { label: "Tokyo Night Storm", value: "TokyoNightStorm" },
+  { label: "Tokyo Night Day", value: "TokyoNightDay" },
+  { label: "Tomorrow Night Blue", value: "TomorrowNightBlue" },
 
-    { label: "Vscode Dark", value: "VscodeDark" },
-    { label: "Vscode Light", value: "VscodeLight" },
+  { label: "Vscode Dark", value: "VscodeDark" },
+  { label: "Vscode Light", value: "VscodeLight" },
 
-    { label: "White Dark", value: "WhiteDark" },
-    { label: "White Light", value: "WhiteLight" },
+  { label: "White Dark", value: "WhiteDark" },
+  { label: "White Light", value: "WhiteLight" },
 
-    { label: "Xcode Dark", value: "XcodeDark" },
-    { label: "Xcode Light", value: "XcodeLight" },
-  ];
+  { label: "Xcode Dark", value: "XcodeDark" },
+  { label: "Xcode Light", value: "XcodeLight" },
+];
 
 export const codeEditorConfig = {
   fontSize: 12,

@@ -7,10 +7,7 @@ import {
   PreviewResizeDirection,
   PreviewState,
 } from "../utils/constants";
-import {
-  ThemeNames,
-  Themes,
-} from "../screens/components/code-editor/extensions/themes";
+import { ThemeNames } from "../screens/components/code-editor/extensions/themes";
 
 export const store = getDefaultStore();
 
@@ -62,7 +59,7 @@ export const AppState: AppState = {
     from: atom("#93c5fd"),
     to: atom("#c4b5fd"),
   },
-  previewLanguage: atom("javascript"),
+  previewLanguage: atom("html"),
   editorConfig: {
     fontSize: atom(12),
   },
