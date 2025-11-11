@@ -1,5 +1,6 @@
 import { v4 } from "uuid";
 import { atom } from "jotai";
+import type { ThemeName } from "../screens/components/code-editor/extensions/themes";
 
 export const APP_NAME = "Animate Code";
 
@@ -146,88 +147,70 @@ export const supportedHighlightJsLanguages = [
   { label: "YAML (yml)", value: "yaml", aliases: ["yml"] },
 ];
 
-export const supportedHighlightJsThemes = [
-  { label: "1C Light", value: "1c-light" },
-  { label: "A11y Dark", value: "a11y-dark" },
-  { label: "A11y Light", value: "a11y-light" },
-  { label: "Agate", value: "agate" },
-  { label: "An Old Hope", value: "an-old-hope" },
-  { label: "Android Studio", value: "androidstudio" },
-  { label: "Arduino Light", value: "arduino-light" },
-  { label: "Arta", value: "arta" },
-  { label: "Ascetic", value: "ascetic" },
-  { label: "Atom One Dark Reasonable", value: "atom-one-dark-reasonable" },
-  { label: "Atom One Dark", value: "atom-one-dark" },
-  { label: "Atom One Light", value: "atom-one-light" },
-  { label: "Brown Paper", value: "brown-paper" },
-  { label: "CodePen Embed", value: "codepen-embed" },
-  { label: "Color Brewer", value: "color-brewer" },
-  { label: "Cybertopia Cherry", value: "cybertopia-cherry" },
-  { label: "Cybertopia Dimmer", value: "cybertopia-dimmer" },
-  { label: "Cybertopia Icecap", value: "cybertopia-icecap" },
-  { label: "Cybertopia Saturated", value: "cybertopia-saturated" },
-  { label: "Dark", value: "dark" },
-  { label: "Default", value: "default" },
-  { label: "Devibeans", value: "devibeans" },
-  { label: "Docco", value: "docco" },
-  { label: "Far", value: "far" },
-  { label: "Felipec", value: "felipec" },
-  { label: "Foundation", value: "foundation" },
-  { label: "GitHub Dark Dimmed", value: "github-dark-dimmed" },
-  { label: "GitHub Dark", value: "github-dark" },
-  { label: "GitHub", value: "github" },
-  { label: "GML", value: "gml" },
-  { label: "Google Code", value: "googlecode" },
-  { label: "Gradient Dark", value: "gradient-dark" },
-  { label: "Gradient Light", value: "gradient-light" },
-  { label: "Grayscale", value: "grayscale" },
-  { label: "Hybrid", value: "hybrid" },
-  { label: "IDEA", value: "idea" },
-  { label: "IntelliJ Light", value: "intellij-light" },
-  { label: "IR Black", value: "ir-black" },
-  { label: "ISBL Editor Dark", value: "isbl-editor-dark" },
-  { label: "ISBL Editor Light", value: "isbl-editor-light" },
-  { label: "Kimbie Dark", value: "kimbie-dark" },
-  { label: "Kimbie Light", value: "kimbie-light" },
-  { label: "Lightfair", value: "lightfair" },
-  { label: "Lioshi", value: "lioshi" },
-  { label: "Magula", value: "magula" },
-  { label: "Mono Blue", value: "mono-blue" },
-  { label: "Monokai Sublime", value: "monokai-sublime" },
-  { label: "Monokai", value: "monokai" },
-  { label: "Night Owl", value: "night-owl" },
-  { label: "NNFX Dark", value: "nnfx-dark" },
-  { label: "NNFX Light", value: "nnfx-light" },
-  { label: "Nord", value: "nord" },
-  { label: "Obsidian", value: "obsidian" },
-  { label: "Panda Syntax Dark", value: "panda-syntax-dark" },
-  { label: "Panda Syntax Light", value: "panda-syntax-light" },
-  { label: "Paraiso Dark", value: "paraiso-dark" },
-  { label: "Paraiso Light", value: "paraiso-light" },
-  { label: "Pojoaque", value: "pojoaque" },
-  { label: "PureBasic", value: "purebasic" },
-  { label: "QtCreator Dark", value: "qtcreator-dark" },
-  { label: "QtCreator Light", value: "qtcreator-light" },
-  { label: "Rainbow", value: "rainbow" },
-  { label: "Rose Pine Dawn", value: "rose-pine-dawn" },
-  { label: "Rose Pine Moon", value: "rose-pine-moon" },
-  { label: "Rose Pine", value: "rose-pine" },
-  { label: "RouterOS", value: "routeros" },
-  { label: "School Book", value: "school-book" },
-  { label: "Shades of Purple", value: "shades-of-purple" },
-  { label: "Srcery", value: "srcery" },
-  { label: "Stack Overflow Dark", value: "stackoverflow-dark" },
-  { label: "Stack Overflow Light", value: "stackoverflow-light" },
-  { label: "Sunburst", value: "sunburst" },
-  { label: "Tokyo Night Dark", value: "tokyo-night-dark" },
-  { label: "Tokyo Night Light", value: "tokyo-night-light" },
-  { label: "Tomorrow Night Blue", value: "tomorrow-night-blue" },
-  { label: "Tomorrow Night Bright", value: "tomorrow-night-bright" },
-  { label: "VS", value: "vs" },
-  { label: "VS2015", value: "vs2015" },
-  { label: "Xcode", value: "xcode" },
-  { label: "XT256", value: "xt256" },
-];
+export const supportedHighlightJsThemes: { label: string; value: ThemeName }[] =
+  [
+    { label: "Abcdef", value: "Abcdef" },
+    { label: "Abyss", value: "Abyss" },
+    { label: "Androidstudio", value: "AndroidStudio" },
+    { label: "Andromeda", value: "Andromeda" },
+    { label: "Atomone", value: "Atomone" },
+    { label: "Aura", value: "Aura" },
+
+    { label: "Basic Dark", value: "BasicDark" },
+    { label: "Basic Light", value: "BasicLight" },
+    { label: "Bbedit", value: "Bbedit" },
+    { label: "Bespin", value: "Bespin" },
+
+    { label: "Console Dark", value: "ConsoleDark" },
+    { label: "Console Light", value: "ConsoleLight" },
+    { label: "Copilot", value: "Copilot" },
+
+    { label: "Darcula", value: "Darcula" },
+    { label: "Dracula", value: "Dracula" },
+    { label: "Duotone Dark", value: "DuotoneDark" },
+    { label: "Duotone Light", value: "DuotoneLight" },
+
+    { label: "Eclipse", value: "Eclipse" },
+
+    { label: "Github Dark", value: "GithubDark" },
+    { label: "Github Light", value: "GithubLight" },
+    { label: "Gruvbox Dark", value: "GruvboxDark" },
+    { label: "Gruvbox Light", value: "GruvboxLight" },
+
+    { label: "Kimbie", value: "Kimbie" },
+
+    { label: "Material Dark", value: "MaterialDark" },
+    { label: "Material Light", value: "MaterialLight" },
+    { label: "Monokai", value: "Monokai" },
+    { label: "Monokai Dimmed", value: "MonokaiDimmed" },
+
+    { label: "Noctis Lilac", value: "NoctisLilac" },
+    { label: "Nord", value: "Nord" },
+
+    { label: "Okaidia", value: "Okaidia" },
+
+    { label: "Quietlight", value: "Quietlight" },
+
+    { label: "Red", value: "Red" },
+
+    { label: "Solarized Dark", value: "SolarizedDark" },
+    { label: "Solarized Light", value: "SolarizedLight" },
+    { label: "Sublime", value: "Sublime" },
+
+    { label: "Tokyo Night", value: "TokyoNight" },
+    { label: "Tokyo Night Storm", value: "TokyoNightStorm" },
+    { label: "Tokyo Night Day", value: "TokyoNightDay" },
+    { label: "Tomorrow Night Blue", value: "TomorrowNightBlue" },
+
+    { label: "Vscode Dark", value: "VscodeDark" },
+    { label: "Vscode Light", value: "VscodeLight" },
+
+    { label: "White Dark", value: "WhiteDark" },
+    { label: "White Light", value: "WhiteLight" },
+
+    { label: "Xcode Dark", value: "XcodeDark" },
+    { label: "Xcode Light", value: "XcodeLight" },
+  ];
 
 export const codeEditorConfig = {
   fontSize: 12,

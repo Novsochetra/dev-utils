@@ -2,7 +2,7 @@
  * @name Xcode
  */
 import { tags as t } from "@lezer/highlight";
-import { createTheme, type CreateThemeOptions } from "./create-theme";
+import { type CreateThemeOptions, createTheme } from "../create-theme";
 
 export const defaultSettingsXcodeLight: CreateThemeOptions["settings"] = {
   background: "#fff",

@@ -7,7 +7,7 @@ import React, {
   type RefObject,
 } from "react";
 import { EditorView, highlightActiveLine, lineNumbers } from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
+import { EditorState, StateEffect } from "@codemirror/state";
 import { html } from "@codemirror/lang-html";
 import { motion } from "framer-motion";
 import { useAtomValue } from "jotai";
@@ -18,7 +18,9 @@ import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
 import { useEditorThemes } from "../utils/hooks/use-editor-themes";
 import { useAdaptiveCursorColor } from "../utils/hooks/use-adaptive-cursor-color";
-import { xcodeDarkInit, xcodeLightInit } from "../utils/helpers/xcode-theme";
+import { gruvboxDark } from "./components/code-editor/extensions/themes/gruvbox";
+import { xcodeLight } from "./components/code-editor/extensions/themes/xcode";
+import { Themes } from "./components/code-editor/extensions/themes";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -30,8 +32,6 @@ type Props = {
   className?: string;
 };
 
-console.log("XCODE: ", xcodeLightInit());
-
 const CodeEditorWithHighlight = ({
   ref,
   animationKey,
@@ -41,7 +41,7 @@ const CodeEditorWithHighlight = ({
   language = "javascript",
   className = "",
 }: Props) => {
-  useEditorThemes();
+  // useEditorThemes();
 
   const editorRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
@@ -50,6 +50,7 @@ const CodeEditorWithHighlight = ({
   const preRef = useRef<HTMLPreElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
   const mode = useAtomValue(AppState.mode);
+  const previewEditorTheme = useAtomValue(AppState.previewEditorTheme);
   const previewLanguage = useAtomValue(AppState.previewLanguage);
   const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
   const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
@@ -75,7 +76,7 @@ const CodeEditorWithHighlight = ({
             onChangeRef.current?.(newValue);
           }
         }),
-        xcodeDarkInit(),
+        gruvboxDark,
       ],
     });
 
@@ -88,6 +89,20 @@ const CodeEditorWithHighlight = ({
 
     return () => view.destroy();
   }, []);
+
+  // when theme changes -> update extension
+  useEffect(() => {
+    const view = viewRef.current;
+    if (!view) return;
+
+    console.log("previewEditorTheme: ", previewEditorTheme);
+    if (previewEditorTheme) {
+      view.dispatch({
+        // TODO: fix type error
+        effects: StateEffect.reconfigure.of([Themes[previewEditorTheme]]),
+      });
+    }
+  }, [previewEditorTheme]);
 
   // 2️⃣ Sync external value -> editor
   useEffect(() => {
@@ -154,7 +169,3 @@ const CodeEditorWithHighlight = ({
 };
 
 export default memo(CodeEditorWithHighlight);
-
-function escapeHtml(str: string) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}

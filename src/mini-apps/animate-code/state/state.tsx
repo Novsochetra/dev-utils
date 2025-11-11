@@ -7,6 +7,10 @@ import {
   PreviewResizeDirection,
   PreviewState,
 } from "../utils/constants";
+import {
+  ThemeNames,
+  Themes,
+} from "../screens/components/code-editor/extensions/themes";
 
 export const store = getDefaultStore();
 
@@ -18,8 +22,8 @@ export type AppState = {
   mode: PrimitiveAtom<Mode>;
   previewState: PrimitiveAtom<PreviewState>;
   slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
-  editorTheme: PrimitiveAtom<string>;
-  previewEditorTheme: PrimitiveAtom<string>;
+  editorTheme: PrimitiveAtom<ThemeNames>;
+  previewEditorTheme: PrimitiveAtom<ThemeNames | string>;
   previewSize: PrimitiveAtom<number>;
   previewTitle: PrimitiveAtom<string>;
   previewBackground: {
@@ -45,7 +49,7 @@ export const AppState: AppState = {
   previewSlideIdx: atom(), // INFO: why undefined value ? since we need to since the currentSlideIdx with previewSlideIdx on <Preview />
   mode: atom<Mode>(Mode.Edit),
   previewState: atom<PreviewState>(PreviewState.IDLE),
-  editorTheme: atom("atom-one-light"),
+  editorTheme: atom(ThemeNames.GruvboxDark),
   previewEditorTheme: atom(""),
   slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
   previewSize: atom(100), // percentage
