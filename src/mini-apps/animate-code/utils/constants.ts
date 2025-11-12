@@ -42,13 +42,36 @@ export const AnimationInterval = 3000;
 // Example slides
 const slide0 = `<!DOCTYPE html>
 <html>
+<head></head>
+<body></body>
+</html>
+`;
+
+const slide1 = `<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+</body>
+</html>
+`;
+
+const slide2 = `<!DOCTYPE html>
+<html>
 <body>
   <p>This is a paragraph.</p>
 </body>
 </html>
 `;
 
-const slide1 = `<!DOCTYPE html>
+const slide3 = `<!DOCTYPE html>
+<html>
+<body>
+  <p class="">This is a paragraph.</p>
+</body>
+</html>
+`;
+
+const slide4 = `<!DOCTYPE html>
 <html>
 <body>
   <p class="container">This is a paragraph.</p>
@@ -56,39 +79,12 @@ const slide1 = `<!DOCTYPE html>
 </html>
 `;
 
-const slide2 = `
-// Create a simple class
-class Person {
-  constructor() { }
-}
-`;
-
-const slide3 = `
-// Create a simple class
-class Person {
-  constructor(name) {
-    this.name = name;
-  }
-}
-`;
-
-const slide4 = `
-// Create a simple class
-class Person {
-  constructor(name) { /* ... */ }
-}
-
-// Create an instance
-const person = new Person("Alice");
-`;
-
-const slide5 = `
-// Create a simple class
-class Person { /* ... */ }
-
-// Create an instance
-const person = new Person("Alice");
-
+const slide5 = `<!DOCTYPE html>
+<html>
+<body>
+  <p class="container">/* ... */</p>
+</body>
+</html>
 `;
 
 const slide6 = `
@@ -110,7 +106,7 @@ export const defaultDummySlides = [
   slide6,
 ];
 
-const d = [slide0, slide1];
+const d = [slide0, slide1, slide2, slide3, slide4, slide5];
 
 export const defaultSlides = d.map((v) => ({ id: v4(), data: atom(v) }));
 

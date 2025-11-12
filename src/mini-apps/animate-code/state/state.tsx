@@ -32,6 +32,12 @@ export type AppState = {
   previewLanguage: PrimitiveAtom<string>;
   editorConfig: {
     fontSize: PrimitiveAtom<number>;
+    animationConfig: {
+      removeDuration: PrimitiveAtom<number>;
+      addDuration: PrimitiveAtom<number>;
+      addedDelayPerChar: PrimitiveAtom<number>;
+      lineDelay: PrimitiveAtom<number>;
+    };
   };
 };
 
@@ -61,7 +67,13 @@ export const AppState: AppState = {
   },
   previewLanguage: atom("html"),
   editorConfig: {
-    fontSize: atom(12),
+    fontSize: atom(16),
+    animationConfig: {
+      removeDuration: atom(0.8),
+      addDuration: atom(1),
+      addedDelayPerChar: atom(0.08),
+      lineDelay: atom(0.05),
+    },
   },
 };
 

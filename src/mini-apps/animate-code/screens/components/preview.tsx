@@ -1,10 +1,13 @@
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { memo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { AppState, store } from "../../state/state";
 import { AnimateCodeSlide } from "./animate-code-slide";
 import { PreviewState } from "../../utils/constants";
 import { AppActions } from "../../state/actions";
+import { Input } from "@/vendor/shadcn/components/ui/input";
+import { Label } from "@/vendor/shadcn/components/ui/label";
+import { interval } from "date-fns";
 
 export const Preview = memo(() => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -16,6 +19,19 @@ export const Preview = memo(() => {
   const currentSlide = useAtomValue(slides[previewSlideIdx || 0]?.data) || "";
   const previewState = useAtomValue(AppState.previewState);
 
+  const [removeDuration, setRemoveDuration] = useAtom(
+    AppState.editorConfig.animationConfig.removeDuration,
+  );
+  const [addDuration, setAddDuration] = useAtom(
+    AppState.editorConfig.animationConfig.addDuration,
+  );
+  const [addedDelayPerChar, setAddedDelayPerChar] = useAtom(
+    AppState.editorConfig.animationConfig.addedDelayPerChar,
+  );
+  const [lineDelay, setLineDelay] = useAtom(
+    AppState.editorConfig.animationConfig.lineDelay,
+  );
+
   useEffect(() => {
     const currentSlideIdx = store.get(AppState.currentSlideIdx);
     store.set(AppState.previewSlideIdx, currentSlideIdx);
@@ -25,17 +41,25 @@ export const Preview = memo(() => {
   useEffect(() => {
     const isPlaying = previewState === PreviewState.PLAY;
 
-    if (isPlaying) {
-      intervalRef.current = setInterval(() => {
-        const currentIdx = store.get(AppState.previewSlideIdx) || 0;
-        const nextIdx = currentIdx + 1;
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
 
-        if (nextIdx < slides.length) {
-          store.set(AppState.previewSlideIdx, nextIdx);
-        } else {
-          AppActions.SetPreviewState(PreviewState.FINISH);
-        }
-      }, 2000); // 2s per slide
+    if (isPlaying) {
+      intervalRef.current = setInterval(
+        () => {
+          const currentIdx = store.get(AppState.previewSlideIdx) || 0;
+          const nextIdx = currentIdx + 1;
+
+          if (nextIdx < slides.length) {
+            store.set(AppState.previewSlideIdx, nextIdx);
+          } else {
+            AppActions.SetPreviewState(PreviewState.FINISH);
+          }
+        },
+        (addDuration + addDuration + removeDuration + lineDelay) * 1000,
+      ); // 2s per slide
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
@@ -44,7 +68,14 @@ export const Preview = memo(() => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [previewState, slides.length]);
+  }, [
+    previewState,
+    addedDelayPerChar,
+    addDuration,
+    removeDuration,
+    lineDelay,
+    slides.length,
+  ]);
 
   return (
     <motion.div
@@ -63,6 +94,8 @@ export const Preview = memo(() => {
       {prevSlideIdx !== undefined ? (
         <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
       ) : null}
+
+      {prevSlideIdx !== undefined ? <AnimationConfigFields /> : null}
     </motion.div>
   );
 });
@@ -81,3 +114,57 @@ export const Background = memo(() => {
     ></motion.div>
   );
 });
+
+export const AnimationConfigFields = () => {
+  const [removeDuration, setRemoveDuration] = useAtom(
+    AppState.editorConfig.animationConfig.removeDuration,
+  );
+  const [addDuration, setAddDuration] = useAtom(
+    AppState.editorConfig.animationConfig.addDuration,
+  );
+  const [addedDelayPerChar, setAddedDelayPerChar] = useAtom(
+    AppState.editorConfig.animationConfig.addedDelayPerChar,
+  );
+  const [lineDelay, setLineDelay] = useAtom(
+    AppState.editorConfig.animationConfig.lineDelay,
+  );
+
+  return (
+    <div className="absolute top-40 right-40 border-[2px] border-white p-4 bg-white flex gap-4 flex-col">
+      <Label htmlFor="removed-duration">Remove Duration</Label>
+      <Input
+        id="removed-duration"
+        value={removeDuration}
+        onChange={(e) => {
+          setRemoveDuration(Number(e.target.value));
+        }}
+      />
+      <Label htmlFor="">Added Duration</Label>
+      <Input
+        id="added-duration"
+        value={addDuration}
+        onChange={(e) => {
+          setAddDuration(Number(e.target.value));
+        }}
+      />
+      <Label htmlFor="added-delay-per-char-duration">
+        Added Delay Per Char
+      </Label>
+      <Input
+        id="added-delay-per-char-duration"
+        value={addedDelayPerChar}
+        onChange={(e) => {
+          setAddedDelayPerChar(Number(e.target.value));
+        }}
+      />
+      <Label htmlFor="line-delay-duration">Line Delay Duration</Label>
+      <Input
+        id="line-delay-duration"
+        value={lineDelay}
+        onChange={(e) => {
+          setLineDelay(Number(e.target.value));
+        }}
+      />
+    </div>
+  );
+};
