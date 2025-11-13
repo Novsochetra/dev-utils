@@ -7,7 +7,7 @@ import { PreviewState } from "../../utils/constants";
 import { AppActions } from "../../state/actions";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
-import { interval } from "date-fns";
+import { BrowserPreview } from "./browser-preview";
 
 export const Preview = memo(() => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -77,6 +77,24 @@ export const Preview = memo(() => {
     slides.length,
   ]);
 
+  const code = `
+    <html>
+      <head>
+        <style>
+          * { margin: unset; }
+*
+          body {
+            font-family: "JetBrains Mono", monospace;
+            margin: 0;
+            padding: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>welcome</h1>
+      </body>
+    </html>
+  `;
   return (
     <motion.div
       className="fixed top-0 left-0 w-full h-full bg-red-500 p-8 flex items-center justify-center"
@@ -92,10 +110,28 @@ export const Preview = memo(() => {
     >
       <Background />
       {prevSlideIdx !== undefined ? (
-        <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
-      ) : null}
+        <motion.div className="flex flex-1 flex-row gap-4 max-h-full">
+          <motion.div
+            className="flex flex-1"
+            layout
+            transition={{ duration: 0.5 }}
+          >
+            <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
+          </motion.div>
 
-      {prevSlideIdx !== undefined ? <AnimationConfigFields /> : null}
+          {previewSlideIdx && previewSlideIdx % 2 === 0 && (
+            <motion.div
+              className="flex flex-1"
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 1 }}
+            >
+              <BrowserPreview code={code} />
+            </motion.div>
+          )}
+        </motion.div>
+      ) : null}
     </motion.div>
   );
 });
@@ -134,7 +170,8 @@ export const AnimationConfigFields = () => {
       <Label htmlFor="removed-duration">Remove Duration</Label>
       <Input
         id="removed-duration"
-        value={removeDuration}
+        type="text"
+        defaultValue={removeDuration}
         onChange={(e) => {
           setRemoveDuration(Number(e.target.value));
         }}
@@ -142,7 +179,8 @@ export const AnimationConfigFields = () => {
       <Label htmlFor="">Added Duration</Label>
       <Input
         id="added-duration"
-        value={addDuration}
+        defaultValue={addDuration}
+        type="text"
         onChange={(e) => {
           setAddDuration(Number(e.target.value));
         }}
@@ -152,7 +190,8 @@ export const AnimationConfigFields = () => {
       </Label>
       <Input
         id="added-delay-per-char-duration"
-        value={addedDelayPerChar}
+        defaultValue={addedDelayPerChar}
+        type="text"
         onChange={(e) => {
           setAddedDelayPerChar(Number(e.target.value));
         }}
@@ -160,7 +199,8 @@ export const AnimationConfigFields = () => {
       <Label htmlFor="line-delay-duration">Line Delay Duration</Label>
       <Input
         id="line-delay-duration"
-        value={lineDelay}
+        defaultValue={lineDelay}
+        type="text"
         onChange={(e) => {
           setLineDelay(Number(e.target.value));
         }}

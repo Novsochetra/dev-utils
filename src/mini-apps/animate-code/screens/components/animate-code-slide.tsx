@@ -227,13 +227,9 @@ export const AnimateCodeSlide = memo(
 
     return (
       <div
-        className="hljs flex flex-col font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
+        className="flex flex-col font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white max-h-full aspect-video"
         style={{
           width: `${previewSize}%`,
-          maxWidth: "100%",
-          maxHeight: "100%",
-          aspectRatio: "16 / 9",
-
           backgroundColor:
             BaseThemeColor[previewEditorTheme || editorTheme].background,
           color: BaseThemeColor[previewEditorTheme || editorTheme].foreground,

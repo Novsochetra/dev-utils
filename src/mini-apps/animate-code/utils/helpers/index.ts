@@ -16,7 +16,7 @@ export function measureFontMetrics(
   document.body.appendChild(span);
 
   // INFO: kinda hack value to make the font spacing a bit better
-  const fontMetricCorrection = 0.4;
+  const fontMetricCorrection = 0.2;
 
   const charWidth = span.offsetWidth + fontMetricCorrection;
   const lineHeight = span.offsetHeight;
