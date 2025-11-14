@@ -1,7 +1,6 @@
 import { useAtomValue } from "jotai";
 import { memo, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
 import { EditorState } from "@codemirror/state";
 import { HighlightStyle, syntaxTree } from "@codemirror/language";
@@ -42,14 +41,17 @@ export function injectHighlightStyleToDOM(
   style: HighlightStyle,
   id = "lezer-gruvbox",
 ) {
-  let el = document.getElementById(id);
+  // Prevent double injection
+
+  const el = document.getElementById(id);
   if (el) {
     el.textContent = style.module?.getRules() || "";
   } else {
-    el = document.createElement("style");
-    el.id = id;
-    el.textContent = style.module?.getRules() || "";
-    document.head.appendChild(el);
+    const styleEl = document.createElement("style");
+    styleEl.id = id;
+
+    styleEl.textContent = style.module?.getRules() || "";
+    document.head.appendChild(styleEl);
   }
 }
 
@@ -105,18 +107,10 @@ export const AnimateCodeSlide = memo(
 
     injectHighlightStyleToDOM(highlightStyle);
 
-    const removeDuration = useAtomValue(
-      AppState.editorConfig.animationConfig.removeDuration,
-    );
-    const addDuration = useAtomValue(
-      AppState.editorConfig.animationConfig.addDuration,
-    );
-    const addedDelayPerChar = useAtomValue(
-      AppState.editorConfig.animationConfig.addedDelayPerChar,
-    );
-    const lineDelay = useAtomValue(
-      AppState.editorConfig.animationConfig.lineDelay,
-    );
+    const removeDuration = 0.8;
+    const addDuration = 1;
+    const addedDelayPerChar = 0.08;
+    const lineDelay = 0.05;
 
     // Compute diff
     const diffs = useMemo(
@@ -227,25 +221,26 @@ export const AnimateCodeSlide = memo(
 
     return (
       <motion.div
+        key="code-editor-preview"
+        layoutId="code-editor"
+        className="hljs flex flex-col font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
+        style={{
+          width: `${previewSize}%`,
+          maxWidth: "100%",
+          maxHeight: "100%",
+          aspectRatio: "16 / 9",
+
+          backgroundColor:
+            BaseThemeColor[previewEditorTheme || editorTheme].background,
+          color: BaseThemeColor[previewEditorTheme || editorTheme].foreground,
+        }}
+        layoutCrossfade={false}
         transition={{
           type: "spring",
           stiffness: 200,
           damping: 18,
           mass: 0.6,
         }}
-        key="code-editor-preview"
-        className="flex flex-col font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
-        style={{
-          maxWidth: "100%",
-          maxHeight: "100%",
-          aspectRatio: 16 / 9,
-          width: `${previewSize}%`,
-          backgroundColor:
-            BaseThemeColor[previewEditorTheme || editorTheme].background,
-          color: BaseThemeColor[previewEditorTheme || editorTheme].foreground,
-        }}
-        layoutId="code-editor"
-        layoutCrossfade={false}
       >
         <Toolbar />
 
@@ -254,14 +249,20 @@ export const AnimateCodeSlide = memo(
           // otherwise some character transtion (add, modified, removed)
           // seem not animate correctly
           className="flex-1 overflow-x-auto p-4"
-          // key={v4()}
           style={{ position: "relative" }}
         >
           {chars.map((c) => {
             let initial: any, animateProps: any;
 
-            if (c.type === -1) {
-              // Removed text: move up and fade out
+            if (c.type === 0) {
+              initial = { x: c.oldX, y: c.oldY, opacity: 1 };
+              animateProps = {
+                x: c.finalX,
+                y: c.finalY,
+                opacity: 1,
+                transition: { duration: addDuration },
+              };
+            } else if (c.type === -1) {
               initial = {
                 x: c.oldX,
                 y: c.oldY,
@@ -269,34 +270,15 @@ export const AnimateCodeSlide = memo(
                 textDecoration: "line-through",
               };
               animateProps = {
-                y: (c.oldY || 0) - 8,
                 opacity: 0,
                 transition: { duration: removeDuration },
               };
-            } else if (c.type === 0) {
-              // Changed text: appear after removal
-              const delay =
-                removeDuration + addedDelayPerChar + c.line * lineDelay;
-              initial = { x: c.oldX, y: c.oldY, opacity: 1 }; // maybe slightly faded initially
-              animateProps = {
-                x: c.finalX,
-                y: c.finalY,
-                opacity: 1,
-                transition: {
-                  duration: addDuration,
-                  delay,
-                },
-              };
             } else if (c.type === 1) {
-              // Added text: appear after changed text
               const delay =
-                removeDuration +
-                addDuration +
-                addedDelayPerChar +
-                c.line * lineDelay;
+                addDuration + addedDelayPerChar + c.line * lineDelay;
               initial = {
                 x: c.finalX,
-                y: c.finalY + 8, // start slightly below
+                y: c.finalY,
                 opacity: 0,
               };
               animateProps = {
