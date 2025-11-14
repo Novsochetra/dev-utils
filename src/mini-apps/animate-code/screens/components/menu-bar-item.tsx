@@ -10,6 +10,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/vendor/shadcn/components/ui/tooltip";
+import { AppState, fallbackAtom, store } from "../../state/state";
+import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
+import { EyeClosedIcon, EyeIcon } from "lucide-react";
 
 export const MenuBarItem = memo(() => {
   return (
@@ -22,7 +25,23 @@ export const MenuBarItem = memo(() => {
       </div>
 
       <ShortCutsCheatSheet />
+      <BrowserButtonPreview />
     </div>
+  );
+});
+
+export const BrowserButtonPreview = memo(() => {
+  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
+  const slides = store.get(AppState.slides);
+  const [includePreview, setPreview] = useAtom(
+    (slides[currentSlideIdx]?.preview ||
+      fallbackAtom) as PrimitiveAtom<boolean>,
+  );
+
+  return (
+    <Button variant="ghost" onClick={() => setPreview((prev) => !prev)}>
+      {includePreview ? <EyeClosedIcon size={16} /> : <EyeIcon size={16} />}
+    </Button>
   );
 });
 

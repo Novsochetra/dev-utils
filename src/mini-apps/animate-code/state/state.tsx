@@ -18,7 +18,13 @@ export type AppState = {
   previewSlideIdx: PrimitiveAtom<number | undefined>;
   mode: PrimitiveAtom<Mode>;
   previewState: PrimitiveAtom<PreviewState>;
-  slides: PrimitiveAtom<{ id: string; data: Atom<string> }[]>;
+  slides: PrimitiveAtom<
+    {
+      id: string;
+      data: Atom<string>;
+      preview: Atom<boolean>;
+    }[]
+  >;
   editorTheme: PrimitiveAtom<ThemeNames>;
   previewEditorTheme: PrimitiveAtom<ThemeNames | null>;
   previewSize: PrimitiveAtom<number>;
@@ -54,7 +60,10 @@ export const AppState: AppState = {
   previewState: atom<PreviewState>(PreviewState.IDLE),
   editorTheme: atom(ThemeNames.GruvboxDark),
   previewEditorTheme: atom<ThemeNames | null>(null),
-  slides: atom<Array<{ id: string; data: Atom<string> }>>(defaultSlides),
+  slides:
+    atom<Array<{ id: string; data: Atom<string>; preview: Atom<boolean> }>>(
+      defaultSlides,
+    ),
   previewSize: atom(100), // percentage
   previewTitle: atom("index.html"),
   previewResizeDirection: atom<PreviewResizeDirection>(

@@ -23,6 +23,7 @@ import { Background } from "./components/preview";
 import { SLIDER_CONTENT_WIDTH } from "./components/slider/constants";
 import { SliderItem } from "./components/slider/slider-item";
 import { AppActions } from "../state/actions";
+import { BrowserPreview } from "./components/browser-preview";
 
 type SliderProps = {
   codeEditorRef: RefObject<HTMLDivElement | null>;
@@ -33,14 +34,45 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
     <div className="flex flex-1 min-h-0">
       <LeftSidebarSlider />
 
-      <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0 relative">
-        <Background layoutId="background" layoutKey="edit-background" />
-
-        <CodeEditorWithAtom ref={codeEditorRef} />
-      </div>
+      <CodeEditorWithPreview ref={codeEditorRef} />
     </div>
   );
 });
+
+const CodeEditorWithPreview = memo(
+  ({ ref }: { ref: RefObject<HTMLDivElement | null> }) => {
+    const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
+    const slides = store.get(AppState.slides);
+    const codePreview = useAtomValue(
+      (slides[currentSlideIdx]?.data || fallbackAtom) as PrimitiveAtom<string>,
+    );
+    const includePreview = useAtomValue(
+      (slides[currentSlideIdx]?.preview ||
+        fallbackAtom) as PrimitiveAtom<boolean>,
+    );
+
+    return (
+      <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0 relative">
+        <Background layoutId="background" layoutKey="edit-background" />
+
+        {includePreview ? (
+          <div className="w-full flex flex-1 max-w-full max-h-full aspect-video gap-4 overflow-clip">
+            {/* INFO: min-w-0 is trick to prevent flex grow */}
+            <div className="flex flex-1 items-center justify-center min-w-0">
+              <CodeEditorWithAtom ref={ref} />
+            </div>
+
+            <div className="flex flex-1 items-center justify-center z-10">
+              <BrowserPreview code={codePreview || ""} />
+            </div>
+          </div>
+        ) : (
+          <CodeEditorWithAtom ref={ref} />
+        )}
+      </div>
+    );
+  },
+);
 
 const CodeEditorWithAtom = memo(
   ({ ref }: { ref: RefObject<HTMLDivElement | null> }) => {

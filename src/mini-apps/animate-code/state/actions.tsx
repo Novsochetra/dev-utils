@@ -15,7 +15,11 @@ export const AppActions = {
     const slides = store.get(AppState.slides);
     const currentSlideData = store.get(slides[index]?.data);
 
-    const newItem = { id: v4(), data: atom(currentSlideData) };
+    const newItem = {
+      id: v4(),
+      data: atom(currentSlideData),
+      preview: atom(false),
+    };
     const prev = store.get(AppState.slides);
     store.set(AppState.slides, [
       ...prev.slice(0, index + 1),
@@ -36,7 +40,7 @@ export const AppActions = {
   },
 
   AddSlide: () => {
-    const newItem = { id: v4(), data: atom("") };
+    const newItem = { id: v4(), data: atom(""), preview: atom(false) };
     const prev = store.get(AppState.slides);
     const newSlides = [...prev, newItem];
     store.set(AppState.slides, newSlides);
@@ -46,7 +50,7 @@ export const AppActions = {
   },
 
   AddSlideBelow: (index: number) => {
-    const newItem = { id: v4(), data: atom("") };
+    const newItem = { id: v4(), data: atom(""), preview: atom(false) };
     const prev = store.get(AppState.slides);
     store.set(AppState.slides, [
       ...prev.slice(0, index + 1),
@@ -60,7 +64,7 @@ export const AppActions = {
   },
 
   AddSlideAbove: (index: number) => {
-    const newItem = { id: v4(), data: atom("") };
+    const newItem = { id: v4(), data: atom(""), preview: atom(false) };
     const prev = store.get(AppState.slides);
     store.set(AppState.slides, [
       ...prev.slice(0, index),

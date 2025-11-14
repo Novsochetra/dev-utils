@@ -7,7 +7,7 @@ import {
   Mode,
   PreviewState,
 } from "../../utils/constants";
-import { EyeClosed, EyeIcon } from "lucide-react";
+import { MonitorOffIcon, MonitorPlayIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -58,7 +58,11 @@ export const PreviewButton = () => {
             });
           }}
         >
-          {mode === Mode.Edit ? <EyeIcon size={12} /> : <EyeClosed size={12} />}
+          {mode === Mode.Edit ? (
+            <MonitorPlayIcon size={12} />
+          ) : (
+            <MonitorOffIcon size={12} />
+          )}
         </Button>
       </TooltipTrigger>
       <TooltipContent>

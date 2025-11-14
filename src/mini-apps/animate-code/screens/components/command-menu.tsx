@@ -20,10 +20,10 @@ import {
 import { useEditorThemes } from "../../utils/hooks/use-editor-themes";
 import { AppActions } from "../../state/actions";
 import {
-  EyeClosedIcon,
-  EyeIcon,
   LanguagesIcon,
   MonitorDownIcon,
+  MonitorOffIcon,
+  MonitorPlayIcon,
   MonitorUpIcon,
   PaletteIcon,
 } from "lucide-react";
@@ -281,7 +281,7 @@ export const MainPageMenu = React.memo(
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-                <EyeClosedIcon className="text-stone-500" />
+                <MonitorOffIcon className="text-stone-500" />
               </div>
               Exit Preview Mode
               <div className="flex items-center space-x-1 text-xs shrink grow-0  overflow-hidden ml-auto">
@@ -304,7 +304,7 @@ export const MainPageMenu = React.memo(
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-                <EyeIcon className="text-stone-500" />
+                <MonitorPlayIcon className="text-stone-500" />
               </div>
               Enter Preview Mode
               <div className="flex items-center space-x-1 text-xs shrink grow-0  overflow-hidden ml-auto">

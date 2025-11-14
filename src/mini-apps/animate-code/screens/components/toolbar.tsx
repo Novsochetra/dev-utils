@@ -3,10 +3,10 @@ import { createContext, memo, useContext } from "react";
 import {
   ChevronsLeftRightIcon,
   ChevronsRightLeftIcon,
-  EyeIcon,
   Maximize2Icon,
   Minimize2Icon,
   MinusIcon,
+  MonitorPlayIcon,
   PaletteIcon,
   PauseIcon,
   PlayIcon,
@@ -187,7 +187,7 @@ export const ButtonPreview = () => {
             AppActions.SetMode(Mode.Preview);
           }}
         >
-          <EyeIcon size={16} />
+          <MonitorPlayIcon size={16} />
         </div>
       </TooltipTrigger>
       <TooltipContent>

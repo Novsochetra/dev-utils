@@ -18,6 +18,7 @@ import {
   BaseThemeColor,
   BaseThemeStyle,
 } from "./code-editor/extensions/themes";
+import { v4 } from "uuid";
 
 function getLanguageExtension(lang: string) {
   switch (lang) {
@@ -250,6 +251,7 @@ export const AnimateCodeSlide = memo(
           // seem not animate correctly
           className="flex-1 overflow-x-auto p-4"
           style={{ position: "relative" }}
+          key={v4()}
         >
           {chars.map((c) => {
             let initial: any, animateProps: any;

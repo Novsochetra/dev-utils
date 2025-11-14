@@ -17,6 +17,8 @@ export const Preview = memo(() => {
 
   const prevSlide = useAtomValue(slides[prevSlideIdx]?.data) || "";
   const currentSlide = useAtomValue(slides[previewSlideIdx || 0]?.data) || "";
+  const isPreviewSlideIncludeBrowser =
+    useAtomValue(slides[previewSlideIdx || 0]?.preview) || "";
   const previewState = useAtomValue(AppState.previewState);
 
   const removeDuration = useAtomValue(
@@ -103,13 +105,22 @@ export const Preview = memo(() => {
       {prevSlideIdx !== undefined ? (
         <div className="flex flex-1 max-w-full max-h-full aspect-video gap-4 items-center justify-center">
           <div className="flex flex-1 items-center justify-center">
-            <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
+            <AnimateCodeSlide
+              newText={isPreviewSlideIncludeBrowser ? prevSlide : currentSlide}
+              oldText={prevSlide}
+            />
           </div>
 
-          {false ? (
-            <div className="flex flex-1 items-center justify-center z-10">
+          {isPreviewSlideIncludeBrowser ? (
+            <motion.div
+              className="flex flex-1 items-center justify-center z-10"
+              layoutCrossfade={false}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 1.5 }}
+            >
               <BrowserPreview code={code} />
-            </div>
+            </motion.div>
           ) : null}
         </div>
       ) : null}

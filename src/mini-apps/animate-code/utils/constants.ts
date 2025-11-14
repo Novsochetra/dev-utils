@@ -108,7 +108,11 @@ export const defaultDummySlides = [
 
 const d = [slide0, slide1, slide2, slide3, slide4, slide5];
 
-export const defaultSlides = d.map((v) => ({ id: v4(), data: atom(v) }));
+export const defaultSlides = d.map((v) => ({
+  id: v4(),
+  data: atom(v),
+  preview: atom(false),
+}));
 
 // INFO: make code editor support languages
 export const supportedHighlightJsLanguages = [
