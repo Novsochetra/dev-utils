@@ -226,23 +226,35 @@ export const AnimateCodeSlide = memo(
     }, []);
 
     return (
-      <div
-        className="flex flex-col font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white max-h-full aspect-video"
+      <motion.div
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 18,
+          mass: 0.6,
+        }}
+        key="code-editor-preview"
+        className="flex flex-col font-jetbrains-mono rounded-lg relative overflow-hidden select-none border-2 border-white"
         style={{
+          maxWidth: "100%",
+          maxHeight: "100%",
+          aspectRatio: 16 / 9,
           width: `${previewSize}%`,
           backgroundColor:
             BaseThemeColor[previewEditorTheme || editorTheme].background,
           color: BaseThemeColor[previewEditorTheme || editorTheme].foreground,
         }}
+        layoutId="code-editor"
+        layoutCrossfade={false}
       >
         <Toolbar />
 
-        <motion.div
+        <div
           // INFO: ensure the animation across slide has uniq animation key
           // otherwise some character transtion (add, modified, removed)
           // seem not animate correctly
           className="flex-1 overflow-x-auto p-4"
-          key={v4()}
+          // key={v4()}
           style={{ position: "relative" }}
         >
           {chars.map((c) => {
@@ -318,10 +330,10 @@ export const AnimateCodeSlide = memo(
               </motion.span>
             );
           })}
-        </motion.div>
+        </div>
 
         <AnimateCodeStatusBar />
-      </div>
+      </motion.div>
     );
   },
 );

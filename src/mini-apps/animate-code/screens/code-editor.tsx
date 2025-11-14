@@ -130,6 +130,7 @@ const CodeEditorWithHighlight = ({
       className={`relative aspect-video w-full h-auto max-h-full max-w-full ${className} overflow-hidden`}
       layoutId={layoutId}
       ref={ref}
+      layoutCrossfade={false}
       transition={{
         type: "spring",
         stiffness: 200,

@@ -43,11 +43,9 @@ export const AnimateCodeHomeScreen = () => {
             <MenuBarItem />
 
             <div className="flex w-full rounded-xl bg-white border overflow-hidden">
-              <AnimatePresence>
-                <Slider codeEditorRef={codeEditorRef} />
+              <Slider codeEditorRef={codeEditorRef} />
 
-                {mode === Mode.Preview && <Preview key={`preview`} />}
-              </AnimatePresence>
+              {mode === Mode.Preview && <Preview key={`preview`} />}
             </div>
           </div>
           <CommandMenu />

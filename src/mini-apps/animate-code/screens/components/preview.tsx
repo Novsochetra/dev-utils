@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue } from "jotai";
-import { memo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { memo, useEffect, useRef } from "react";
 import { AppState, store } from "../../state/state";
 import { AnimateCodeSlide } from "./animate-code-slide";
 import { PreviewState } from "../../utils/constants";
@@ -95,61 +95,53 @@ export const Preview = memo(() => {
       </body>
     </html>
   `;
+
   return (
-    <motion.div
-      className="fixed top-0 left-0 w-full h-full bg-red-500 p-8 flex items-center justify-center"
-      layout
-      key="code-editor-preview"
-      layoutId="code-editor"
-      transition={{
-        type: "spring",
-        stiffness: 200,
-        damping: 18,
-        mass: 0.6,
-      }}
-    >
-      <Background />
+    <div className="fixed top-0 left-0 w-full h-full p-16 flex items-center justify-center">
+      <Background layoutId="background" layoutKey="preview-background" />
+
       {prevSlideIdx !== undefined ? (
-        <motion.div className="flex flex-1 flex-row gap-4 max-h-full">
-          <motion.div
-            className="flex flex-1"
-            layout
-            transition={{ duration: 0.5 }}
-          >
+        <div className="flex flex-1 max-w-full max-h-full aspect-video gap-4 items-center justify-center">
+          <div className="flex flex-1 items-center justify-center">
             <AnimateCodeSlide newText={currentSlide} oldText={prevSlide} />
-          </motion.div>
+          </div>
 
-          {previewSlideIdx && previewSlideIdx % 2 === 0 && (
-            <motion.div
-              className="flex flex-1"
-              layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: 1 }}
-            >
+          {false ? (
+            <div className="flex flex-1 items-center justify-center z-10">
               <BrowserPreview code={code} />
-            </motion.div>
-          )}
-        </motion.div>
+            </div>
+          ) : null}
+        </div>
       ) : null}
-    </motion.div>
+    </div>
   );
 });
 
-export const Background = memo(() => {
-  const angle = useAtomValue(AppState.previewBackground.angle);
-  const from = useAtomValue(AppState.previewBackground.from);
-  const to = useAtomValue(AppState.previewBackground.to);
+export const Background = memo(
+  ({ layoutId, layoutKey }: { layoutId: string; layoutKey: string }) => {
+    const angle = useAtomValue(AppState.previewBackground.angle);
+    const from = useAtomValue(AppState.previewBackground.from);
+    const to = useAtomValue(AppState.previewBackground.to);
 
-  return (
-    <motion.div
-      className="absolute top-0 left-0 select-none w-full h-full"
-      style={{
-        background: `linear-gradient(${angle}deg, ${from}, ${to})`,
-      }}
-    ></motion.div>
-  );
-});
+    return (
+      <motion.div
+        layoutId={layoutId}
+        key={layoutKey}
+        className="absolute top-0 left-0 select-none w-full h-full"
+        layout
+        style={{
+          background: `linear-gradient(${angle}deg, ${from}, ${to})`,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 200,
+          damping: 18,
+          mass: 0.6,
+        }}
+      />
+    );
+  },
+);
 
 export const AnimationConfigFields = () => {
   const [removeDuration, setRemoveDuration] = useAtom(

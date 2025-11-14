@@ -34,7 +34,7 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
       <LeftSidebarSlider />
 
       <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0 relative">
-        <Background />
+        <Background layoutId="background" layoutKey="edit-background" />
 
         <CodeEditorWithAtom ref={codeEditorRef} />
       </div>
@@ -61,7 +61,7 @@ const CodeEditorWithAtom = memo(
         ref={ref}
         value={value}
         onChange={onChange}
-        animationKey="code-editor"
+        animationKey="edit-code-editor"
         layoutId="code-editor"
       />
     );
