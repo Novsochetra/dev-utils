@@ -64,7 +64,7 @@ export const CommandMenu = React.memo(() => {
         setOpen(false);
         // page specific behaviour
         if (page === "theme") {
-          AppActions.SetEditorPreviewTheme("");
+          AppActions.SetEditorPreviewTheme(null);
         }
       }}
     >
@@ -146,7 +146,7 @@ export const ListThemesCommandItem = React.memo(
                 (t) => t.label === val,
               );
 
-              AppActions.SetEditorPreviewTheme(theme?.value || "");
+              AppActions.SetEditorPreviewTheme(theme?.value || null);
             }
           }
         });
@@ -160,7 +160,7 @@ export const ListThemesCommandItem = React.memo(
           key={`language-${a.value}`}
           className="h-10 text-sm overflow-hidden "
           onSelect={() => {
-            AppActions.SetEditorPreviewTheme("");
+            AppActions.SetEditorPreviewTheme(null);
             AppActions.SetEditorTheme(a.value);
             setOpen(false);
           }}

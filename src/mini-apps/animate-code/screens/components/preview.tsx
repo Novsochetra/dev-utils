@@ -19,16 +19,16 @@ export const Preview = memo(() => {
   const currentSlide = useAtomValue(slides[previewSlideIdx || 0]?.data) || "";
   const previewState = useAtomValue(AppState.previewState);
 
-  const [removeDuration, setRemoveDuration] = useAtom(
+  const removeDuration = useAtomValue(
     AppState.editorConfig.animationConfig.removeDuration,
   );
-  const [addDuration, setAddDuration] = useAtom(
+  const addDuration = useAtomValue(
     AppState.editorConfig.animationConfig.addDuration,
   );
-  const [addedDelayPerChar, setAddedDelayPerChar] = useAtom(
+  const addedDelayPerChar = useAtomValue(
     AppState.editorConfig.animationConfig.addedDelayPerChar,
   );
-  const [lineDelay, setLineDelay] = useAtom(
+  const lineDelay = useAtomValue(
     AppState.editorConfig.animationConfig.lineDelay,
   );
 

@@ -192,7 +192,10 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
             const theme = supportedHighlightJsThemes.find(
               (t) => t.label === val,
             );
-            setPreviewEditorTheme(theme?.value || "");
+
+            if (theme?.value) {
+              setPreviewEditorTheme(theme.value);
+            }
           }
         }
       });
@@ -229,7 +232,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
           e.preventDefault();
           e.stopPropagation();
           setOpen(false);
-          setPreviewEditorTheme("");
+          setPreviewEditorTheme(null);
         }}
       >
         <div className="p-2">
@@ -237,7 +240,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
             placeholder="Search Themes ..."
             onBlur={() => {
               setOpen(false);
-              setPreviewEditorTheme("");
+              setPreviewEditorTheme(null);
             }}
           />
         </div>
@@ -252,7 +255,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
                   key={`language-${a.value}`}
                   className="h-10 text-sm overflow-hidden "
                   onSelect={() => {
-                    setPreviewEditorTheme("");
+                    setPreviewEditorTheme(null);
                     setEditorTheme(a.value);
                     setOpen(false);
                   }}

@@ -7,6 +7,7 @@ import {
   PreviewResizeDirection,
   PreviewState,
 } from "../utils/constants";
+import type { ThemeNames } from "../screens/components/code-editor/extensions/themes";
 
 export const AppActions = {
   DuplicateSlide: () => {
@@ -159,11 +160,11 @@ export const AppActions = {
     store.set(AppState.previewState, mode);
   },
 
-  SetEditorTheme: (v: string) => {
+  SetEditorTheme: (v: ThemeNames) => {
     store.set(AppState.editorTheme, v);
   },
 
-  SetEditorPreviewTheme: (v: string) => {
+  SetEditorPreviewTheme: (v: ThemeNames | null) => {
     store.set(AppState.previewEditorTheme, v);
   },
 

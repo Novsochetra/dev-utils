@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 import { memo, useEffect, useMemo } from "react";
-import { motion, scale } from "framer-motion";
+import { motion } from "framer-motion";
 import { v4 } from "uuid";
 import DiffMatchPatch from "diff-match-patch";
 import { EditorState } from "@codemirror/state";
@@ -257,7 +257,7 @@ export const AnimateCodeSlide = memo(
                 textDecoration: "line-through",
               };
               animateProps = {
-                y: c.oldY - 8,
+                y: (c.oldY || 0) - 8,
                 opacity: 0,
                 transition: { duration: removeDuration },
               };
