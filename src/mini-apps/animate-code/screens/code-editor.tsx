@@ -11,7 +11,7 @@ import { css } from "@codemirror/lang-css";
 import { javascript } from "@codemirror/lang-javascript";
 import { indentMore, indentLess } from "@codemirror/commands";
 
-import { motion } from "framer-motion";
+import { motion, type MotionNodeLayoutOptions } from "framer-motion";
 import { useAtomValue } from "jotai";
 
 import { AppState } from "../state/state";
@@ -34,11 +34,13 @@ type Props = {
   onChange?: (v: string) => void;
   language?: string;
   className?: string;
+  layoutAnimation?: MotionNodeLayoutOptions["layout"];
 };
 
 const CodeEditorWithHighlight = ({
   ref,
   animationKey,
+  layoutAnimation,
   layoutId,
   value = "",
   onChange,
@@ -130,7 +132,7 @@ const CodeEditorWithHighlight = ({
       className={`relative aspect-video w-full h-auto max-h-full max-w-full ${className} overflow-hidden`}
       layoutId={layoutId}
       ref={ref}
-      layout="position"
+      layout={layoutAnimation}
       layoutCrossfade={false}
       transition={{
         type: "spring",

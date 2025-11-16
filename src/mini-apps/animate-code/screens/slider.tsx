@@ -24,6 +24,11 @@ import { SLIDER_CONTENT_WIDTH } from "./components/slider/constants";
 import { SliderItem } from "./components/slider/slider-item";
 import { AppActions } from "../state/actions";
 import { BrowserPreview } from "./components/browser-preview";
+import {
+  AnimatePresence,
+  motion,
+  type MotionNodeLayoutOptions,
+} from "framer-motion";
 
 type SliderProps = {
   codeEditorRef: RefObject<HTMLDivElement | null>;
@@ -55,27 +60,58 @@ const CodeEditorWithPreview = memo(
       <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0 relative">
         <Background layoutId="background" layoutKey="edit-background" />
 
-        {includePreview ? (
-          <div className="w-full flex flex-1 max-w-full max-h-full aspect-video gap-4 overflow-clip">
-            {/* INFO: min-w-0 is trick to prevent flex grow */}
-            <div className="flex flex-1 items-center justify-center min-w-0">
-              <CodeEditorWithAtom ref={ref} />
+        <div className="w-full flex flex-1 max-w-full max-h-full aspect-video gap-4 overflow-clip">
+          <AnimatePresence mode="popLayout">
+            <div
+              // INFO: min-w-0 is trick to prevent flex grow
+              className="flex flex-1 items-center justify-center min-w-0"
+            >
+              <CodeEditorWithAtom
+                ref={ref}
+                layoutId="code-editor"
+                key={"code-editor"}
+                layoutAnimation
+              />
             </div>
 
-            <div className="flex flex-1 items-center justify-center z-10">
-              <BrowserPreview code={codePreview || ""} />
-            </div>
-          </div>
-        ) : (
-          <CodeEditorWithAtom ref={ref} />
-        )}
+            {includePreview ? (
+              <motion.div
+                layoutId="browser-layout"
+                key="browser-layout"
+                className="flex flex-1 items-center justify-center"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  zIndex: 1,
+                  transition: { delay: 0.3 },
+                }}
+                exit={{ opacity: 0, scale: 0 }}
+              >
+                <BrowserPreview code={codePreview || ""} />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
       </div>
     );
   },
 );
 
 const CodeEditorWithAtom = memo(
-  ({ ref }: { ref: RefObject<HTMLDivElement | null> }) => {
+  ({
+    className,
+    ref,
+    layoutId,
+    layoutKey,
+    layoutAnimation = "position",
+  }: {
+    layoutAnimation?: MotionNodeLayoutOptions["layout"];
+    layoutId?: string;
+    className?: string;
+    layoutKey?: string;
+    ref: RefObject<HTMLDivElement | null>;
+  }) => {
     const slides = store.get(AppState.slides);
     const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
     const [value, setValue] = useAtom(
@@ -92,9 +128,11 @@ const CodeEditorWithAtom = memo(
       <CodeEditorWithHighlight
         ref={ref}
         value={value}
+        className={className}
         onChange={onChange}
-        animationKey="edit-code-editor"
-        layoutId="code-editor"
+        animationKey={layoutKey}
+        layoutId={layoutId}
+        layoutAnimation={layoutAnimation}
       />
     );
   },
