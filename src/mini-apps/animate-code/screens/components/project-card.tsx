@@ -14,6 +14,7 @@ type ProjectCardProps = {
 
 export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
   const projects = store.get(AppState.projects);
+  const codeEditorRef = useRef<HTMLDivElement | null>(null);
   const [projectName, setProjectName] = useAtom(projects[index].name);
 
   return (
@@ -24,7 +25,11 @@ export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
           className="w-full aspect-video bg-gray-100 rounded-sm overflow-hidden mb-4"
         >
           <Preview projectId={id}>
-            <CodeEditor ref={null} value="welcome" className="rounded-[44px]" />
+            <CodeEditor
+              ref={codeEditorRef}
+              value="welcome"
+              className="rounded-[44px]"
+            />
           </Preview>
         </Link>
         <div className="flex flex-1 h-full">

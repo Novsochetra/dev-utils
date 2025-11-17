@@ -1,7 +1,6 @@
 import { useAtomValue } from "jotai";
 import { AppState } from "../../state/state";
 import { ProjectCard } from "./project-card";
-import { Button } from "@/vendor/shadcn/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { AppActions } from "../../state/actions";
 import { AnimatePresence, motion } from "framer-motion";

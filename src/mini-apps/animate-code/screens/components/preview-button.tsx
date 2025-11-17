@@ -13,11 +13,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/vendor/shadcn/components/ui/tooltip";
+import { useContext } from "react";
+import { ProjectContext } from "./project-context";
 
 export const PreviewButton = () => {
-  const [mode, setMode] = useAtom(AppState.mode);
-  const setPreviewState = useSetAtom(AppState.previewState);
-  const setCurrentSlideIdx = useSetAtom(AppState.currentSlideIdx);
+  const { id: projectId } = useContext(ProjectContext);
+  const [mode, setMode] = useAtom(AppState.projectDetail[projectId].mode);
+  const setPreviewState = useSetAtom(
+    AppState.projectDetail[projectId].previewState,
+  );
+  const setCurrentSlideIdx = useSetAtom(
+    AppState.projectDetail[projectId].currentSlideIdx,
+  );
 
   return (
     <Tooltip>
@@ -33,7 +40,9 @@ export const PreviewButton = () => {
                 setCurrentSlideIdx((prev) => {
                   const newIdx = prev + 1;
 
-                  const slides = store.get(AppState.slides);
+                  const slides = store.get(
+                    AppState.projectDetail[projectId].slides,
+                  );
 
                   if (newIdx >= slides.length) {
                     if (interval.previewAnimationInterval) {

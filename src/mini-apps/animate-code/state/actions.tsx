@@ -137,12 +137,12 @@ export const AppActions = {
     const nextIdx = Math.min(previewSlideIdx + 1, slides.length - 1);
 
     if (nextIdx >= lastIdx) {
-      AppActions.SetPreviewState(PreviewState.FINISH);
+      AppActions.SetPreviewState(projectId, PreviewState.FINISH);
     } else {
-      AppActions.SetPreviewState(PreviewState.PAUSE);
+      AppActions.SetPreviewState(projectId, PreviewState.PAUSE);
     }
 
-    AppActions.SetPreviewSlideIdx(nextIdx);
+    AppActions.SetPreviewSlideIdx(projectId, nextIdx);
   },
 
   PreviewPreviousSlide: (projectId: string) => {
@@ -150,12 +150,15 @@ export const AppActions = {
       store.get(AppState.projectDetail[projectId].previewSlideIdx) ?? 0;
 
     if (previewSlideIdx <= 0) {
-      AppActions.SetPreviewState(PreviewState.PAUSE);
+      AppActions.SetPreviewState(projectId, PreviewState.PAUSE);
       return;
     }
 
-    AppActions.SetPreviewState(PreviewState.PAUSE);
-    AppActions.SetPreviewSlideIdx(Math.max((previewSlideIdx || 0) - 1, 0));
+    AppActions.SetPreviewState(projectId, PreviewState.PAUSE);
+    AppActions.SetPreviewSlideIdx(
+      projectId,
+      Math.max((previewSlideIdx || 0) - 1, 0),
+    );
   },
 
   ToggleSidebar: (projectId: string) => {

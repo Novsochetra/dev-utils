@@ -2,7 +2,6 @@ import { atom, getDefaultStore, type Atom, type PrimitiveAtom } from "jotai";
 
 import {
   defaultProjectId,
-  defaultSlides,
   Mode,
   PreviewResizeDirection,
   PreviewState,
