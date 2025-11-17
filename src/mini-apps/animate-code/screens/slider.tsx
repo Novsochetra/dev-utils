@@ -1,4 +1,11 @@
-import { memo, useEffect, useRef, useState, type RefObject } from "react";
+import {
+  memo,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { useAtom, useAtomValue, useSetAtom, type PrimitiveAtom } from "jotai";
 import {
   DndContext,
@@ -18,7 +25,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 
 import CodeEditorWithHighlight from "./code-editor";
-import { AppState, fallbackAtom, slideIdsAtom, store } from "../state/state";
+import { AppState, fallbackAtom, store } from "../state/state";
 import { Background } from "./components/preview";
 import { SLIDER_CONTENT_WIDTH } from "./components/slider/constants";
 import { SliderItem } from "./components/slider/slider-item";
@@ -29,6 +36,7 @@ import {
   motion,
   type MotionNodeLayoutOptions,
 } from "framer-motion";
+import { ProjectContext } from "./components/project-context";
 
 type SliderProps = {
   codeEditorRef: RefObject<HTMLDivElement | null>;
@@ -46,8 +54,11 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
 
 const CodeEditorWithPreview = memo(
   ({ ref }: { ref: RefObject<HTMLDivElement | null> }) => {
-    const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
-    const slides = store.get(AppState.slides);
+    const { id: projectId } = useContext(ProjectContext);
+    const currentSlideIdx = useAtomValue(
+      AppState.projectDetail[projectId].currentSlideIdx,
+    );
+    const slides = store.get(AppState.projectDetail[projectId].slides);
     const codePreview = useAtomValue(
       (slides[currentSlideIdx]?.data || fallbackAtom) as PrimitiveAtom<string>,
     );
@@ -58,7 +69,11 @@ const CodeEditorWithPreview = memo(
 
     return (
       <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0 relative">
-        <Background layoutId="background" layoutKey="edit-background" />
+        <Background
+          layoutId="background"
+          layoutKey="edit-background"
+          projectId={projectId}
+        />
 
         <div className="w-full flex flex-1 max-w-full max-h-full aspect-video gap-4 overflow-clip">
           <AnimatePresence mode="popLayout">
@@ -112,8 +127,11 @@ const CodeEditorWithAtom = memo(
     layoutKey?: string;
     ref: RefObject<HTMLDivElement | null>;
   }) => {
-    const slides = store.get(AppState.slides);
-    const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
+    const { id: projectId } = useContext(ProjectContext);
+    const slides = store.get(AppState.projectDetail[projectId].slides);
+    const currentSlideIdx = useAtomValue(
+      AppState.projectDetail[projectId].currentSlideIdx,
+    );
     const [value, setValue] = useAtom(
       (slides[currentSlideIdx]?.data || fallbackAtom) as PrimitiveAtom<string>,
     );
@@ -139,15 +157,19 @@ const CodeEditorWithAtom = memo(
 );
 
 export const LeftSidebarSlider = memo(() => {
-  const setSlides = useSetAtom(AppState.slides);
-  const slideIds = useAtomValue(slideIdsAtom);
-  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
-  const [items, setItems] = useState(slideIds);
+  const { id: projectId } = useContext(ProjectContext);
+  const setSlides = useSetAtom(AppState.projectDetail[projectId].slides);
+  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
+  const currentSlideIdx = useAtomValue(
+    AppState.projectDetail[projectId].currentSlideIdx,
+  );
+  const [items, setItems] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    const slideIds = slides.map((v) => v.id);
     setItems(slideIds);
-  }, [slideIds]);
+  }, [slides]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -169,13 +191,13 @@ export const LeftSidebarSlider = memo(() => {
       setItems(newItems);
 
       // Update Jotai state
-      const slides = store.get(AppState.slides);
+      const slides = store.get(AppState.projectDetail[projectId].slides);
       const sorted = [...slides].sort(
         (a, b) => newItems.indexOf(a.id) - newItems.indexOf(b.id),
       );
       setSlides(sorted);
 
-      AppActions.SetCurrentSlideIdx(newIndex);
+      AppActions.SetCurrentSlideIdx(projectId, newIndex);
     }
   };
 
@@ -192,14 +214,14 @@ export const LeftSidebarSlider = memo(() => {
           const idx = items.indexOf(e.active.id as string);
 
           if (idx !== -1) {
-            AppActions.SetCurrentSlideIdx(idx);
+            AppActions.SetCurrentSlideIdx(projectId, idx);
           }
         }}
         onDragEnd={handleDragEnd}
         modifiers={[restrictToVerticalAxis]}
       >
         <SortableContext items={items} strategy={verticalListSortingStrategy}>
-          {items.map((id, idx) => (
+          {items.map((id: string, idx: number) => (
             <SortableSliderItem
               key={id}
               id={id}

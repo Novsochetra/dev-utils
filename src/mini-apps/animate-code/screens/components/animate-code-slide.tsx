@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { memo, useEffect, useMemo } from "react";
+import { memo, useContext, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import DiffMatchPatch from "diff-match-patch";
 import { EditorState } from "@codemirror/state";
@@ -19,6 +19,7 @@ import {
   BaseThemeStyle,
 } from "./code-editor/extensions/themes";
 import { v4 } from "uuid";
+import { ProjectContext } from "./project-context";
 
 function getLanguageExtension(lang: string) {
   switch (lang) {
@@ -91,11 +92,22 @@ type MultiLineDiffAnimatorProps = {
 
 export const AnimateCodeSlide = memo(
   ({ oldText, newText }: MultiLineDiffAnimatorProps) => {
-    const previewEditorTheme = useAtomValue(AppState.previewEditorTheme);
-    const editorTheme = useAtomValue(AppState.editorTheme);
-    const previewSize = useAtomValue(AppState.previewSize);
-    const previewLanguage = useAtomValue(AppState.previewLanguage);
-    const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
+    const { id: projectId } = useContext(ProjectContext);
+    const previewEditorTheme = useAtomValue(
+      AppState.projectDetail[projectId].previewEditorTheme,
+    );
+    const editorTheme = useAtomValue(
+      AppState.projectDetail[projectId].editorTheme,
+    );
+    const previewSize = useAtomValue(
+      AppState.projectDetail[projectId].previewSize,
+    );
+    const previewLanguage = useAtomValue(
+      AppState.projectDetail[projectId].previewLanguage,
+    );
+    const editorFontSize = useAtomValue(
+      AppState.projectDetail[projectId].editorConfig.fontSize,
+    );
     const { charWidth, lineHeight } = useMemo(
       () => measureFontMetrics(editorFontSize),
       [editorFontSize],

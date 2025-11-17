@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useContext } from "react";
 
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { ButtonGroup } from "@/vendor/shadcn/components/ui/button-group";
@@ -13,6 +13,7 @@ import {
 import { AppState, fallbackAtom, store } from "../../state/state";
 import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
+import { ProjectContext } from "./project-context";
 
 export const MenuBarItem = memo(() => {
   return (
@@ -31,8 +32,11 @@ export const MenuBarItem = memo(() => {
 });
 
 export const BrowserButtonPreview = memo(() => {
-  const currentSlideIdx = useAtomValue(AppState.currentSlideIdx);
-  const slides = store.get(AppState.slides);
+  const { id: projectId } = useContext(ProjectContext);
+  const currentSlideIdx = useAtomValue(
+    AppState.projectDetail[projectId].currentSlideIdx,
+  );
+  const slides = store.get(AppState.projectDetail[projectId].slides);
   const [includePreview, setPreview] = useAtom(
     (slides[currentSlideIdx]?.preview ||
       fallbackAtom) as PrimitiveAtom<boolean>,
@@ -46,6 +50,7 @@ export const BrowserButtonPreview = memo(() => {
 });
 
 export const AddSlideButton = memo(() => {
+  const { id: projectId } = useContext(ProjectContext);
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -53,7 +58,7 @@ export const AddSlideButton = memo(() => {
           variant="outline"
           size="sm"
           onClick={() => {
-            AppActions.AddSlide();
+            AppActions.AddSlide(projectId);
           }}
         >
           Add Slide

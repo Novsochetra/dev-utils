@@ -35,6 +35,7 @@ import {
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Slider } from "@/vendor/shadcn/components/ui/slider";
+import { ProjectContext } from "./project-context";
 
 type ToolbarProps = {
   enableButtonClose?: boolean | undefined;
@@ -118,7 +119,10 @@ export const Toolbar = memo(
 export const RightToolbar = memo(() => {
   const { enableButtonMinimize, enableButtonResize } =
     useContext(ToolbarContext);
-  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+  const { id: projectId } = useContext(ProjectContext);
+  const previewResizeDirection = useAtomValue(
+    AppState.projectDetail[projectId].previewResizeDirection,
+  );
 
   return (
     <div className="flex flex-1 items-center justify-end">
@@ -132,7 +136,7 @@ export const RightToolbar = memo(() => {
         <div
           className="h-full aspect-square flex items-center justify-center hover:bg-black/20 transition-colors"
           onClick={() => {
-            AppActions.TogglePreviewSize();
+            AppActions.TogglePreviewSize(projectId);
           }}
         >
           {previewResizeDirection === PreviewResizeDirection.DOWN ? (
@@ -172,6 +176,7 @@ const adaptiveWrapperStyle = isApplePlatform()
   : "flex items-center justify-center hover:bg-black/20 cursor-pointer transition-colors h-full aspect-square";
 
 export const ButtonPreview = () => {
+  const { id: projectId } = useContext(ProjectContext);
   const { enableActionButtonPreview } = useContext(ToolbarContext);
 
   return (
@@ -184,7 +189,7 @@ export const ButtonPreview = () => {
               return;
             }
 
-            AppActions.SetMode(Mode.Preview);
+            AppActions.SetMode(projectId, Mode.Preview);
           }}
         >
           <MonitorPlayIcon size={16} />
@@ -208,7 +213,11 @@ export const ButtonPreview = () => {
 
 const ButtonPlayPaused = memo(() => {
   const { enableActionButtonPlay } = useContext(ToolbarContext);
-  const previewState = useAtomValue(AppState.previewState);
+  const { id: projectId } = useContext(ProjectContext);
+
+  const previewState = useAtomValue(
+    AppState.projectDetail[projectId].previewState,
+  );
 
   const renderContent = () => {
     const isPlaying = previewState === PreviewState.PLAY;
@@ -237,18 +246,18 @@ const ButtonPlayPaused = memo(() => {
             switch (previewState) {
               case PreviewState.PAUSE:
               case PreviewState.IDLE: {
-                AppActions.SetPreviewState(PreviewState.PLAY);
+                AppActions.SetPreviewState(projectId, PreviewState.PLAY);
                 break;
               }
               case PreviewState.FINISH: {
-                AppActions.SetPreviewState(PreviewState.PLAY);
-                AppActions.SetPreviewSlideIdx(0);
+                AppActions.SetPreviewState(projectId, PreviewState.PLAY);
+                AppActions.SetPreviewSlideIdx(projectId, 0);
                 break;
               }
 
               case PreviewState.RESUME:
               case PreviewState.PLAY: {
-                AppActions.SetPreviewState(PreviewState.PAUSE);
+                AppActions.SetPreviewState(projectId, PreviewState.PAUSE);
                 break;
               }
               default:
@@ -283,7 +292,7 @@ export const LeftToolbar = memo(() => {
     <div className="flex flex-1">
       <div className="h-full aspect-square flex items-center justify-center">
         <img
-          src="./assets/icons/android-chrome-192x192.png "
+          src="/assets/icons/android-chrome-192x192.png "
           className="w-4 h-4 rounded-xs"
         />
       </div>
@@ -304,6 +313,7 @@ const LeftMacToolbar = memo(() => {
     enableButtonClose,
     enableActionButtonClose,
   } = useContext(ToolbarContext);
+  const { id: projectId } = useContext(ProjectContext);
 
   return (
     <div className="flex flex-1 items-center gap-2 shrink overflow-hidden pl-2 box-border">
@@ -317,8 +327,8 @@ const LeftMacToolbar = memo(() => {
                 onClick={() => {
                   if (!enableActionButtonClose) return;
 
-                  AppActions.SetMode(Mode.Edit);
-                  AppActions.SetPreviewSize(100);
+                  AppActions.SetMode(projectId, Mode.Edit);
+                  AppActions.SetPreviewSize(projectId, 100);
                 }}
               >
                 <XIcon
@@ -361,7 +371,7 @@ const LeftMacToolbar = memo(() => {
 
       <div className="h-full aspect-square hidden sm:flex items-center justify-center">
         <img
-          src="./assets/icons/android-chrome-192x192.png"
+          src="/assets/icons/android-chrome-192x192.png"
           className="w-2 h-2 sm:w-4 sm:h-4 rounded-xs"
         />
       </div>
@@ -371,7 +381,10 @@ const LeftMacToolbar = memo(() => {
 
 export const ButtonMacResizeToolbar = memo(() => {
   const { enableActionButtonResize } = useContext(ToolbarContext);
-  const previewResizeDirection = useAtomValue(AppState.previewResizeDirection);
+  const { id: projectId } = useContext(ProjectContext);
+  const previewResizeDirection = useAtomValue(
+    AppState.projectDetail[projectId].previewResizeDirection,
+  );
 
   return (
     <Tooltip>
@@ -381,7 +394,7 @@ export const ButtonMacResizeToolbar = memo(() => {
           onClick={() => {
             if (!enableActionButtonResize) return;
 
-            AppActions.TogglePreviewSize();
+            AppActions.TogglePreviewSize(projectId);
           }}
         >
           {previewResizeDirection === PreviewResizeDirection.DOWN ? (
@@ -412,7 +425,10 @@ export const ButtonMacResizeToolbar = memo(() => {
 });
 
 export const ToolbarTitle = memo(() => {
-  const [title, setTitle] = useAtom(AppState.previewTitle);
+  const { id: projectId } = useContext(ProjectContext);
+  const [title, setTitle] = useAtom(
+    AppState.projectDetail[projectId].previewTitle,
+  );
 
   return (
     <input
@@ -426,6 +442,7 @@ export const ToolbarTitle = memo(() => {
 });
 
 const ButtonClose = () => {
+  const { id: projectId } = useContext(ProjectContext);
   const { enableActionButtonClose } = useContext(ToolbarContext);
 
   return (
@@ -436,8 +453,8 @@ const ButtonClose = () => {
           onClick={() => {
             if (!enableActionButtonClose) return;
 
-            AppActions.SetMode(Mode.Edit);
-            AppActions.SetPreviewSize(100);
+            AppActions.SetMode(projectId, Mode.Edit);
+            AppActions.SetPreviewSize(projectId, 100);
           }}
         >
           <XIcon size={16} />
@@ -481,7 +498,10 @@ export const GradientButton = memo(() => {
 });
 
 export const GradientFieldAngle = memo(() => {
-  const angle = useAtomValue(AppState.previewBackground.angle);
+  const { id: projectId } = useContext(ProjectContext);
+  const angle = useAtomValue(
+    AppState.projectDetail[projectId].previewBackground.angle,
+  );
 
   return (
     <div>
@@ -492,7 +512,10 @@ export const GradientFieldAngle = memo(() => {
         min={0}
         step={1}
         onValueChange={(v) => {
-          store.set(AppState.previewBackground.angle, Number(v));
+          store.set(
+            AppState.projectDetail[projectId].previewBackground.angle,
+            Number(v),
+          );
         }}
       />
     </div>
@@ -500,7 +523,10 @@ export const GradientFieldAngle = memo(() => {
 });
 
 export const GradientFieldFrom = memo(() => {
-  const from = useAtomValue(AppState.previewBackground.from);
+  const { id: projectId } = useContext(ProjectContext);
+  const from = useAtomValue(
+    AppState.projectDetail[projectId].previewBackground.from,
+  );
 
   return (
     <div className="flex-1">
@@ -509,7 +535,10 @@ export const GradientFieldFrom = memo(() => {
         type="color"
         value={from}
         onChange={(e) => {
-          store.set(AppState.previewBackground.from, e.target.value);
+          store.set(
+            AppState.projectDetail[projectId].previewBackground.from,
+            e.target.value,
+          );
         }}
       />
     </div>
@@ -517,7 +546,10 @@ export const GradientFieldFrom = memo(() => {
 });
 
 export const GradientFieldTo = memo(() => {
-  const to = useAtomValue(AppState.previewBackground.to);
+  const { id: projectId } = useContext(ProjectContext);
+  const to = useAtomValue(
+    AppState.projectDetail[projectId].previewBackground.to,
+  );
 
   return (
     <div className="flex-1">
@@ -526,7 +558,10 @@ export const GradientFieldTo = memo(() => {
         type="color"
         value={to}
         onChange={(e) => {
-          store.set(AppState.previewBackground.to, e.target.value);
+          store.set(
+            AppState.projectDetail[projectId].previewBackground.to,
+            e.target.value,
+          );
         }}
       />
     </div>

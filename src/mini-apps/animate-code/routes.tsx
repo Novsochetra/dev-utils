@@ -7,6 +7,15 @@ export const routes = [
     },
   },
   {
+    path: "/animate-code/project/:id",
+    lazy: async () => {
+      const { default: Component } = await import(
+        "./screens/project-detail-screen.tsx"
+      );
+      return { Component };
+    },
+  },
+  {
     path: "/animate-code/landing",
     lazy: async () => {
       const { default: Component } = await import(

@@ -1,5 +1,5 @@
 import { v4 } from "uuid";
-import { AppState, store } from "./state";
+import { AppState, createProjectDetailAtom, store } from "./state";
 import { atom } from "jotai";
 import {
   Mode,
@@ -10,9 +10,20 @@ import {
 import type { ThemeNames } from "../screens/components/code-editor/extensions/themes";
 
 export const AppActions = {
-  DuplicateSlide: () => {
-    const index = store.get(AppState.currentSlideIdx);
-    const slides = store.get(AppState.slides);
+  AddProject: () => {
+    const prev = store.get(AppState.projects);
+    const projectId = v4();
+    const projectDetailAtom = createProjectDetailAtom();
+    AppState.projectDetail[projectId] = projectDetailAtom;
+    store.set(AppState.projects, [
+      ...prev,
+      { id: projectId, name: atom(`Untitled ${prev.length + 1}`) },
+    ]);
+  },
+
+  DuplicateSlide: (projectId: string) => {
+    const index = store.get(AppState.projectDetail[projectId].currentSlideIdx);
+    const slides = store.get(AppState.projectDetail[projectId].slides);
     const currentSlideData = store.get(slides[index]?.data);
 
     const newItem = {
@@ -20,78 +31,107 @@ export const AppActions = {
       data: atom(currentSlideData),
       preview: atom(false),
     };
-    const prev = store.get(AppState.slides);
-    store.set(AppState.slides, [
+    const prev = store.get(AppState.projectDetail[projectId].slides);
+    store.set(AppState.projectDetail[projectId].slides, [
       ...prev.slice(0, index + 1),
       newItem,
       ...prev.slice(index + 1),
     ]);
 
     // auto select next slide
-    store.set(AppState.currentSlideIdx, index + 1);
+    store.set(AppState.projectDetail[projectId].currentSlideIdx, index + 1);
   },
 
-  SelectSlide: (index: number) => {
-    store.set(AppState.currentSlideIdx, index);
+  SelectSlide: (projectId: string, index: number) => {
+    store.set(AppState.projectDetail[projectId].currentSlideIdx, index);
   },
 
-  SetCurrentSlideIdx: (index: number) => {
-    store.set(AppState.currentSlideIdx, index);
+  SetCurrentSlideIdx: (projectId: string, index: number) => {
+    store.set(AppState.projectDetail[projectId].currentSlideIdx, index);
   },
 
-  AddSlide: () => {
-    const newItem = { id: v4(), data: atom(""), preview: atom(false) };
-    const prev = store.get(AppState.slides);
+  AddSlide: (projectId: string) => {
+    const newItem = {
+      id: v4(),
+      data: atom(""),
+      preview: atom(false),
+      projectId: projectId,
+    };
+    const prev = store.get(AppState.projectDetail[projectId].slides);
     const newSlides = [...prev, newItem];
-    store.set(AppState.slides, newSlides);
+    store.set(AppState.projectDetail[projectId].slides, newSlides);
 
     // auto select last slide
-    store.set(AppState.currentSlideIdx, newSlides.length - 1);
+    store.set(
+      AppState.projectDetail[projectId].currentSlideIdx,
+      newSlides.length - 1,
+    );
   },
 
-  AddSlideBelow: (index: number) => {
-    const newItem = { id: v4(), data: atom(""), preview: atom(false) };
-    const prev = store.get(AppState.slides);
-    store.set(AppState.slides, [
+  AddSlideBelow: (projectId: string, index: number) => {
+    const newItem = {
+      id: v4(),
+      data: atom(""),
+      preview: atom(false),
+      projectId,
+    };
+    const prev = store.get(AppState.projectDetail[projectId].slides);
+    store.set(AppState.projectDetail[projectId].slides, [
       ...prev.slice(0, index + 1),
       newItem,
       ...prev.slice(index + 1),
     ]);
 
     // auto select next slide
-    const currentSlideIdx = store.get(AppState.currentSlideIdx);
-    store.set(AppState.currentSlideIdx, currentSlideIdx + 1);
+    const currentSlideIdx = store.get(
+      AppState.projectDetail[projectId].currentSlideIdx,
+    );
+    store.set(
+      AppState.projectDetail[projectId].currentSlideIdx,
+      currentSlideIdx + 1,
+    );
   },
 
-  AddSlideAbove: (index: number) => {
-    const newItem = { id: v4(), data: atom(""), preview: atom(false) };
-    const prev = store.get(AppState.slides);
-    store.set(AppState.slides, [
+  AddSlideAbove: (projectId: string, index: number) => {
+    const newItem = {
+      id: v4(),
+      data: atom(""),
+      preview: atom(false),
+      projectId,
+    };
+    const prev = store.get(AppState.projectDetail[projectId].slides);
+    store.set(AppState.projectDetail[projectId].slides, [
       ...prev.slice(0, index),
       newItem,
       ...prev.slice(index),
     ]);
   },
 
-  RemoveSlide: (index: number) => {
-    const prev = store.get(AppState.slides);
+  RemoveSlide: (projectId: string, index: number) => {
+    const prev = store.get(AppState.projectDetail[projectId].slides);
     if (prev.length === 1) {
       return prev;
     }
 
     store.set(
-      AppState.slides,
+      AppState.projectDetail[projectId].slides,
       prev.filter((_, i) => index !== i),
     );
 
     // Auto select previous slide
-    const currentIdx = store.get(AppState.currentSlideIdx);
-    store.set(AppState.currentSlideIdx, currentIdx <= 0 ? 0 : currentIdx - 1);
+    const currentIdx = store.get(
+      AppState.projectDetail[projectId].currentSlideIdx,
+    );
+    store.set(
+      AppState.projectDetail[projectId].currentSlideIdx,
+      currentIdx <= 0 ? 0 : currentIdx - 1,
+    );
   },
 
-  PreviewNextSlide: () => {
-    const previewSlideIdx = store.get(AppState.previewSlideIdx) ?? 0;
-    const slides = store.get(AppState.slides);
+  PreviewNextSlide: (projectId: string) => {
+    const previewSlideIdx =
+      store.get(AppState.projectDetail[projectId].previewSlideIdx) ?? 0;
+    const slides = store.get(AppState.projectDetail[projectId].slides);
     const lastIdx = slides.length - 1;
 
     const nextIdx = Math.min(previewSlideIdx + 1, slides.length - 1);
@@ -105,8 +145,9 @@ export const AppActions = {
     AppActions.SetPreviewSlideIdx(nextIdx);
   },
 
-  PreviewPreviousSlide: () => {
-    const previewSlideIdx = store.get(AppState.previewSlideIdx) ?? 0;
+  PreviewPreviousSlide: (projectId: string) => {
+    const previewSlideIdx =
+      store.get(AppState.projectDetail[projectId].previewSlideIdx) ?? 0;
 
     if (previewSlideIdx <= 0) {
       AppActions.SetPreviewState(PreviewState.PAUSE);
@@ -117,67 +158,77 @@ export const AppActions = {
     AppActions.SetPreviewSlideIdx(Math.max((previewSlideIdx || 0) - 1, 0));
   },
 
-  ToggleSidebar: () => {
-    const isOpen = store.get(AppState.sidebarOpen);
-    store.set(AppState.sidebarOpen, !isOpen);
+  ToggleSidebar: (projectId: string) => {
+    const isOpen = store.get(AppState.projectDetail[projectId].sidebarOpen);
+    store.set(AppState.projectDetail[projectId].sidebarOpen, !isOpen);
   },
 
-  SetMode: (mode: Mode) => {
-    store.set(AppState.mode, mode);
+  SetMode: (projectId: string, mode: Mode) => {
+    store.set(AppState.projectDetail[projectId].mode, mode);
   },
 
-  SetPreviewSize: (size: number) => {
-    store.set(AppState.previewSize, size);
+  SetPreviewSize: (projectId: string, size: number) => {
+    store.set(AppState.projectDetail[projectId].previewSize, size);
   },
 
-  TogglePreviewSize: () => {
+  TogglePreviewSize: (projectId: string) => {
     const MIN_SIZE = 50;
     const MAX_SIZE = 100;
     const step = 10;
-    const currentDirection = store.get(AppState.previewResizeDirection);
+    const currentDirection = store.get(
+      AppState.projectDetail[projectId].previewResizeDirection,
+    );
 
-    let currentSize = store.get(AppState.previewSize);
+    let currentSize = store.get(AppState.projectDetail[projectId].previewSize);
     currentSize += step * currentDirection;
 
     if (currentSize === MIN_SIZE) {
       currentSize = MIN_SIZE;
-      store.set(AppState.previewResizeDirection, PreviewResizeDirection.UP);
+      store.set(
+        AppState.projectDetail[projectId].previewResizeDirection,
+        PreviewResizeDirection.UP,
+      );
     }
 
     if (currentSize === MAX_SIZE) {
       currentSize = MAX_SIZE;
-      store.set(AppState.previewResizeDirection, PreviewResizeDirection.DOWN);
+      store.set(
+        AppState.projectDetail[projectId].previewResizeDirection,
+        PreviewResizeDirection.DOWN,
+      );
     }
 
-    store.set(AppState.previewSize, currentSize);
+    store.set(AppState.projectDetail[projectId].previewSize, currentSize);
   },
 
-  SetPreviewLanguage: (lang: string) => {
-    store.set(AppState.previewLanguage, lang);
+  SetPreviewLanguage: (projectId: string, lang: string) => {
+    store.set(AppState.projectDetail[projectId].previewLanguage, lang);
   },
 
-  SetPreviewSlideIdx: (idx: number) => {
-    store.set(AppState.previewSlideIdx, idx);
+  SetPreviewSlideIdx: (projectId: string, idx: number) => {
+    store.set(AppState.projectDetail[projectId].previewSlideIdx, idx);
   },
 
-  SetPreviewState: (mode: PreviewState) => {
-    store.set(AppState.previewState, mode);
+  SetPreviewState: (projectId: string, mode: PreviewState) => {
+    store.set(AppState.projectDetail[projectId].previewState, mode);
   },
 
-  SetEditorTheme: (v: ThemeNames) => {
-    store.set(AppState.editorTheme, v);
+  SetEditorTheme: (projectId: string, v: ThemeNames) => {
+    store.set(AppState.projectDetail[projectId].editorTheme, v);
   },
 
-  SetEditorPreviewTheme: (v: ThemeNames | null) => {
-    store.set(AppState.previewEditorTheme, v);
+  SetEditorPreviewTheme: (projectId: string, v: ThemeNames | null) => {
+    store.set(AppState.projectDetail[projectId].previewEditorTheme, v);
   },
 
-  SetEditorFontSize: (size: number) => {
-    store.set(AppState.editorConfig.fontSize, size);
+  SetEditorFontSize: (projectId: string, size: number) => {
+    store.set(AppState.projectDetail[projectId].editorConfig.fontSize, size);
   },
 
-  SetToggleEditorFontSIze: (direction: "up" | "down") => {
-    const current = store.get(AppState.editorConfig.fontSize);
+  SetToggleEditorFontSIze: (projectId: string, direction: "up" | "down") => {
+    const current = store.get(
+      AppState.projectDetail[projectId].editorConfig.fontSize,
+    );
     const idx = predefinedEditorFontSize.findIndex((v) => v >= current);
     const nextIdx =
       direction === "up"
@@ -185,7 +236,7 @@ export const AppActions = {
         : Math.max(idx - 1, 0);
 
     store.set(
-      AppState.editorConfig.fontSize,
+      AppState.projectDetail[projectId].editorConfig.fontSize,
       predefinedEditorFontSize[nextIdx],
     );
   },

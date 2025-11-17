@@ -1,17 +1,23 @@
-import { memo, useState, useRef, useMemo, useEffect } from "react";
+import { memo, useState, useRef, useMemo, useEffect, useContext } from "react";
 import hljs from "highlight.js";
 import { useAtomValue } from "jotai";
 
 import { AppState, fallbackAtom } from "@/mini-apps/animate-code/state/state";
 import { BORDER_WIDTH, SLIDER_CONTENT_WIDTH } from "./constants";
+import { ProjectContext } from "../project-context";
 
 export const SliderPreviewImage = memo(({ index }: { index: number }) => {
-  const slides = useAtomValue(AppState.slides);
+  const { id: projectId } = useContext(ProjectContext);
+  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
   const slideData = useAtomValue(slides[index]?.data || fallbackAtom);
-  const previewLanguage = useAtomValue(AppState.previewLanguage);
+  const previewLanguage = useAtomValue(
+    AppState.projectDetail[projectId].previewLanguage,
+  );
   const [editorWidth, setEditorWidth] = useState<number | null>(null);
   let timeout = useRef<NodeJS.Timeout | null>(null);
-  const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
+  const editorFontSize = useAtomValue(
+    AppState.projectDetail[projectId].editorConfig.fontSize,
+  );
 
   const highlighted = useMemo(() => {
     return (

@@ -106,6 +106,8 @@ export const defaultDummySlides = [
   slide6,
 ];
 
+export const defaultProjectId = v4();
+
 const d = [slide0, slide1, slide2, slide3, slide4, slide5];
 
 export const defaultSlides = d.map((v) => ({

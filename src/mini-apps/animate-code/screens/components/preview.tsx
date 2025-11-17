@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue } from "jotai";
 import { motion } from "framer-motion";
-import { memo, useEffect, useRef } from "react";
+import { memo, useContext, useEffect, useRef } from "react";
 import { AppState, store } from "../../state/state";
 import { AnimateCodeSlide } from "./animate-code-slide";
 import { PreviewState } from "../../utils/constants";
@@ -8,35 +8,48 @@ import { AppActions } from "../../state/actions";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { BrowserPreview } from "./browser-preview";
+import { ProjectContext } from "./project-context";
 
 export const Preview = memo(() => {
+  const { id: projectId } = useContext(ProjectContext);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const slides = useAtomValue(AppState.slides);
-  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
+  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
+  const previewSlideIdx = useAtomValue(
+    AppState.projectDetail[projectId].previewSlideIdx,
+  );
   const prevSlideIdx = !previewSlideIdx ? 0 : previewSlideIdx - 1;
 
   const prevSlide = useAtomValue(slides[prevSlideIdx]?.data) || "";
   const currentSlide = useAtomValue(slides[previewSlideIdx || 0]?.data) || "";
   const isPreviewSlideIncludeBrowser =
     useAtomValue(slides[previewSlideIdx || 0]?.preview) || "";
-  const previewState = useAtomValue(AppState.previewState);
+  const previewState = useAtomValue(
+    AppState.projectDetail[projectId].previewState,
+  );
 
   const removeDuration = useAtomValue(
-    AppState.editorConfig.animationConfig.removeDuration,
+    AppState.projectDetail[projectId].editorConfig.animationConfig
+      .removeDuration,
   );
   const addDuration = useAtomValue(
-    AppState.editorConfig.animationConfig.addDuration,
+    AppState.projectDetail[projectId].editorConfig.animationConfig.addDuration,
   );
   const addedDelayPerChar = useAtomValue(
-    AppState.editorConfig.animationConfig.addedDelayPerChar,
+    AppState.projectDetail[projectId].editorConfig.animationConfig
+      .addedDelayPerChar,
   );
   const lineDelay = useAtomValue(
-    AppState.editorConfig.animationConfig.lineDelay,
+    AppState.projectDetail[projectId].editorConfig.animationConfig.lineDelay,
   );
 
   useEffect(() => {
-    const currentSlideIdx = store.get(AppState.currentSlideIdx);
-    store.set(AppState.previewSlideIdx, currentSlideIdx);
+    const currentSlideIdx = store.get(
+      AppState.projectDetail[projectId].currentSlideIdx,
+    );
+    store.set(
+      AppState.projectDetail[projectId].previewSlideIdx,
+      currentSlideIdx,
+    );
   }, []);
 
   // Handle autoplay
@@ -51,13 +64,17 @@ export const Preview = memo(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(
         () => {
-          const currentIdx = store.get(AppState.previewSlideIdx) || 0;
+          const currentIdx =
+            store.get(AppState.projectDetail[projectId].previewSlideIdx) || 0;
           const nextIdx = currentIdx + 1;
 
           if (nextIdx < slides.length) {
-            store.set(AppState.previewSlideIdx, nextIdx);
+            store.set(
+              AppState.projectDetail[projectId].previewSlideIdx,
+              nextIdx,
+            );
           } else {
-            AppActions.SetPreviewState(PreviewState.FINISH);
+            AppActions.SetPreviewState(projectId, PreviewState.FINISH);
           }
         },
         (addDuration + addDuration + removeDuration + lineDelay) * 1000,
@@ -100,7 +117,11 @@ export const Preview = memo(() => {
 
   return (
     <div className="fixed top-0 left-0 w-full h-full p-16 flex items-center justify-center">
-      <Background layoutId="background" layoutKey="preview-background" />
+      <Background
+        layoutId="background"
+        layoutKey="preview-background"
+        projectId={projectId}
+      />
 
       {prevSlideIdx !== undefined ? (
         <div className="flex flex-1 max-w-full max-h-full aspect-video gap-4 items-center justify-center">
@@ -129,10 +150,24 @@ export const Preview = memo(() => {
 });
 
 export const Background = memo(
-  ({ layoutId, layoutKey }: { layoutId: string; layoutKey: string }) => {
-    const angle = useAtomValue(AppState.previewBackground.angle);
-    const from = useAtomValue(AppState.previewBackground.from);
-    const to = useAtomValue(AppState.previewBackground.to);
+  ({
+    layoutId,
+    projectId,
+    layoutKey,
+  }: {
+    projectId: string;
+    layoutId?: string;
+    layoutKey?: string;
+  }) => {
+    const angle = useAtomValue(
+      AppState.projectDetail[projectId].previewBackground.angle,
+    );
+    const from = useAtomValue(
+      AppState.projectDetail[projectId].previewBackground.from,
+    );
+    const to = useAtomValue(
+      AppState.projectDetail[projectId].previewBackground.to,
+    );
 
     return (
       <motion.div
@@ -155,17 +190,20 @@ export const Background = memo(
 );
 
 export const AnimationConfigFields = () => {
+  const { id: projectId } = useContext(ProjectContext);
   const [removeDuration, setRemoveDuration] = useAtom(
-    AppState.editorConfig.animationConfig.removeDuration,
+    AppState.projectDetail[projectId].editorConfig.animationConfig
+      .removeDuration,
   );
   const [addDuration, setAddDuration] = useAtom(
-    AppState.editorConfig.animationConfig.addDuration,
+    AppState.projectDetail[projectId].editorConfig.animationConfig.addDuration,
   );
   const [addedDelayPerChar, setAddedDelayPerChar] = useAtom(
-    AppState.editorConfig.animationConfig.addedDelayPerChar,
+    AppState.projectDetail[projectId].editorConfig.animationConfig
+      .addedDelayPerChar,
   );
   const [lineDelay, setLineDelay] = useAtom(
-    AppState.editorConfig.animationConfig.lineDelay,
+    AppState.projectDetail[projectId].editorConfig.animationConfig.lineDelay,
   );
 
   return (

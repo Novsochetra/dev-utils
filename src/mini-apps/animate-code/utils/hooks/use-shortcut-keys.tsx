@@ -5,15 +5,18 @@ import { AppState, store } from "../../state/state";
 import { interval, Mode, PreviewState } from "../constants";
 import { useAtomValue } from "jotai";
 import { isDesktopApp } from "@/utils/is-desktop-mode";
+import { useContext } from "react";
+import { ProjectContext } from "../../screens/components/project-context";
 
 export const useShortcutKeys = () => {
-  const mode = useAtomValue(AppState.mode);
+  const { id: projectId } = useContext(ProjectContext);
+  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
 
   useHotkeys(
     isDesktopApp ? "mod+d" : "mod+shift+d", // (cmd / ctrl) + (shift) + d
     (event) => {
       event.preventDefault(); // prevent browser default actions
-      AppActions.DuplicateSlide();
+      AppActions.DuplicateSlide(projectId);
     },
     { enableOnFormTags: true, enabled: true, enableOnContentEditable: true },
   );
@@ -22,7 +25,7 @@ export const useShortcutKeys = () => {
     isDesktopApp ? "mod+n" : "mod+alt+n", // (cmd / ctrl) + (option / alt) + n
     (event) => {
       event.preventDefault(); // prevent browser default actions
-      AppActions.AddSlide();
+      AppActions.AddSlide(projectId);
     },
     { enableOnFormTags: true, enabled: true, enableOnContentEditable: true },
   );
@@ -30,7 +33,7 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowLeft",
     () => {
-      AppActions.PreviewPreviousSlide();
+      AppActions.PreviewPreviousSlide(projectId);
     },
     { enabled: mode === Mode.Preview },
   );
@@ -38,7 +41,7 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowRight",
     () => {
-      AppActions.PreviewNextSlide();
+      AppActions.PreviewNextSlide(projectId);
     },
     { enabled: mode === Mode.Preview },
   );
@@ -46,22 +49,24 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "Space",
     () => {
-      const previewState = store.get(AppState.previewState);
+      const previewState = store.get(
+        AppState.projectDetail[projectId].previewState,
+      );
       switch (previewState) {
         case PreviewState.PAUSE:
         case PreviewState.IDLE: {
-          AppActions.SetPreviewState(PreviewState.PLAY);
+          AppActions.SetPreviewState(projectId, PreviewState.PLAY);
           break;
         }
         case PreviewState.FINISH: {
-          AppActions.SetPreviewState(PreviewState.PLAY);
-          AppActions.SetPreviewSlideIdx(0);
+          AppActions.SetPreviewState(projectId, PreviewState.PLAY);
+          AppActions.SetPreviewSlideIdx(projectId, 0);
           break;
         }
 
         case PreviewState.RESUME:
         case PreviewState.PLAY: {
-          AppActions.SetPreviewState(PreviewState.PAUSE);
+          AppActions.SetPreviewState(projectId, PreviewState.PAUSE);
           break;
         }
         default:
@@ -74,8 +79,8 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "Escape",
     () => {
-      AppActions.SetPreviewSize(100);
-      AppActions.SetMode(Mode.Edit);
+      AppActions.SetPreviewSize(projectId, 100);
+      AppActions.SetMode(projectId, Mode.Edit);
 
       if (interval.previewAnimationInterval) {
         clearInterval(interval.previewAnimationInterval);
@@ -85,7 +90,11 @@ export const useShortcutKeys = () => {
     { enabled: mode === Mode.Preview, enableOnFormTags: true },
   );
 
-  useHotkeys("mod+enter, F5", () => AppActions.SetMode(Mode.Preview), {
-    enableOnFormTags: true,
-  });
+  useHotkeys(
+    "mod+enter, F5",
+    () => AppActions.SetMode(projectId, Mode.Preview),
+    {
+      enableOnFormTags: true,
+    },
+  );
 };

@@ -16,7 +16,7 @@ import {
   ZoomOutIcon,
 } from "lucide-react";
 
-import { AppState, slideLengthAtom } from "../../state/state";
+import { AppState } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
   codeEditorConfig,
@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/vendor/shadcn/components/ui/tooltip";
+import { ProjectContext } from "./project-context";
 
 const languages = supportedHighlightJsLanguages?.map((v) => ({
   label: v.label,
@@ -68,7 +69,8 @@ export const FontSizeGroup = React.memo(() => {
 });
 
 export const LeftStatusBar = React.memo(() => {
-  const mode = useAtomValue(AppState.mode);
+  const { id: projectId } = React.useContext(ProjectContext);
+  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
 
   if (mode === Mode.Edit) {
     return null;
@@ -86,8 +88,12 @@ export const LeftStatusBar = React.memo(() => {
 });
 
 export const SliderInfo = React.memo(() => {
-  const previewSlideIdx = useAtomValue(AppState.previewSlideIdx);
-  const totalSlides = useAtomValue(slideLengthAtom);
+  const { id: projectId } = React.useContext(ProjectContext);
+  const previewSlideIdx = useAtomValue(
+    AppState.projectDetail[projectId].previewSlideIdx,
+  );
+  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
+  const totalSlides = slides.length;
 
   return (
     <div className="flex items-center overflow-hidden truncate shrink-0">
@@ -99,10 +105,11 @@ export const SliderInfo = React.memo(() => {
 });
 
 export const PrevSlideButton = React.memo(() => {
+  const { id: projectId } = React.useContext(ProjectContext);
   return (
     <div
       className={adaptiveStyle}
-      onClick={() => AppActions.PreviewPreviousSlide()}
+      onClick={() => AppActions.PreviewPreviousSlide(projectId)}
     >
       <ChevronLeftIcon size={16} />
     </div>
@@ -110,10 +117,11 @@ export const PrevSlideButton = React.memo(() => {
 });
 
 export const NextSlideButton = React.memo(() => {
+  const { id: projectId } = React.useContext(ProjectContext);
   return (
     <div
       className={adaptiveStyle}
-      onClick={() => AppActions.PreviewNextSlide()}
+      onClick={() => AppActions.PreviewNextSlide(projectId)}
     >
       <ChevronRightIcon size={16} />
     </div>
@@ -121,10 +129,11 @@ export const NextSlideButton = React.memo(() => {
 });
 
 export const IncrementFontSizeButton = React.memo(() => {
+  const { id: projectId } = React.useContext(ProjectContext);
   return (
     <div
       className={adaptiveStyle}
-      onClick={() => AppActions.SetToggleEditorFontSIze("up")}
+      onClick={() => AppActions.SetToggleEditorFontSIze(projectId, "up")}
     >
       <ZoomInIcon size={16} />
     </div>
@@ -132,14 +141,17 @@ export const IncrementFontSizeButton = React.memo(() => {
 });
 
 export const FontSizeInfo = React.memo(() => {
-  const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
+  const { id: projectId } = React.useContext(ProjectContext);
+  const editorFontSize = useAtomValue(
+    AppState.projectDetail[projectId].editorConfig.fontSize,
+  );
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
           onClick={() => {
-            AppActions.SetEditorFontSize(codeEditorConfig.fontSize);
+            AppActions.SetEditorFontSize(projectId, codeEditorConfig.fontSize);
           }}
         >
           <p className="text-xs text-muted-foreground font-bold whitespace-nowrap overflow-hidden truncate text-ellipsis">
@@ -157,10 +169,12 @@ export const FontSizeInfo = React.memo(() => {
 });
 
 export const DecrementFontSizeButton = React.memo(() => {
+  const { id: projectId } = React.useContext(ProjectContext);
+
   return (
     <div
       className={adaptiveStyle}
-      onClick={() => AppActions.SetToggleEditorFontSIze("down")}
+      onClick={() => AppActions.SetToggleEditorFontSIze(projectId, "down")}
     >
       <ZoomOutIcon size={16} />
     </div>
@@ -168,9 +182,14 @@ export const DecrementFontSizeButton = React.memo(() => {
 });
 
 export const ChangeThemeStatusBarItem = React.memo(() => {
+  const { id: projectId } = React.useContext(ProjectContext);
   const [open, setOpen] = React.useState(false);
-  const [editorTheme, setEditorTheme] = useAtom(AppState.editorTheme);
-  const setPreviewEditorTheme = useSetAtom(AppState.previewEditorTheme);
+  const [editorTheme, setEditorTheme] = useAtom(
+    AppState.projectDetail[projectId].editorTheme,
+  );
+  const setPreviewEditorTheme = useSetAtom(
+    AppState.projectDetail[projectId].previewEditorTheme,
+  );
 
   React.useEffect(() => {
     setPreviewEditorTheme(editorTheme);
@@ -284,9 +303,10 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
 });
 
 export const ChangeLanguangeStatusBarItem = React.memo(() => {
+  const { id: projectId } = React.useContext(ProjectContext);
   const [open, setOpen] = React.useState(false);
   const [previewLanguage, setPreviewLanguage] = useAtom(
-    AppState.previewLanguage,
+    AppState.projectDetail[projectId].previewLanguage,
   );
   const previewLanguageLabel = React.useMemo(() => {
     return languages.find((v) => v.value === previewLanguage)?.label || "N/A";

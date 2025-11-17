@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, type RefObject } from "react";
+import { memo, useContext, useEffect, useRef, type RefObject } from "react";
 import {
   EditorView,
   highlightActiveLine,
@@ -25,6 +25,9 @@ import {
   Themes,
 } from "./components/code-editor/extensions/themes";
 import { fontSizeExtension } from "./components/code-editor/extensions/fonts";
+import clsx from "clsx";
+import { twMerge } from "tailwind-merge";
+import { ProjectContext } from "./components/project-context";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -46,19 +49,28 @@ const CodeEditorWithHighlight = ({
   onChange,
   className = "",
 }: Props) => {
+  const { id: projectId } = useContext(ProjectContext);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const viewRef = useRef<EditorView | null>(null);
   const onChangeRef = useRef(onChange);
 
   const preRef = useRef<HTMLPreElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
-  const mode = useAtomValue(AppState.mode);
-  const previewEditorTheme = useAtomValue(AppState.previewEditorTheme);
-  const editorTheme = useAtomValue(AppState.editorTheme);
-  const previewLanguage = useAtomValue(AppState.previewLanguage);
-  const editorFontSize = useAtomValue(AppState.editorConfig.fontSize);
+  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
+  const previewEditorTheme = useAtomValue(
+    AppState.projectDetail[projectId].previewEditorTheme,
+  );
+  const editorTheme = useAtomValue(
+    AppState.projectDetail[projectId].editorTheme,
+  );
+  const previewLanguage = useAtomValue(
+    AppState.projectDetail[projectId].previewLanguage,
+  );
+  const editorFontSize = useAtomValue(
+    AppState.projectDetail[projectId].editorConfig.fontSize,
+  );
 
-  useAdaptiveCursorColor({ preTagRef: preRef, textareaRef: taRef });
+  useAdaptiveCursorColor({ projectId, preTagRef: preRef, textareaRef: taRef });
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -129,7 +141,7 @@ const CodeEditorWithHighlight = ({
   return (
     <motion.div
       key={animationKey}
-      className={`relative aspect-video w-full h-auto max-h-full max-w-full ${className} overflow-hidden`}
+      className={`relative aspect-video w-full h-auto max-h-full max-w-full overflow-hidden`}
       layoutId={layoutId}
       ref={ref}
       layout={layoutAnimation}
@@ -142,7 +154,12 @@ const CodeEditorWithHighlight = ({
       }}
     >
       <div
-        className="w-full h-full border-2 border-white rounded-lg flex flex-col overflow-hidden"
+        className={twMerge(
+          clsx(
+            `w-full h-full border-2 border-white rounded-lg flex flex-col overflow-hidden`,
+            className,
+          ),
+        )}
         style={{
           backgroundColor:
             BaseThemeColor[previewEditorTheme || editorTheme].background,

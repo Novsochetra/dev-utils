@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -28,8 +28,10 @@ import {
   PaletteIcon,
 } from "lucide-react";
 import { ShortCuts } from "./shortcuts";
+import { ProjectContext } from "./project-context";
 
 export const CommandMenu = React.memo(() => {
+  const { id: projectId } = useContext(ProjectContext);
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState<"main" | "language" | "theme">("main");
@@ -64,7 +66,7 @@ export const CommandMenu = React.memo(() => {
         setOpen(false);
         // page specific behaviour
         if (page === "theme") {
-          AppActions.SetEditorPreviewTheme(null);
+          AppActions.SetEditorPreviewTheme(projectId, null);
         }
       }}
     >
@@ -125,9 +127,13 @@ export const CommandMenu = React.memo(() => {
 
 export const ListThemesCommandItem = React.memo(
   ({ setOpen }: { setOpen: (v: boolean) => void }) => {
+    const { id: projectId } = useContext(ProjectContext);
+
     React.useEffect(() => {
-      const editorTheme = store.get(AppState.editorTheme);
-      AppActions.SetEditorPreviewTheme(editorTheme);
+      const editorTheme = store.get(
+        AppState.projectDetail[projectId].editorTheme,
+      );
+      AppActions.SetEditorPreviewTheme(projectId, editorTheme);
     }, []);
 
     useHotkeys(
@@ -146,7 +152,7 @@ export const ListThemesCommandItem = React.memo(
                 (t) => t.label === val,
               );
 
-              AppActions.SetEditorPreviewTheme(theme?.value || null);
+              AppActions.SetEditorPreviewTheme(projectId, theme?.value || null);
             }
           }
         });
@@ -160,8 +166,8 @@ export const ListThemesCommandItem = React.memo(
           key={`language-${a.value}`}
           className="h-10 text-sm overflow-hidden "
           onSelect={() => {
-            AppActions.SetEditorPreviewTheme(null);
-            AppActions.SetEditorTheme(a.value);
+            AppActions.SetEditorPreviewTheme(projectId, null);
+            AppActions.SetEditorTheme(projectId, a.value);
             setOpen(false);
           }}
           value={a.label}
@@ -176,12 +182,14 @@ export const ListThemesCommandItem = React.memo(
 
 export const ListLanguagesCommandItem = React.memo(
   ({ setOpen }: { setOpen: (v: boolean) => void }) => {
+    const { id: projectId } = useContext(ProjectContext);
+
     return supportedHighlightJsLanguages.map((a) => (
       <CommandItem
         key={`lang-${a.value}`}
         className="h-10 text-sm overflow-hidden "
         onSelect={() => {
-          AppActions.SetPreviewLanguage(a.value);
+          AppActions.SetPreviewLanguage(projectId, a.value);
           setOpen(false);
         }}
       >
@@ -202,7 +210,8 @@ export const MainPageMenu = React.memo(
     setPage: (v: "main" | "theme" | "language") => void;
     setOpen: (v: boolean) => void;
   }) => {
-    const previewMode = useAtomValue(AppState.mode);
+    const { id: projectId } = useContext(ProjectContext);
+    const previewMode = useAtomValue(AppState.projectDetail[projectId].mode);
 
     return (
       <>
@@ -241,7 +250,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.PreviewPreviousSlide();
+                AppActions.PreviewPreviousSlide(projectId);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
@@ -259,7 +268,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.PreviewNextSlide();
+                AppActions.PreviewNextSlide(projectId);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
@@ -277,7 +286,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.SetMode(Mode.Edit);
+                AppActions.SetMode(projectId, Mode.Edit);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
@@ -300,7 +309,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.SetMode(Mode.Preview);
+                AppActions.SetMode(projectId, Mode.Preview);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">

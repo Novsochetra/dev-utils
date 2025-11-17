@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useContext } from "react";
 import { motion } from "framer-motion";
 import { Trash2Icon } from "lucide-react";
 import clsx from "clsx";
@@ -14,6 +14,7 @@ import { Button } from "@/vendor/shadcn/components/ui/button";
 import { SliderPreviewImage } from "./slider-preview-item";
 
 import { SLIDER_CONTENT_WIDTH, BORDER_WIDTH } from "./constants";
+import { ProjectContext } from "../project-context";
 
 export type SliderItemProps = {
   index: number;
@@ -22,6 +23,8 @@ export type SliderItemProps = {
 
 export const SliderItem = memo(
   ({ active, index }: SliderItemProps) => {
+    const { id: projectId } = useContext(ProjectContext);
+
     return (
       <div>
         <ContextMenu>
@@ -32,7 +35,7 @@ export const SliderItem = memo(
                 active ? "border-sky-400" : "",
               )}
               style={{ borderWidth: BORDER_WIDTH }}
-              onClick={() => AppActions.SelectSlide(index)}
+              onClick={() => AppActions.SelectSlide(projectId, index)}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -54,7 +57,7 @@ export const SliderItem = memo(
                 variant="link"
                 size="icon"
                 className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white bg-zinc-600 transition-opacity hover:bg-none"
-                onClick={() => AppActions.RemoveSlide(index)}
+                onClick={() => AppActions.RemoveSlide(projectId, index)}
               >
                 <Trash2Icon size={12} />
               </Button>
@@ -64,7 +67,7 @@ export const SliderItem = memo(
             <ContextMenuItem
               className="text-xs"
               onClick={() => {
-                AppActions.DuplicateSlide();
+                AppActions.DuplicateSlide(projectId);
               }}
             >
               Duplicate Slide
@@ -72,7 +75,7 @@ export const SliderItem = memo(
             <ContextMenuItem
               className="text-xs"
               onClick={() => {
-                AppActions.AddSlideAbove(index);
+                AppActions.AddSlideAbove(projectId, index);
               }}
             >
               Add Slide Above
@@ -80,14 +83,14 @@ export const SliderItem = memo(
             <ContextMenuItem
               className="text-xs"
               onClick={() => {
-                AppActions.AddSlideBelow(index);
+                AppActions.AddSlideBelow(projectId, index);
               }}
             >
               Add Slide Below
             </ContextMenuItem>
             <ContextMenuItem
               className="text-xs"
-              onClick={() => AppActions.RemoveSlide(index)}
+              onClick={() => AppActions.RemoveSlide(projectId, index)}
             >
               Delete Slide
             </ContextMenuItem>
