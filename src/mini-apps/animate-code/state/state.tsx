@@ -1,105 +1,182 @@
-import { atom, getDefaultStore, type Atom, type PrimitiveAtom } from "jotai";
-
+import { v4 } from "uuid";
+import { create, type StateCreator } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import { persist } from "zustand/middleware/persist";
 import {
-  defaultProjectId,
   Mode,
   PreviewResizeDirection,
   PreviewState,
+  defaultProjectId,
 } from "../utils/constants";
 import { ThemeNames } from "../screens/components/code-editor/extensions/themes";
-import { v4 } from "uuid";
 
-export const store = getDefaultStore();
+export type Store = {
+  projects: { id: string; name: string }[];
 
-export type AppState = {
-  projects: PrimitiveAtom<Array<{ id: string; name: PrimitiveAtom<string> }>>;
   projectDetail: {
     [k: string]: {
-      sidebarOpen: PrimitiveAtom<boolean>;
-      currentSlideIdx: PrimitiveAtom<number>;
-      previewSlideIdx: PrimitiveAtom<number | undefined>;
-      mode: PrimitiveAtom<Mode>;
-      previewState: PrimitiveAtom<PreviewState>;
-      slides: PrimitiveAtom<
-        {
-          id: string;
-          data: Atom<string>;
-          preview: Atom<boolean>;
-        }[]
-      >;
-      editorTheme: PrimitiveAtom<ThemeNames>;
-      previewEditorTheme: PrimitiveAtom<ThemeNames | null>;
-      previewSize: PrimitiveAtom<number>;
-      previewTitle: PrimitiveAtom<string>;
+      sidebarOpen: boolean;
+      currentSlideIdx: number;
+      previewSlideIdx: number | undefined;
+      mode: Mode;
+      previewState: PreviewState;
+      slides: {
+        id: string;
+        data: string;
+        preview: boolean;
+      }[];
+      editorTheme: ThemeNames;
+      previewEditorTheme: ThemeNames | null;
+      previewSize: number;
+      previewTitle: string;
       previewBackground: {
-        angle: PrimitiveAtom<number>;
-        from: PrimitiveAtom<string>;
-        to: PrimitiveAtom<string>;
+        angle: number;
+        from: string;
+        to: string;
       };
-      previewResizeDirection: PrimitiveAtom<PreviewResizeDirection>;
-      previewLanguage: PrimitiveAtom<string>;
+      previewResizeDirection: PreviewResizeDirection;
+      previewLanguage: string;
       editorConfig: {
-        fontSize: PrimitiveAtom<number>;
+        fontSize: number;
         animationConfig: {
-          removeDuration: PrimitiveAtom<number>;
-          addDuration: PrimitiveAtom<number>;
-          addedDelayPerChar: PrimitiveAtom<number>;
-          lineDelay: PrimitiveAtom<number>;
+          removeDuration: number;
+          addDuration: number;
+          addedDelayPerChar: number;
+          lineDelay: number;
         };
       };
     };
   };
+
+  // actions
+  addProject: () => void;
+  duplicateSlide: (param: string) => void;
+  selectSlide: (projectId: string, index: number) => void;
+  setCurrentSlideIdx: (projectId: string, index: number) => void;
 };
 
-export const fallbackAtom = atom();
+type SliceParams = Parameters<StateCreator<Store, [], []>>;
+type SliceFunc<StoreKey extends keyof Store> = (
+  ...args: SliceParams
+) => Pick<Store, StoreKey>;
 
-const defaultProjectDetail = createProjectDetailAtom();
+const projectSlice: SliceFunc<"projects" | "addProject"> = immer(
+  (set, get) => ({
+    projects: [] as Store["projects"],
+    addProject: () => {
+      const prev = get().projects;
+      const projectId = v4();
+      const projectDetail = createProjectDetailStructure();
 
-export const AppState: AppState = {
-  projects: atom<{ id: string; name: PrimitiveAtom<string> }[]>([
-    { id: defaultProjectId, name: atom("Untitled 1") },
-  ]),
+      set((state) => {
+        state.projects.push({
+          id: projectId,
+          name: `Untitled ${prev.length + 1}`,
+        });
+        // TODO
+        // state.projectDetail[projectId] = projectDetail;
+      });
+    },
+  }),
+);
+
+const projectDetailSlice: SliceFunc<
+  "projectDetail" | "duplicateSlide" | "selectSlide" | "setCurrentSlideIdx"
+> = immer((set, get) => ({
   projectDetail: {
-    [defaultProjectId]: defaultProjectDetail,
-  },
-};
+    [defaultProjectId]: createProjectDetailStructure(),
+  } as Store["projectDetail"],
+  // actions
+  duplicateSlide: (projectId: string) => {
+    const index = get().projectDetail[projectId].currentSlideIdx;
+    const slides = get().projectDetail[projectId].slides;
+    const currentSlideData = slides[index]?.data;
 
-export function createProjectDetailAtom(): any {
+    const newItem = {
+      id: v4(),
+      data: currentSlideData,
+      preview: false,
+    };
+    const prev = get().projectDetail[projectId].slides;
+    set((state) => {
+      state.projectDetail[projectId].slides = [
+        ...prev.slice(0, index + 1),
+        newItem,
+        ...prev.slice(index + 1),
+      ];
+
+      // auto select next slide
+      state.projectDetail[projectId].currentSlideIdx = index + 1;
+    });
+  },
+
+  selectSlide: (projectId: string, index: number) => {
+    set((state) => {
+      state.projectDetail[projectId].currentSlideIdx = index;
+    });
+  },
+
+  setCurrentSlideIdx: (projectId: string, index: number) => {
+    set((state) => {
+      state.projectDetail[projectId].currentSlideIdx = index;
+    });
+  },
+
+  addSlide: (projectId: string) => {
+    const newItem = {
+      id: v4(),
+      data: "",
+      preview: false,
+      projectId: projectId,
+    };
+    const prev = get().projectDetail[projectId].slides;
+    const newSlides = [...prev, newItem];
+
+    set((state) => {
+      state.projectDetail[projectId].slides.push(newItem);
+      // auto select last slide
+      state.projectDetail[projectId].currentSlideIdx = newSlides.length - 1;
+    });
+  },
+}));
+
+export const useStore = create<Store>()((...args) => ({
+  ...projectSlice(...args),
+  ...projectDetailSlice(...args),
+}));
+
+function createProjectDetailStructure() {
   return {
-    sidebarOpen: atom(true),
-    currentSlideIdx: atom(0),
-    previewSlideIdx: atom(), // INFO: why undefined value ? since we need to since the currentSlideIdx with previewSlideIdx on <Preview />
-    mode: atom<Mode>(Mode.Edit),
-    previewState: atom<PreviewState>(PreviewState.IDLE),
-    editorTheme: atom(ThemeNames.GruvboxDark),
-    previewEditorTheme: atom<ThemeNames | null>(null),
-    slides: atom<
-      Array<{ id: string; data: Atom<string>; preview: Atom<boolean> }>
-    >([
+    sidebarOpen: true,
+    currentSlideIdx: 0,
+    previewSlideIdx: undefined, // INFO: why undefined value ? since we need to since the currentSlideIdx with previewSlideIdx on <Preview />
+    mode: Mode.Edit,
+    previewState: PreviewState.IDLE,
+    editorTheme: ThemeNames.GruvboxDark,
+    previewEditorTheme: null,
+    slides: [
       {
         id: v4(),
-        data: atom(""),
-        preview: atom(false),
+        data: "",
+        preview: false,
       },
-    ]),
-    previewSize: atom(100), // percentage
-    previewTitle: atom("index.html"),
-    previewResizeDirection: atom<PreviewResizeDirection>(
-      PreviewResizeDirection.DOWN,
-    ),
+    ],
+    previewSize: 100, // percentage
+    previewTitle: "index.html",
+    previewResizeDirection: PreviewResizeDirection.DOWN,
     previewBackground: {
-      angle: atom(135),
-      from: atom("#93c5fd"),
-      to: atom("#c4b5fd"),
+      angle: 135,
+      from: "#93c5fd",
+      to: "#c4b5fd",
     },
-    previewLanguage: atom("html"),
+    previewLanguage: "html",
     editorConfig: {
-      fontSize: atom(16),
+      fontSize: 16,
       animationConfig: {
-        removeDuration: atom(0.8),
-        addDuration: atom(1),
-        addedDelayPerChar: atom(0.08),
-        lineDelay: atom(0.05),
+        removeDuration: 0.8,
+        addDuration: 1,
+        addedDelayPerChar: 0.08,
+        lineDelay: 0.05,
       },
     },
   };
