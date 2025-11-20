@@ -1,11 +1,10 @@
 import { Link } from "react-router";
 import { memo, useRef, useEffect } from "react";
-import CodeEditor from "../code-editor";
-import { useAtom } from "jotai";
+// import CodeEditor from "../code-editor";
 
-import { Background } from "./preview";
+// import { Background } from "./preview";
 import { ProjectContextProvider } from "./project-context";
-import { AppState, store } from "../../state/state";
+import { useStore } from "../../state/state";
 
 type ProjectCardProps = {
   id: string;
@@ -13,9 +12,7 @@ type ProjectCardProps = {
 };
 
 export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
-  const projects = store.get(AppState.projects);
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
-  const [projectName, setProjectName] = useAtom(projects[index].name);
 
   return (
     <ProjectContextProvider id={id}>
@@ -25,24 +22,37 @@ export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
           className="w-full aspect-video bg-gray-100 rounded-sm overflow-hidden mb-4"
         >
           <Preview projectId={id}>
+            {/*
+
             <CodeEditor
               ref={codeEditorRef}
               value="welcome"
               className="rounded-[44px]"
             />
+*/}
           </Preview>
         </Link>
         <div className="flex flex-1 h-full">
-          <input
-            type="text"
-            name="editor-title-input"
-            value={projectName}
-            className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate text-ellipsis line-clamp-1"
-            onChange={(e) => setProjectName(e.target.value)}
-          />
+          <ProjectNameInput index={index} />
         </div>
       </div>
     </ProjectContextProvider>
+  );
+});
+
+const ProjectNameInput = memo(({ index }: { index: number }) => {
+  const setProjectName = useStore((state) => state.setProjectName);
+  const getProjects = useStore((state) => state.getProjects);
+  const projectName = getProjects()?.[index].name || "";
+
+  return (
+    <input
+      type="text"
+      name="editor-title-input"
+      value={projectName}
+      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate text-ellipsis line-clamp-1"
+      onChange={(e) => setProjectName(index, e.target.value)}
+    />
   );
 });
 
@@ -85,7 +95,9 @@ export function Preview({
       ref={wrapperRef}
       className="relative w-full h-full overflow-hidden pointer-events-none"
     >
-      <Background projectId={projectId} />
+      {/* 
+<Background projectId={projectId} />
+*/}
       <div
         ref={contentRef}
         className="absolute p-4 border-red-800"

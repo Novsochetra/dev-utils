@@ -1,12 +1,10 @@
-import { useAtomValue } from "jotai";
-import { AppState } from "../../state/state";
+import { useStore } from "../../state/state";
 import { ProjectCard } from "./project-card";
 import { PlusIcon } from "lucide-react";
-import { AppActions } from "../../state/actions";
 import { AnimatePresence, motion } from "framer-motion";
 
 export const ListProject = () => {
-  const projects = useAtomValue(AppState.projects);
+  const projects = useStore((state) => state.projects);
 
   return (
     <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -33,12 +31,13 @@ export const ListProject = () => {
 };
 
 const AddProjectButton = () => {
+  const addProject = useStore((s) => s.addProject);
   return (
     <div>
       <div
         className="w-full aspect-video rounded-sm flex items-center justify-center bg-slate-100 cursor-pointer mb-4"
         onClick={() => {
-          AppActions.AddProject();
+          addProject();
         }}
       >
         <PlusIcon size={32} className="text-foreground" />
