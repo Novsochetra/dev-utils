@@ -98,6 +98,7 @@ const projectSlice: (
     getProjects: () => get().projects,
     setProjectName: (index: number, name: string) => {
       set((state) => {
+        console.log("name: ", name);
         state.projects[index].name = name;
       });
     },
@@ -113,7 +114,7 @@ const projectSlice: (
       });
 
       // TODO
-      // get().addProjectDetail(projectId);
+      get().addProjectDetail(projectId);
     },
   }));
 

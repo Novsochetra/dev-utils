@@ -9,23 +9,12 @@ export const ListProject = () => {
   return (
     <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
       <AddProjectButton />
-      <AnimatePresence>
-        {projects.map((p, idx) => {
-          return (
-            <motion.div
-              layout
-              layoutId={`project-item-${p.id}`}
-              key={`project-item-${p.id}`}
-              className="h-full"
-              initial={{ scale: 0.9, opacity: 1 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-            >
-              <ProjectCard id={p.id} index={idx} />
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
+      {/* INFO: using framer motion cause every change is re-render, thinking of optimize it using other way */}
+      {projects.map((p, idx) => {
+        return (
+          <ProjectCard key={`project-item-${p.id}`} id={p.id} index={idx} />
+        );
+      })}
     </motion.div>
   );
 };

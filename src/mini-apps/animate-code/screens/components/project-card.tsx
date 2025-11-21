@@ -2,9 +2,9 @@ import { Link } from "react-router";
 import { memo, useRef, useEffect } from "react";
 // import CodeEditor from "../code-editor";
 
-// import { Background } from "./preview";
 import { ProjectContextProvider } from "./project-context";
 import { useStore } from "../../state/state";
+import { GradientBackground } from "./gradient-background";
 
 type ProjectCardProps = {
   id: string;
@@ -42,14 +42,14 @@ export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
 
 const ProjectNameInput = memo(({ index }: { index: number }) => {
   const setProjectName = useStore((state) => state.setProjectName);
-  const getProjects = useStore((state) => state.getProjects);
-  const projectName = getProjects()?.[index].name || "";
+  const name = useStore((state) => state.projects[index].name);
 
   return (
     <input
       type="text"
       name="editor-title-input"
-      value={projectName}
+      defaultValue={name}
+      value={name}
       className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate text-ellipsis line-clamp-1"
       onChange={(e) => setProjectName(index, e.target.value)}
     />
@@ -95,9 +95,7 @@ export function Preview({
       ref={wrapperRef}
       className="relative w-full h-full overflow-hidden pointer-events-none"
     >
-      {/* 
-<Background projectId={projectId} />
-*/}
+      <GradientBackground projectId={projectId} />
       <div
         ref={contentRef}
         className="absolute p-4 border-red-800"
