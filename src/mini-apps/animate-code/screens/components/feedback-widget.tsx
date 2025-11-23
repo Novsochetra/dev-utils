@@ -1,12 +1,11 @@
 import { useContext, useState } from "react";
-import { useAtomValue } from "jotai";
 
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
-import { AppState } from "../../state/state";
 import { Mode } from "../../utils/constants";
 import { ProjectContext } from "./project-context";
+import { useStore } from "../../state/state";
 
 export default function FeedbackWidget() {
   const { id: projectId } = useContext(ProjectContext);
@@ -14,7 +13,7 @@ export default function FeedbackWidget() {
   const [form, setForm] = useState({ email: "", username: "", feedback: "" });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
+  const mode = useStore((state) => state.projectDetail[projectId].mode);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

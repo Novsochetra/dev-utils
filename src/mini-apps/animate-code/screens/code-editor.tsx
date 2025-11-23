@@ -12,9 +12,7 @@ import { javascript } from "@codemirror/lang-javascript";
 import { indentMore, indentLess } from "@codemirror/commands";
 
 import { motion, type MotionNodeLayoutOptions } from "framer-motion";
-import { useAtomValue } from "jotai";
 
-import { AppState } from "../state/state";
 import { Mode } from "../utils/constants";
 import { Toolbar } from "./components/toolbar";
 import { AnimateCodeStatusBar } from "./components/animate-code-status-bar";
@@ -28,6 +26,7 @@ import { fontSizeExtension } from "./components/code-editor/extensions/fonts";
 import clsx from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ProjectContext } from "./components/project-context";
+import { useStore } from "../state/state";
 
 type Props = {
   ref: RefObject<HTMLDivElement | null>;
@@ -38,6 +37,7 @@ type Props = {
   language?: string;
   className?: string;
   layoutAnimation?: MotionNodeLayoutOptions["layout"];
+  readonly?: boolean;
 };
 
 const CodeEditorWithHighlight = ({
@@ -48,6 +48,7 @@ const CodeEditorWithHighlight = ({
   value = "",
   onChange,
   className = "",
+  readonly,
 }: Props) => {
   const { id: projectId } = useContext(ProjectContext);
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -56,18 +57,18 @@ const CodeEditorWithHighlight = ({
 
   const preRef = useRef<HTMLPreElement | null>(null);
   const taRef = useRef<HTMLTextAreaElement | null>(null);
-  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
-  const previewEditorTheme = useAtomValue(
-    AppState.projectDetail[projectId].previewEditorTheme,
+  const mode = useStore((state) => state.projectDetail[projectId].mode);
+  const previewEditorTheme = useStore(
+    (state) => state.projectDetail[projectId].previewEditorTheme,
   );
-  const editorTheme = useAtomValue(
-    AppState.projectDetail[projectId].editorTheme,
+  const editorTheme = useStore(
+    (state) => state.projectDetail[projectId].editorTheme,
   );
-  const previewLanguage = useAtomValue(
-    AppState.projectDetail[projectId].previewLanguage,
+  const previewLanguage = useStore(
+    (state) => state.projectDetail[projectId].previewLanguage,
   );
-  const editorFontSize = useAtomValue(
-    AppState.projectDetail[projectId].editorConfig.fontSize,
+  const editorFontSize = useStore(
+    (state) => state.projectDetail[projectId].editorConfig.fontSize,
   );
 
   useAdaptiveCursorColor({ projectId, preTagRef: preRef, textareaRef: taRef });
@@ -116,7 +117,9 @@ const CodeEditorWithHighlight = ({
 
     const currentValue = view.state.doc.toString();
     if (value !== currentValue) {
-      view.contentDOM.focus();
+      if (!readonly) {
+        view.contentDOM.focus();
+      }
 
       const transaction = view.state.update({
         changes: { from: 0, to: view.state.doc.length, insert: value },
@@ -134,7 +137,9 @@ const CodeEditorWithHighlight = ({
     if (mode === Mode.Preview) {
       view.contentDOM.blur();
     } else {
-      view.contentDOM.focus();
+      if (!readonly) {
+        view.contentDOM.focus();
+      }
     }
   }, [mode]);
 

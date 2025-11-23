@@ -1,22 +1,29 @@
 import { useHotkeys } from "react-hotkeys-hook";
 
-import { AppActions } from "../../state/actions";
-import { AppState, store } from "../../state/state";
 import { interval, Mode, PreviewState } from "../constants";
-import { useAtomValue } from "jotai";
 import { isDesktopApp } from "@/utils/is-desktop-mode";
 import { useContext } from "react";
 import { ProjectContext } from "../../screens/components/project-context";
+import { useStore } from "../../state/state";
 
 export const useShortcutKeys = () => {
   const { id: projectId } = useContext(ProjectContext);
-  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
+  const mode = useStore((state) => state.projectDetail[projectId].mode);
+  const addSlide = useStore((state) => state.addSlide);
+  const duplicateSlide = useStore((state) => state.duplicateSlide);
+  const previewPreviousSlide = useStore((state) => state.previewPreviousSlide);
+  const previewNextSlide = useStore((state) => state.previewNextSlide);
+  const setPreviewState = useStore((state) => state.setPreviewState);
+  const getPreviewState = useStore((state) => state.getPreviewState);
+  const setPreviewSlideIdx = useStore((state) => state.setPreviewSlideIdx);
+  const setPreviewSize = useStore((state) => state.setPreviewSize);
+  const setMode = useStore((state) => state.setMode);
 
   useHotkeys(
     isDesktopApp ? "mod+d" : "mod+shift+d", // (cmd / ctrl) + (shift) + d
     (event) => {
       event.preventDefault(); // prevent browser default actions
-      AppActions.DuplicateSlide(projectId);
+      duplicateSlide(projectId);
     },
     { enableOnFormTags: true, enabled: true, enableOnContentEditable: true },
   );
@@ -25,7 +32,7 @@ export const useShortcutKeys = () => {
     isDesktopApp ? "mod+n" : "mod+alt+n", // (cmd / ctrl) + (option / alt) + n
     (event) => {
       event.preventDefault(); // prevent browser default actions
-      AppActions.AddSlide(projectId);
+      addSlide(projectId);
     },
     { enableOnFormTags: true, enabled: true, enableOnContentEditable: true },
   );
@@ -33,7 +40,7 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowLeft",
     () => {
-      AppActions.PreviewPreviousSlide(projectId);
+      previewPreviousSlide(projectId);
     },
     { enabled: mode === Mode.Preview },
   );
@@ -41,7 +48,7 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "ArrowRight",
     () => {
-      AppActions.PreviewNextSlide(projectId);
+      previewNextSlide(projectId);
     },
     { enabled: mode === Mode.Preview },
   );
@@ -49,24 +56,22 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "Space",
     () => {
-      const previewState = store.get(
-        AppState.projectDetail[projectId].previewState,
-      );
+      const previewState = getPreviewState(projectId);
       switch (previewState) {
         case PreviewState.PAUSE:
         case PreviewState.IDLE: {
-          AppActions.SetPreviewState(projectId, PreviewState.PLAY);
+          setPreviewState(projectId, PreviewState.PLAY);
           break;
         }
         case PreviewState.FINISH: {
-          AppActions.SetPreviewState(projectId, PreviewState.PLAY);
-          AppActions.SetPreviewSlideIdx(projectId, 0);
+          setPreviewState(projectId, PreviewState.PLAY);
+          setPreviewSlideIdx(projectId, 0);
           break;
         }
 
         case PreviewState.RESUME:
         case PreviewState.PLAY: {
-          AppActions.SetPreviewState(projectId, PreviewState.PAUSE);
+          setPreviewState(projectId, PreviewState.PAUSE);
           break;
         }
         default:
@@ -79,8 +84,8 @@ export const useShortcutKeys = () => {
   useHotkeys(
     "Escape",
     () => {
-      AppActions.SetPreviewSize(projectId, 100);
-      AppActions.SetMode(projectId, Mode.Edit);
+      setPreviewSize(projectId, 100);
+      setMode(projectId, Mode.Edit);
 
       if (interval.previewAnimationInterval) {
         clearInterval(interval.previewAnimationInterval);
@@ -90,11 +95,7 @@ export const useShortcutKeys = () => {
     { enabled: mode === Mode.Preview, enableOnFormTags: true },
   );
 
-  useHotkeys(
-    "mod+enter, F5",
-    () => AppActions.SetMode(projectId, Mode.Preview),
-    {
-      enableOnFormTags: true,
-    },
-  );
+  useHotkeys("mod+enter, F5", () => setMode(projectId, Mode.Preview), {
+    enableOnFormTags: true,
+  });
 };

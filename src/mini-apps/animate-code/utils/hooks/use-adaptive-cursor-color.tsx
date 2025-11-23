@@ -1,7 +1,5 @@
-import { useAtomValue } from "jotai";
 import { type RefObject, useEffect } from "react";
-
-import { AppState } from "../../state/state";
+import { useStore } from "../../state/state";
 
 export const useAdaptiveCursorColor = ({
   projectId,
@@ -12,8 +10,8 @@ export const useAdaptiveCursorColor = ({
   preTagRef: RefObject<HTMLPreElement | null>;
   textareaRef: RefObject<HTMLTextAreaElement | null>;
 }) => {
-  const editorTheme = useAtomValue(
-    AppState.projectDetail[projectId].editorTheme,
+  const editorTheme = useStore(
+    (state) => state.projectDetail[projectId].editorTheme,
   );
 
   useEffect(() => {

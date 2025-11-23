@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useStore } from "../../state/state";
 import { ProjectCard } from "./project-card";
 import { PlusIcon } from "lucide-react";
@@ -9,6 +10,7 @@ export const ListProject = () => {
   return (
     <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
       <AddProjectButton />
+      {/* INFO: using framer motion cause every change is re-render, thinking of optimize it using other way */}
       <AnimatePresence>
         {projects.map((p, idx) => {
           return (
@@ -30,7 +32,7 @@ export const ListProject = () => {
   );
 };
 
-const AddProjectButton = () => {
+const AddProjectButton = memo(() => {
   const addProject = useStore((s) => s.addProject);
   return (
     <div>
@@ -50,4 +52,4 @@ const AddProjectButton = () => {
       </div>
     </div>
   );
-};
+});

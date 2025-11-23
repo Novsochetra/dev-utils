@@ -9,12 +9,12 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/vendor/shadcn/components/ui/context-menu";
-import { AppActions } from "@/mini-apps/animate-code/state/actions";
 import { Button } from "@/vendor/shadcn/components/ui/button";
-import { SliderPreviewImage } from "./slider-preview-item";
 
 import { SLIDER_CONTENT_WIDTH, BORDER_WIDTH } from "./constants";
 import { ProjectContext } from "../project-context";
+import { useStore } from "@/mini-apps/animate-code/state/state";
+import { SliderPreviewImage } from "./slider-preview-item";
 
 export type SliderItemProps = {
   index: number;
@@ -24,6 +24,11 @@ export type SliderItemProps = {
 export const SliderItem = memo(
   ({ active, index }: SliderItemProps) => {
     const { id: projectId } = useContext(ProjectContext);
+    const selectSlide = useStore((state) => state.selectSlide);
+    const removeSlide = useStore((state) => state.removeSlide);
+    const duplicateSlide = useStore((state) => state.duplicateSlide);
+    const addSlideAbove = useStore((state) => state.addSlideAbove);
+    const addSlideBelow = useStore((state) => state.addSlideBelow);
 
     return (
       <div>
@@ -35,7 +40,7 @@ export const SliderItem = memo(
                 active ? "border-sky-400" : "",
               )}
               style={{ borderWidth: BORDER_WIDTH }}
-              onClick={() => AppActions.SelectSlide(projectId, index)}
+              onClick={() => selectSlide(projectId, index)}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
@@ -57,7 +62,7 @@ export const SliderItem = memo(
                 variant="link"
                 size="icon"
                 className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white bg-zinc-600 transition-opacity hover:bg-none"
-                onClick={() => AppActions.RemoveSlide(projectId, index)}
+                onClick={() => removeSlide(projectId, index)}
               >
                 <Trash2Icon size={12} />
               </Button>
@@ -67,7 +72,7 @@ export const SliderItem = memo(
             <ContextMenuItem
               className="text-xs"
               onClick={() => {
-                AppActions.DuplicateSlide(projectId);
+                duplicateSlide(projectId);
               }}
             >
               Duplicate Slide
@@ -75,7 +80,7 @@ export const SliderItem = memo(
             <ContextMenuItem
               className="text-xs"
               onClick={() => {
-                AppActions.AddSlideAbove(projectId, index);
+                addSlideAbove(projectId, index);
               }}
             >
               Add Slide Above
@@ -83,14 +88,14 @@ export const SliderItem = memo(
             <ContextMenuItem
               className="text-xs"
               onClick={() => {
-                AppActions.AddSlideBelow(projectId, index);
+                addSlideBelow(projectId, index);
               }}
             >
               Add Slide Below
             </ContextMenuItem>
             <ContextMenuItem
               className="text-xs"
-              onClick={() => AppActions.RemoveSlide(projectId, index)}
+              onClick={() => removeSlide(projectId, index)}
             >
               Delete Slide
             </ContextMenuItem>

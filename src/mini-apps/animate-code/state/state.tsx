@@ -7,6 +7,7 @@ import {
   PreviewResizeDirection,
   PreviewState,
   defaultProjectId,
+  predefinedEditorFontSize,
 } from "../utils/constants";
 import { ThemeNames } from "../screens/components/code-editor/extensions/themes";
 
@@ -72,6 +73,41 @@ export type Store = {
   setEditorTheme: (projectId: string, v: ThemeNames) => void;
   setEditorPreviewTheme: (projectId: string, v: ThemeNames | null) => void;
   setEditorFontSize: (projectId: string, size: number) => void;
+  setPreviewTitle: (projectId: string, title: string) => void;
+  setPreviewBackgroundAngle: (projectId: string, value: number) => void;
+  setPreviewBackgroundStartColor: (projectId: string, value: string) => void;
+  setPreviewBackgroundEndColor: (projectId: string, value: string) => void;
+  setToggleEditorFontSIze: (
+    projectId: string,
+    direction: "up" | "down",
+  ) => void;
+  getSlides: (projectId: string) => Store["projectDetail"][string]["slides"];
+  setSlidePreview: (
+    projectId: string,
+    slideIdx: number,
+    value: boolean,
+  ) => void;
+  getCurrentSlideIdx: (
+    projectId: string,
+  ) => Store["projectDetail"][string]["currentSlideIdx"];
+  getPreviewSlideIdx: (
+    projectId: string,
+  ) => Store["projectDetail"][string]["previewSlideIdx"];
+  setRemoveDuration: (projectId: string, value: number) => void;
+  setAddedDuration: (projectId: string, value: number) => void;
+  setAddedDelayPerChar: (projectId: string, value: number) => void;
+  setLineDelay: (projectId: string, value: number) => void;
+  setSlideData: (projectId: string, slideIdx: number, value: string) => void;
+  setSlides: (
+    projectId: string,
+    value: Store["projectDetail"][string]["slides"],
+  ) => void;
+  getPreviewState: (
+    projectId: string,
+  ) => Store["projectDetail"][string]["previewState"];
+  getEditorTheme: (
+    projectId: string,
+  ) => Store["projectDetail"][string]["editorTheme"];
 };
 
 type StateCreatorParams = Parameters<StateCreator<Store, [], []>>;
@@ -112,8 +148,10 @@ const projectSlice: (
         });
       });
 
-      // TODO
-      // get().addProjectDetail(projectId);
+      // MARK: we need to fix the share func / state, since in project slice can't access
+      // outside state, actually it exist in get()
+      // @ts-ignore
+      get().addProjectDetail(projectId);
     },
   }));
 
@@ -139,6 +177,23 @@ const projectDetailSlice: SliceFunc<
   | "setEditorTheme"
   | "setEditorPreviewTheme"
   | "setEditorFontSize"
+  | "setPreviewTitle"
+  | "setPreviewBackgroundAngle"
+  | "setPreviewBackgroundStartColor"
+  | "setPreviewBackgroundEndColor"
+  | "setToggleEditorFontSIze"
+  | "getSlides"
+  | "getCurrentSlideIdx"
+  | "getPreviewSlideIdx"
+  | "setSlidePreview"
+  | "setAddedDuration"
+  | "setRemoveDuration"
+  | "setLineDelay"
+  | "setAddedDelayPerChar"
+  | "setSlideData"
+  | "setSlides"
+  | "getPreviewState"
+  | "getEditorTheme"
 > = immer((set, get) => ({
   projectDetail: {
     [defaultProjectId]: createProjectDetailStructure(),
@@ -308,7 +363,9 @@ const projectDetailSlice: SliceFunc<
   },
 
   setPreviewSize: (projectId: string, size: number) => {
-    set((state) => (state.projectDetail[projectId].previewSize = size));
+    set((state) => {
+      state.projectDetail[projectId].previewSize = size;
+    });
   },
 
   togglePreviewSize: (projectId: string) => {
@@ -343,29 +400,148 @@ const projectDetailSlice: SliceFunc<
   },
 
   setPreviewLanguage: (projectId: string, lang: string) => {
-    set((state) => (state.projectDetail[projectId].previewLanguage = lang));
+    set((state) => {
+      state.projectDetail[projectId].previewLanguage = lang;
+    });
   },
 
   setPreviewSlideIdx: (projectId: string, idx: number) => {
-    set((state) => (state.projectDetail[projectId].previewSlideIdx = idx));
+    set((state) => {
+      state.projectDetail[projectId].previewSlideIdx = idx;
+    });
   },
 
   setPreviewState: (projectId: string, mode: PreviewState) => {
-    set((state) => (state.projectDetail[projectId].previewState = mode));
+    set((state) => {
+      state.projectDetail[projectId].previewState = mode;
+    });
+  },
+
+  setSlidePreview: (projectId: string, slideIdx: number, value: boolean) => {
+    set((state) => {
+      state.projectDetail[projectId].slides[slideIdx].preview = value;
+    });
   },
 
   setEditorTheme: (projectId: string, v: ThemeNames) => {
-    set((state) => (state.projectDetail[projectId].editorTheme = v));
+    set((state) => {
+      state.projectDetail[projectId].editorTheme = v;
+    });
   },
 
   setEditorPreviewTheme: (projectId: string, v: ThemeNames | null) => {
-    set((state) => (state.projectDetail[projectId].previewEditorTheme = v));
+    set((state) => {
+      state.projectDetail[projectId].previewEditorTheme = v;
+    });
   },
 
   setEditorFontSize: (projectId: string, size: number) => {
-    set(
-      (state) => (state.projectDetail[projectId].editorConfig.fontSize = size),
-    );
+    set((state) => {
+      state.projectDetail[projectId].editorConfig.fontSize = size;
+    });
+  },
+
+  setPreviewTitle: (projectId: string, title: string) => {
+    set((state) => {
+      state.projectDetail[projectId].previewTitle = title;
+    });
+  },
+
+  setPreviewBackgroundAngle: (projectId: string, value: number) => {
+    set((state) => {
+      state.projectDetail[projectId].previewBackground.angle = value;
+    });
+  },
+
+  setPreviewBackgroundStartColor: (projectId: string, value: string) => {
+    set((state) => {
+      state.projectDetail[projectId].previewBackground.from = value;
+    });
+  },
+
+  setPreviewBackgroundEndColor: (projectId: string, value: string) => {
+    set((state) => {
+      state.projectDetail[projectId].previewBackground.to = value;
+    });
+  },
+
+  setToggleEditorFontSIze: (projectId: string, direction: "up" | "down") => {
+    const current = get().projectDetail[projectId].editorConfig.fontSize;
+    const idx = predefinedEditorFontSize.findIndex((v) => v >= current);
+    const nextIdx =
+      direction === "up"
+        ? Math.min(idx + 1, predefinedEditorFontSize.length - 1)
+        : Math.max(idx - 1, 0);
+
+    set((state) => {
+      state.projectDetail[projectId].editorConfig.fontSize =
+        predefinedEditorFontSize[nextIdx];
+    });
+  },
+
+  getSlides: (projectId: string) => {
+    return get().projectDetail[projectId].slides;
+  },
+
+  getCurrentSlideIdx: (projectId: string) => {
+    return get().projectDetail[projectId]?.currentSlideIdx;
+  },
+
+  getPreviewSlideIdx: (projectId: string) => {
+    return get().projectDetail[projectId]?.previewSlideIdx;
+  },
+
+  setAddedDuration: (projectId: string, value: number) => {
+    set((state) => {
+      state.projectDetail[projectId].editorConfig.animationConfig.addDuration =
+        value;
+    });
+  },
+
+  setRemoveDuration: (projectId: string, value: number) => {
+    set((state) => {
+      state.projectDetail[
+        projectId
+      ].editorConfig.animationConfig.removeDuration = value;
+    });
+  },
+
+  setAddedDelayPerChar: (projectId: string, value: number) => {
+    set((state) => {
+      state.projectDetail[
+        projectId
+      ].editorConfig.animationConfig.addedDelayPerChar = value;
+    });
+  },
+
+  setLineDelay: (projectId: string, value: number) => {
+    set((state) => {
+      state.projectDetail[projectId].editorConfig.animationConfig.lineDelay =
+        value;
+    });
+  },
+
+  setSlideData: (projectId: string, slideIdx: number, value: string) => {
+    set((state) => {
+      state.projectDetail[projectId].slides[slideIdx].data = value;
+    });
+  },
+
+  setSlides: (
+    projectId: string,
+    slides: Store["projectDetail"][string]["slides"],
+  ) => {
+    set((state) => {
+      state.projectDetail[projectId].slides = slides;
+    });
+  },
+
+  getPreviewState: (projectId: string) => {
+    return get().projectDetail[projectId].previewState;
+  },
+
+  getEditorTheme: (projectId: string) => {
+    return get().projectDetail[projectId].editorTheme;
   },
 }));
 

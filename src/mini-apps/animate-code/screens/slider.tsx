@@ -6,7 +6,6 @@ import {
   useState,
   type RefObject,
 } from "react";
-import { useAtom, useAtomValue, useSetAtom, type PrimitiveAtom } from "jotai";
 import {
   DndContext,
   closestCenter,
@@ -25,11 +24,8 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
 
 import CodeEditorWithHighlight from "./code-editor";
-import { AppState, fallbackAtom, store } from "../state/state";
-import { Background } from "./components/preview";
 import { SLIDER_CONTENT_WIDTH } from "./components/slider/constants";
 import { SliderItem } from "./components/slider/slider-item";
-import { AppActions } from "../state/actions";
 import { BrowserPreview } from "./components/browser-preview";
 import {
   AnimatePresence,
@@ -37,6 +33,8 @@ import {
   type MotionNodeLayoutOptions,
 } from "framer-motion";
 import { ProjectContext } from "./components/project-context";
+import { GradientBackground } from "./components/gradient-background";
+import { useStore } from "../state/state";
 
 type SliderProps = {
   codeEditorRef: RefObject<HTMLDivElement | null>;
@@ -55,21 +53,22 @@ export const Slider = memo(({ codeEditorRef }: SliderProps) => {
 const CodeEditorWithPreview = memo(
   ({ ref }: { ref: RefObject<HTMLDivElement | null> }) => {
     const { id: projectId } = useContext(ProjectContext);
-    const currentSlideIdx = useAtomValue(
-      AppState.projectDetail[projectId].currentSlideIdx,
+    const currentSlideIdx = useStore(
+      (state) => state.projectDetail[projectId].currentSlideIdx,
     );
-    const slides = store.get(AppState.projectDetail[projectId].slides);
-    const codePreview = useAtomValue(
-      (slides[currentSlideIdx]?.data || fallbackAtom) as PrimitiveAtom<string>,
+    const codePreview = useStore(
+      (state) =>
+        state.projectDetail[projectId]?.slides?.[currentSlideIdx]?.data || "",
     );
-    const includePreview = useAtomValue(
-      (slides[currentSlideIdx]?.preview ||
-        fallbackAtom) as PrimitiveAtom<boolean>,
+    const includePreview = useStore(
+      (state) =>
+        state.projectDetail[projectId]?.slides?.[currentSlideIdx]?.preview ||
+        "",
     );
 
     return (
       <div className="flex flex-1 items-center justify-center flex-col p-4 bg-zinc-100 min-h-0 relative">
-        <Background
+        <GradientBackground
           layoutId="background"
           layoutKey="edit-background"
           projectId={projectId}
@@ -128,18 +127,17 @@ const CodeEditorWithAtom = memo(
     ref: RefObject<HTMLDivElement | null>;
   }) => {
     const { id: projectId } = useContext(ProjectContext);
-    const slides = store.get(AppState.projectDetail[projectId].slides);
-    const currentSlideIdx = useAtomValue(
-      AppState.projectDetail[projectId].currentSlideIdx,
+    const currentSlideIdx = useStore(
+      (state) => state.projectDetail[projectId].currentSlideIdx,
     );
-    const [value, setValue] = useAtom(
-      (slides[currentSlideIdx]?.data || fallbackAtom) as PrimitiveAtom<string>,
+    const value = useStore(
+      (state) =>
+        state.projectDetail[projectId].slides[currentSlideIdx]?.data || "",
     );
+    const setValue = useStore((state) => state.setSlideData);
 
     const onChange = (newValue: string) => {
-      if (slides[currentSlideIdx].data) {
-        setValue(newValue);
-      }
+      setValue(projectId, currentSlideIdx, newValue);
     };
 
     return (
@@ -158,13 +156,15 @@ const CodeEditorWithAtom = memo(
 
 export const LeftSidebarSlider = memo(() => {
   const { id: projectId } = useContext(ProjectContext);
-  const setSlides = useSetAtom(AppState.projectDetail[projectId].slides);
-  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
-  const currentSlideIdx = useAtomValue(
-    AppState.projectDetail[projectId].currentSlideIdx,
+  const setSlides = useStore((state) => state.setSlides);
+  const slides = useStore((state) => state.projectDetail[projectId].slides);
+  const currentSlideIdx = useStore(
+    (state) => state.projectDetail[projectId].currentSlideIdx,
   );
+  const setCurrentSlideIdx = useStore((state) => state.setCurrentSlideIdx);
   const [items, setItems] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const getSlides = useStore((state) => state.getSlides);
 
   useEffect(() => {
     const slideIds = slides.map((v) => v.id);
@@ -190,14 +190,13 @@ export const LeftSidebarSlider = memo(() => {
       const newItems = arrayMove(items, oldIndex, newIndex);
       setItems(newItems);
 
-      // Update Jotai state
-      const slides = store.get(AppState.projectDetail[projectId].slides);
+      const slides = getSlides(projectId);
       const sorted = [...slides].sort(
         (a, b) => newItems.indexOf(a.id) - newItems.indexOf(b.id),
       );
-      setSlides(sorted);
+      setSlides(projectId, sorted);
 
-      AppActions.SetCurrentSlideIdx(projectId, newIndex);
+      setCurrentSlideIdx(projectId, newIndex);
     }
   };
 
@@ -214,7 +213,7 @@ export const LeftSidebarSlider = memo(() => {
           const idx = items.indexOf(e.active.id as string);
 
           if (idx !== -1) {
-            AppActions.SetCurrentSlideIdx(projectId, idx);
+            setCurrentSlideIdx(projectId, idx);
           }
         }}
         onDragEnd={handleDragEnd}

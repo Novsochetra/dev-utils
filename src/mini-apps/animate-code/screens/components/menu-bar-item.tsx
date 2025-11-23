@@ -3,17 +3,15 @@ import { memo, useContext } from "react";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { ButtonGroup } from "@/vendor/shadcn/components/ui/button-group";
 import { ToggleSidebarButton } from "./toggle-sidebar-button";
-import { AppActions } from "../../state/actions";
 import { ShortCuts } from "./shortcuts";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/vendor/shadcn/components/ui/tooltip";
-import { AppState, fallbackAtom, store } from "../../state/state";
-import { useAtom, useAtomValue, type PrimitiveAtom } from "jotai";
 import { EyeClosedIcon, EyeIcon } from "lucide-react";
 import { ProjectContext } from "./project-context";
+import { useStore } from "../../state/state";
 
 export const MenuBarItem = memo(() => {
   return (
@@ -33,17 +31,22 @@ export const MenuBarItem = memo(() => {
 
 export const BrowserButtonPreview = memo(() => {
   const { id: projectId } = useContext(ProjectContext);
-  const currentSlideIdx = useAtomValue(
-    AppState.projectDetail[projectId].currentSlideIdx,
+  const currentSlideIdx = useStore(
+    (state) => state.projectDetail[projectId].currentSlideIdx,
   );
-  const slides = store.get(AppState.projectDetail[projectId].slides);
-  const [includePreview, setPreview] = useAtom(
-    (slides[currentSlideIdx]?.preview ||
-      fallbackAtom) as PrimitiveAtom<boolean>,
+  const setSlidePreview = useStore((state) => state.setSlidePreview);
+  const includePreview = useStore(
+    (state) =>
+      state.projectDetail[projectId]?.slides?.[currentSlideIdx]?.preview,
   );
 
   return (
-    <Button variant="ghost" onClick={() => setPreview((prev) => !prev)}>
+    <Button
+      variant="ghost"
+      onClick={() =>
+        setSlidePreview(projectId, currentSlideIdx, !includePreview)
+      }
+    >
       {includePreview ? <EyeClosedIcon size={16} /> : <EyeIcon size={16} />}
     </Button>
   );
@@ -51,6 +54,8 @@ export const BrowserButtonPreview = memo(() => {
 
 export const AddSlideButton = memo(() => {
   const { id: projectId } = useContext(ProjectContext);
+  const addSlide = useStore((state) => state.addSlide);
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -58,7 +63,7 @@ export const AddSlideButton = memo(() => {
           variant="outline"
           size="sm"
           onClick={() => {
-            AppActions.AddSlide(projectId);
+            addSlide(projectId);
           }}
         >
           Add Slide

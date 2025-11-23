@@ -1,4 +1,3 @@
-import { useAtomValue } from "jotai";
 import { memo, useContext, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import DiffMatchPatch from "diff-match-patch";
@@ -9,7 +8,6 @@ import { html } from "@codemirror/lang-html";
 import { css } from "@codemirror/lang-css";
 import { highlightTree } from "@lezer/highlight";
 
-import { AppState } from "../../state/state";
 import { Toolbar } from "./toolbar";
 import { AnimateCodeStatusBar } from "./animate-code-status-bar";
 import { measureFontMetrics } from "../../utils/helpers";
@@ -20,6 +18,7 @@ import {
 } from "./code-editor/extensions/themes";
 import { v4 } from "uuid";
 import { ProjectContext } from "./project-context";
+import { useStore } from "../../state/state";
 
 function getLanguageExtension(lang: string) {
   switch (lang) {
@@ -93,20 +92,20 @@ type MultiLineDiffAnimatorProps = {
 export const AnimateCodeSlide = memo(
   ({ oldText, newText }: MultiLineDiffAnimatorProps) => {
     const { id: projectId } = useContext(ProjectContext);
-    const previewEditorTheme = useAtomValue(
-      AppState.projectDetail[projectId].previewEditorTheme,
+    const previewEditorTheme = useStore(
+      (state) => state.projectDetail[projectId].previewEditorTheme,
     );
-    const editorTheme = useAtomValue(
-      AppState.projectDetail[projectId].editorTheme,
+    const editorTheme = useStore(
+      (state) => state.projectDetail[projectId].editorTheme,
     );
-    const previewSize = useAtomValue(
-      AppState.projectDetail[projectId].previewSize,
+    const previewSize = useStore(
+      (state) => state.projectDetail[projectId].previewSize,
     );
-    const previewLanguage = useAtomValue(
-      AppState.projectDetail[projectId].previewLanguage,
+    const previewLanguage = useStore(
+      (state) => state.projectDetail[projectId].previewLanguage,
     );
-    const editorFontSize = useAtomValue(
-      AppState.projectDetail[projectId].editorConfig.fontSize,
+    const editorFontSize = useStore(
+      (state) => state.projectDetail[projectId].editorConfig.fontSize,
     );
     const { charWidth, lineHeight } = useMemo(
       () => measureFontMetrics(editorFontSize),

@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from "react";
-import { useAtomValue } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import {
@@ -9,16 +8,14 @@ import {
   CommandItem,
   CommandEmpty,
   CommandSeparator,
-} from "@/vendor/shadcn/components/ui/command"; // adjust import path
+} from "@/vendor/shadcn/components/ui/command";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
-import { AppState, store } from "../../state/state";
 import {
   Mode,
   supportedHighlightJsLanguages,
   supportedHighlightJsThemes,
 } from "../../utils/constants";
 import { useEditorThemes } from "../../utils/hooks/use-editor-themes";
-import { AppActions } from "../../state/actions";
 import {
   LanguagesIcon,
   MonitorDownIcon,
@@ -29,12 +26,16 @@ import {
 } from "lucide-react";
 import { ShortCuts } from "./shortcuts";
 import { ProjectContext } from "./project-context";
+import { useStore } from "../../state/state";
 
 export const CommandMenu = React.memo(() => {
   const { id: projectId } = useContext(ProjectContext);
   const [open, setOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState<"main" | "language" | "theme">("main");
+  const setEditorPreviewTheme = useStore(
+    (state) => state.setEditorPreviewTheme,
+  );
 
   useEditorThemes();
 
@@ -66,7 +67,7 @@ export const CommandMenu = React.memo(() => {
         setOpen(false);
         // page specific behaviour
         if (page === "theme") {
-          AppActions.SetEditorPreviewTheme(projectId, null);
+          setEditorPreviewTheme(projectId, null);
         }
       }}
     >
@@ -128,12 +129,15 @@ export const CommandMenu = React.memo(() => {
 export const ListThemesCommandItem = React.memo(
   ({ setOpen }: { setOpen: (v: boolean) => void }) => {
     const { id: projectId } = useContext(ProjectContext);
+    const getEditorTheme = useStore((state) => state.getEditorTheme);
+    const setEditorTheme = useStore((state) => state.setEditorTheme);
+    const setEditorPreviewTheme = useStore(
+      (state) => state.setEditorPreviewTheme,
+    );
 
     React.useEffect(() => {
-      const editorTheme = store.get(
-        AppState.projectDetail[projectId].editorTheme,
-      );
-      AppActions.SetEditorPreviewTheme(projectId, editorTheme);
+      const editorTheme = getEditorTheme(projectId);
+      setEditorPreviewTheme(projectId, editorTheme);
     }, []);
 
     useHotkeys(
@@ -152,7 +156,7 @@ export const ListThemesCommandItem = React.memo(
                 (t) => t.label === val,
               );
 
-              AppActions.SetEditorPreviewTheme(projectId, theme?.value || null);
+              setEditorPreviewTheme(projectId, theme?.value || null);
             }
           }
         });
@@ -166,8 +170,8 @@ export const ListThemesCommandItem = React.memo(
           key={`language-${a.value}`}
           className="h-10 text-sm overflow-hidden "
           onSelect={() => {
-            AppActions.SetEditorPreviewTheme(projectId, null);
-            AppActions.SetEditorTheme(projectId, a.value);
+            setEditorPreviewTheme(projectId, null);
+            setEditorTheme(projectId, a.value);
             setOpen(false);
           }}
           value={a.label}
@@ -183,13 +187,14 @@ export const ListThemesCommandItem = React.memo(
 export const ListLanguagesCommandItem = React.memo(
   ({ setOpen }: { setOpen: (v: boolean) => void }) => {
     const { id: projectId } = useContext(ProjectContext);
+    const setPreviewLanguage = useStore((state) => state.setPreviewLanguage);
 
     return supportedHighlightJsLanguages.map((a) => (
       <CommandItem
         key={`lang-${a.value}`}
         className="h-10 text-sm overflow-hidden "
         onSelect={() => {
-          AppActions.SetPreviewLanguage(projectId, a.value);
+          setPreviewLanguage(projectId, a.value);
           setOpen(false);
         }}
       >
@@ -211,7 +216,14 @@ export const MainPageMenu = React.memo(
     setOpen: (v: boolean) => void;
   }) => {
     const { id: projectId } = useContext(ProjectContext);
-    const previewMode = useAtomValue(AppState.projectDetail[projectId].mode);
+    const previewMode = useStore(
+      (state) => state.projectDetail[projectId].mode,
+    );
+    const previewPreviousSlide = useStore(
+      (state) => state.previewPreviousSlide,
+    );
+    const previewNextSlide = useStore((state) => state.previewNextSlide);
+    const setMode = useStore((state) => state.setMode);
 
     return (
       <>
@@ -250,7 +262,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.PreviewPreviousSlide(projectId);
+                previewPreviousSlide(projectId);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
@@ -268,7 +280,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.PreviewNextSlide(projectId);
+                previewNextSlide(projectId);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
@@ -286,7 +298,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.SetMode(projectId, Mode.Edit);
+                setMode(projectId, Mode.Edit);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
@@ -309,7 +321,7 @@ export const MainPageMenu = React.memo(
               onSelect={() => {
                 setOpen(false);
                 setSearch("");
-                AppActions.SetMode(projectId, Mode.Preview);
+                setMode(projectId, Mode.Preview);
               }}
             >
               <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">

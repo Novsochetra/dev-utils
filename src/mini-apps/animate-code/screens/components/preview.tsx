@@ -1,55 +1,68 @@
-import { useAtom, useAtomValue } from "jotai";
 import { motion } from "framer-motion";
 import { memo, useContext, useEffect, useRef } from "react";
-import { AppState, store } from "../../state/state";
 import { AnimateCodeSlide } from "./animate-code-slide";
 import { PreviewState } from "../../utils/constants";
-import { AppActions } from "../../state/actions";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { BrowserPreview } from "./browser-preview";
 import { ProjectContext } from "./project-context";
+import { GradientBackground } from "./gradient-background";
+import { useStore } from "../../state/state";
 
 export const Preview = memo(() => {
   const { id: projectId } = useContext(ProjectContext);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
-  const previewSlideIdx = useAtomValue(
-    AppState.projectDetail[projectId].previewSlideIdx,
+  const slides = useStore((state) => state.projectDetail[projectId].slides);
+  const previewSlideIdx = useStore(
+    (state) => state.projectDetail[projectId].previewSlideIdx,
   );
   const prevSlideIdx = !previewSlideIdx ? 0 : previewSlideIdx - 1;
 
-  const prevSlide = useAtomValue(slides[prevSlideIdx]?.data) || "";
-  const currentSlide = useAtomValue(slides[previewSlideIdx || 0]?.data) || "";
+  const prevSlide =
+    useStore(
+      (state) => state.projectDetail[projectId]?.slides?.[prevSlideIdx]?.data,
+    ) || "";
+  const currentSlide =
+    useStore(
+      (state) =>
+        state.projectDetail[projectId]?.slides?.[previewSlideIdx || 0]?.data,
+    ) || "";
   const isPreviewSlideIncludeBrowser =
-    useAtomValue(slides[previewSlideIdx || 0]?.preview) || "";
-  const previewState = useAtomValue(
-    AppState.projectDetail[projectId].previewState,
+    useStore(
+      (state) =>
+        state.projectDetail[projectId]?.slides?.[previewSlideIdx || 0]?.preview,
+    ) || "";
+  const previewState = useStore(
+    (state) => state.projectDetail[projectId].previewState,
   );
 
-  const removeDuration = useAtomValue(
-    AppState.projectDetail[projectId].editorConfig.animationConfig
-      .removeDuration,
+  const removeDuration = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig
+        .removeDuration,
   );
-  const addDuration = useAtomValue(
-    AppState.projectDetail[projectId].editorConfig.animationConfig.addDuration,
+  const addDuration = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig.addDuration,
   );
-  const addedDelayPerChar = useAtomValue(
-    AppState.projectDetail[projectId].editorConfig.animationConfig
-      .addedDelayPerChar,
+  const addedDelayPerChar = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig
+        .addedDelayPerChar,
   );
-  const lineDelay = useAtomValue(
-    AppState.projectDetail[projectId].editorConfig.animationConfig.lineDelay,
+  const lineDelay = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig.lineDelay,
   );
+
+  const getCurrentSlideIdx = useStore((state) => state.getCurrentSlideIdx);
+  const getPreviewSlideIdx = useStore((state) => state.getPreviewSlideIdx);
+  const setPreviewSlideIdx = useStore((state) => state.setPreviewSlideIdx);
+  const setPreviewState = useStore((state) => state.setPreviewState);
 
   useEffect(() => {
-    const currentSlideIdx = store.get(
-      AppState.projectDetail[projectId].currentSlideIdx,
-    );
-    store.set(
-      AppState.projectDetail[projectId].previewSlideIdx,
-      currentSlideIdx,
-    );
+    const currentSlideIdx = getCurrentSlideIdx(projectId);
+    setPreviewSlideIdx(projectId, currentSlideIdx);
   }, []);
 
   // Handle autoplay
@@ -64,17 +77,14 @@ export const Preview = memo(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(
         () => {
-          const currentIdx =
-            store.get(AppState.projectDetail[projectId].previewSlideIdx) || 0;
+          // TODO: continue here hahah need to have dinner
+          const currentIdx = getPreviewSlideIdx(projectId) || 0;
           const nextIdx = currentIdx + 1;
 
           if (nextIdx < slides.length) {
-            store.set(
-              AppState.projectDetail[projectId].previewSlideIdx,
-              nextIdx,
-            );
+            setPreviewSlideIdx(projectId, nextIdx);
           } else {
-            AppActions.SetPreviewState(projectId, PreviewState.FINISH);
+            setPreviewState(projectId, PreviewState.FINISH);
           }
         },
         (addDuration + addDuration + removeDuration + lineDelay) * 1000,
@@ -88,6 +98,7 @@ export const Preview = memo(() => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [
+    getPreviewSlideIdx,
     previewState,
     addedDelayPerChar,
     addDuration,
@@ -117,7 +128,7 @@ export const Preview = memo(() => {
 
   return (
     <div className="fixed top-0 left-0 w-full h-full p-16 flex items-center justify-center">
-      <Background
+      <GradientBackground
         layoutId="background"
         layoutKey="preview-background"
         projectId={projectId}
@@ -149,62 +160,31 @@ export const Preview = memo(() => {
   );
 });
 
-export const Background = memo(
-  ({
-    layoutId,
-    projectId,
-    layoutKey,
-  }: {
-    projectId: string;
-    layoutId?: string;
-    layoutKey?: string;
-  }) => {
-    const angle = useAtomValue(
-      AppState.projectDetail[projectId].previewBackground.angle,
-    );
-    const from = useAtomValue(
-      AppState.projectDetail[projectId].previewBackground.from,
-    );
-    const to = useAtomValue(
-      AppState.projectDetail[projectId].previewBackground.to,
-    );
-
-    return (
-      <motion.div
-        layoutId={layoutId}
-        key={layoutKey}
-        className="absolute top-0 left-0 select-none w-full h-full"
-        layout
-        style={{
-          background: `linear-gradient(${angle}deg, ${from}, ${to})`,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 200,
-          damping: 18,
-          mass: 0.6,
-        }}
-      />
-    );
-  },
-);
-
 export const AnimationConfigFields = () => {
   const { id: projectId } = useContext(ProjectContext);
-  const [removeDuration, setRemoveDuration] = useAtom(
-    AppState.projectDetail[projectId].editorConfig.animationConfig
-      .removeDuration,
+  const removeDuration = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig
+        .removeDuration,
   );
-  const [addDuration, setAddDuration] = useAtom(
-    AppState.projectDetail[projectId].editorConfig.animationConfig.addDuration,
+  const addDuration = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig.addDuration,
   );
-  const [addedDelayPerChar, setAddedDelayPerChar] = useAtom(
-    AppState.projectDetail[projectId].editorConfig.animationConfig
-      .addedDelayPerChar,
+  const addedDelayPerChar = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig
+        .addedDelayPerChar,
   );
-  const [lineDelay, setLineDelay] = useAtom(
-    AppState.projectDetail[projectId].editorConfig.animationConfig.lineDelay,
+  const lineDelay = useStore(
+    (state) =>
+      state.projectDetail[projectId].editorConfig.animationConfig.lineDelay,
   );
+
+  const setRemoveDuration = useStore((state) => state.setRemoveDuration);
+  const setAddedDuration = useStore((state) => state.setAddedDuration);
+  const setAddedDelayPerChar = useStore((state) => state.setAddedDelayPerChar);
+  const setLineDelay = useStore((state) => state.setLineDelay);
 
   return (
     <div className="absolute top-40 right-40 border-[2px] border-white p-4 bg-white flex gap-4 flex-col">
@@ -214,7 +194,7 @@ export const AnimationConfigFields = () => {
         type="text"
         defaultValue={removeDuration}
         onChange={(e) => {
-          setRemoveDuration(Number(e.target.value));
+          setRemoveDuration(projectId, Number(e.target.value));
         }}
       />
       <Label htmlFor="">Added Duration</Label>
@@ -223,7 +203,7 @@ export const AnimationConfigFields = () => {
         defaultValue={addDuration}
         type="text"
         onChange={(e) => {
-          setAddDuration(Number(e.target.value));
+          setAddedDuration(projectId, Number(e.target.value));
         }}
       />
       <Label htmlFor="added-delay-per-char-duration">
@@ -234,7 +214,7 @@ export const AnimationConfigFields = () => {
         defaultValue={addedDelayPerChar}
         type="text"
         onChange={(e) => {
-          setAddedDelayPerChar(Number(e.target.value));
+          setAddedDelayPerChar(projectId, Number(e.target.value));
         }}
       />
       <Label htmlFor="line-delay-duration">Line Delay Duration</Label>
@@ -243,7 +223,7 @@ export const AnimationConfigFields = () => {
         defaultValue={lineDelay}
         type="text"
         onChange={(e) => {
-          setLineDelay(Number(e.target.value));
+          setLineDelay(projectId, Number(e.target.value));
         }}
       />
     </div>

@@ -1,5 +1,3 @@
-import { useAtom, useSetAtom } from "jotai";
-import { AppState, store } from "../../state/state";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import {
   AnimationInterval,
@@ -15,16 +13,16 @@ import {
 } from "@/vendor/shadcn/components/ui/tooltip";
 import { useContext } from "react";
 import { ProjectContext } from "./project-context";
+import { useStore } from "../../state/state";
 
 export const PreviewButton = () => {
   const { id: projectId } = useContext(ProjectContext);
-  const [mode, setMode] = useAtom(AppState.projectDetail[projectId].mode);
-  const setPreviewState = useSetAtom(
-    AppState.projectDetail[projectId].previewState,
-  );
-  const setCurrentSlideIdx = useSetAtom(
-    AppState.projectDetail[projectId].currentSlideIdx,
-  );
+  const setMode = useStore((state) => state.setMode);
+  const mode = useStore((state) => state.projectDetail[projectId].mode);
+  const setPreviewState = useStore((state) => state.setPreviewState);
+  const getCurrentSlideIdx = useStore((state) => state.getCurrentSlideIdx);
+  const setCurrentSlideIdx = useStore((state) => state.setCurrentSlideIdx);
+  const getSlides = useStore((state) => state.getSlides);
 
   return (
     <Tooltip>
@@ -34,37 +32,34 @@ export const PreviewButton = () => {
           size="sm"
           onClick={() => {
             if (mode === Mode.Edit) {
-              setPreviewState(PreviewState.PLAY);
+              setPreviewState(projectId, PreviewState.PLAY);
 
               interval.previewAnimationInterval = setInterval(() => {
-                setCurrentSlideIdx((prev) => {
-                  const newIdx = prev + 1;
+                const currentSlideIdx = getCurrentSlideIdx(projectId);
 
-                  const slides = store.get(
-                    AppState.projectDetail[projectId].slides,
-                  );
+                const newIdx = currentSlideIdx + 1;
 
-                  if (newIdx >= slides.length) {
-                    if (interval.previewAnimationInterval) {
-                      clearInterval(interval.previewAnimationInterval);
-                      interval.previewAnimationInterval = null;
-                    }
+                const slides = getSlides(projectId);
 
-                    return prev;
+                if (newIdx >= slides.length) {
+                  if (interval.previewAnimationInterval) {
+                    clearInterval(interval.previewAnimationInterval);
+                    interval.previewAnimationInterval = null;
                   }
 
-                  return newIdx;
-                });
+                  setCurrentSlideIdx(projectId, currentSlideIdx);
+                  return;
+                }
+
+                setCurrentSlideIdx(projectId, newIdx);
               }, AnimationInterval);
             }
 
-            setMode((prev) => {
-              if (prev === Mode.Edit) {
-                return Mode.Preview;
-              }
-
-              return Mode.Edit;
-            });
+            if (mode === Mode.Edit) {
+              setMode(projectId, Mode.Preview);
+            } else {
+              setMode(projectId, Mode.Edit);
+            }
           }}
         >
           {mode === Mode.Edit ? (

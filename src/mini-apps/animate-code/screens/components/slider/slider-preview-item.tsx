@@ -1,75 +1,27 @@
-import { memo, useState, useRef, useMemo, useEffect, useContext } from "react";
-import hljs from "highlight.js";
-import { useAtomValue } from "jotai";
+import { memo, useRef, useContext } from "react";
 
-import { AppState, fallbackAtom } from "@/mini-apps/animate-code/state/state";
-import { BORDER_WIDTH, SLIDER_CONTENT_WIDTH } from "./constants";
 import { ProjectContext } from "../project-context";
+import { Preview } from "../project-card";
+import CodeEditor from "../../code-editor";
+import { useStore } from "@/mini-apps/animate-code/state/state";
 
 export const SliderPreviewImage = memo(({ index }: { index: number }) => {
   const { id: projectId } = useContext(ProjectContext);
-  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
-  const slideData = useAtomValue(slides[index]?.data || fallbackAtom);
-  const previewLanguage = useAtomValue(
-    AppState.projectDetail[projectId].previewLanguage,
+  const codeEditorRef = useRef<HTMLDivElement | null>(null);
+  const value = useStore(
+    (state) => state.projectDetail[projectId].slides[index].data,
   );
-  const [editorWidth, setEditorWidth] = useState<number | null>(null);
-  let timeout = useRef<NodeJS.Timeout | null>(null);
-  const editorFontSize = useAtomValue(
-    AppState.projectDetail[projectId].editorConfig.fontSize,
-  );
-
-  const highlighted = useMemo(() => {
-    return (
-      hljs.highlight(slideData || "", {
-        language: previewLanguage,
-      })?.value || ""
-    );
-  }, [slideData, previewLanguage]);
-
-  useEffect(() => {
-    if (timeout.current) {
-      clearTimeout(timeout.current);
-    }
-
-    // INFO: delete a bit so the layout animation of code editor can be finish
-    setTimeout(() => {
-      const el = document.getElementById("code-block");
-      if (el) {
-        const editorWidth = el.clientWidth - 24;
-        setEditorWidth(editorWidth);
-      }
-    }, 500);
-
-    return () => {
-      if (timeout.current) {
-        clearTimeout(timeout.current);
-      }
-    };
-  }, []);
-
-  if (!editorWidth) {
-    return null;
-  }
-
-  const previewWidth = SLIDER_CONTENT_WIDTH - BORDER_WIDTH * 2;
-  const scaleFactor = previewWidth / editorWidth;
-  const previewFontSize = editorFontSize * scaleFactor;
 
   return (
-    <pre
-      aria-hidden="true"
-      className="aspect-video font-mono hljs overflow-auto text-green-500"
-      style={{
-        boxSizing: "border-box",
-        padding: 4,
-        width: previewWidth,
-        fontSize: previewFontSize,
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-word",
-      }}
-    >
-      <code dangerouslySetInnerHTML={{ __html: highlighted || " " }} />
-    </pre>
+    <div className="aspect-video font-mono overflow-auto text-green-500">
+      <Preview projectId={projectId}>
+        <CodeEditor
+          ref={codeEditorRef}
+          value={value}
+          className="rounded-[44px]"
+          readonly
+        />
+      </Preview>
+    </div>
   );
 });

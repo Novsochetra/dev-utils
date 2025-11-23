@@ -7,7 +7,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/vendor/shadcn/components/ui/command";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
   ChevronLeftIcon,
@@ -16,7 +15,6 @@ import {
   ZoomOutIcon,
 } from "lucide-react";
 
-import { AppState } from "../../state/state";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
   codeEditorConfig,
@@ -25,13 +23,13 @@ import {
   supportedHighlightJsThemes,
 } from "../../utils/constants";
 import { isApplePlatform } from "../../utils/helpers";
-import { AppActions } from "../../state/actions";
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
 } from "@/vendor/shadcn/components/ui/tooltip";
 import { ProjectContext } from "./project-context";
+import { useStore } from "../../state/state";
 
 const languages = supportedHighlightJsLanguages?.map((v) => ({
   label: v.label,
@@ -70,7 +68,7 @@ export const FontSizeGroup = React.memo(() => {
 
 export const LeftStatusBar = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
-  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
+  const mode = useStore((state) => state.projectDetail[projectId].mode);
 
   if (mode === Mode.Edit) {
     return null;
@@ -89,10 +87,10 @@ export const LeftStatusBar = React.memo(() => {
 
 export const SliderInfo = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
-  const previewSlideIdx = useAtomValue(
-    AppState.projectDetail[projectId].previewSlideIdx,
+  const previewSlideIdx = useStore(
+    (state) => state.projectDetail[projectId].previewSlideIdx,
   );
-  const slides = useAtomValue(AppState.projectDetail[projectId].slides);
+  const slides = useStore((state) => state.projectDetail[projectId].slides);
   const totalSlides = slides.length;
 
   return (
@@ -106,10 +104,12 @@ export const SliderInfo = React.memo(() => {
 
 export const PrevSlideButton = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
+  const previewPreviousSlide = useStore((state) => state.previewPreviousSlide);
+
   return (
     <div
       className={adaptiveStyle}
-      onClick={() => AppActions.PreviewPreviousSlide(projectId)}
+      onClick={() => previewPreviousSlide(projectId)}
     >
       <ChevronLeftIcon size={16} />
     </div>
@@ -118,11 +118,9 @@ export const PrevSlideButton = React.memo(() => {
 
 export const NextSlideButton = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
+  const previewNextSlide = useStore((state) => state.previewNextSlide);
   return (
-    <div
-      className={adaptiveStyle}
-      onClick={() => AppActions.PreviewNextSlide(projectId)}
-    >
+    <div className={adaptiveStyle} onClick={() => previewNextSlide(projectId)}>
       <ChevronRightIcon size={16} />
     </div>
   );
@@ -130,10 +128,13 @@ export const NextSlideButton = React.memo(() => {
 
 export const IncrementFontSizeButton = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
+  const setToggleEditorFontSize = useStore(
+    (state) => state.setToggleEditorFontSIze,
+  );
   return (
     <div
       className={adaptiveStyle}
-      onClick={() => AppActions.SetToggleEditorFontSIze(projectId, "up")}
+      onClick={() => setToggleEditorFontSize(projectId, "up")}
     >
       <ZoomInIcon size={16} />
     </div>
@@ -142,16 +143,17 @@ export const IncrementFontSizeButton = React.memo(() => {
 
 export const FontSizeInfo = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
-  const editorFontSize = useAtomValue(
-    AppState.projectDetail[projectId].editorConfig.fontSize,
+  const editorFontSize = useStore(
+    (state) => state.projectDetail[projectId].editorConfig.fontSize,
   );
+  const setEditorFontSize = useStore((state) => state.setEditorFontSize);
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
           onClick={() => {
-            AppActions.SetEditorFontSize(projectId, codeEditorConfig.fontSize);
+            setEditorFontSize(projectId, codeEditorConfig.fontSize);
           }}
         >
           <p className="text-xs text-muted-foreground font-bold whitespace-nowrap overflow-hidden truncate text-ellipsis">
@@ -170,11 +172,14 @@ export const FontSizeInfo = React.memo(() => {
 
 export const DecrementFontSizeButton = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
+  const setToggleEditorFontSize = useStore(
+    (state) => state.setToggleEditorFontSIze,
+  );
 
   return (
     <div
       className={adaptiveStyle}
-      onClick={() => AppActions.SetToggleEditorFontSIze(projectId, "down")}
+      onClick={() => setToggleEditorFontSize(projectId, "down")}
     >
       <ZoomOutIcon size={16} />
     </div>
@@ -184,15 +189,16 @@ export const DecrementFontSizeButton = React.memo(() => {
 export const ChangeThemeStatusBarItem = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
   const [open, setOpen] = React.useState(false);
-  const [editorTheme, setEditorTheme] = useAtom(
-    AppState.projectDetail[projectId].editorTheme,
+  const setEditorTheme = useStore((state) => state.setEditorTheme);
+  const editorTheme = useStore(
+    (state) => state.projectDetail[projectId].editorTheme,
   );
-  const setPreviewEditorTheme = useSetAtom(
-    AppState.projectDetail[projectId].previewEditorTheme,
+  const setEditorPreviewTheme = useStore(
+    (state) => state.setEditorPreviewTheme,
   );
 
   React.useEffect(() => {
-    setPreviewEditorTheme(editorTheme);
+    setEditorPreviewTheme(projectId, editorTheme);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -213,7 +219,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
             );
 
             if (theme?.value) {
-              setPreviewEditorTheme(theme.value);
+              setEditorPreviewTheme(projectId, theme.value);
             }
           }
         }
@@ -251,7 +257,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
           e.preventDefault();
           e.stopPropagation();
           setOpen(false);
-          setPreviewEditorTheme(null);
+          setEditorPreviewTheme(projectId, null);
         }}
       >
         <div className="p-2">
@@ -259,7 +265,7 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
             placeholder="Search Themes ..."
             onBlur={() => {
               setOpen(false);
-              setPreviewEditorTheme(null);
+              setEditorPreviewTheme(projectId, null);
             }}
           />
         </div>
@@ -274,8 +280,8 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
                   key={`language-${a.value}`}
                   className="h-10 text-sm overflow-hidden "
                   onSelect={() => {
-                    setPreviewEditorTheme(null);
-                    setEditorTheme(a.value);
+                    setEditorPreviewTheme(projectId, null);
+                    setEditorTheme(projectId, a.value);
                     setOpen(false);
                   }}
                   value={a.label}
@@ -305,8 +311,9 @@ export const ChangeThemeStatusBarItem = React.memo(() => {
 export const ChangeLanguangeStatusBarItem = React.memo(() => {
   const { id: projectId } = React.useContext(ProjectContext);
   const [open, setOpen] = React.useState(false);
-  const [previewLanguage, setPreviewLanguage] = useAtom(
-    AppState.projectDetail[projectId].previewLanguage,
+  const setPreviewLanguage = useStore((state) => state.setPreviewLanguage);
+  const previewLanguage = useStore(
+    (state) => state.projectDetail[projectId].previewLanguage,
   );
   const previewLanguageLabel = React.useMemo(() => {
     return languages.find((v) => v.value === previewLanguage)?.label || "N/A";
@@ -353,7 +360,7 @@ export const ChangeLanguangeStatusBarItem = React.memo(() => {
                   key={`language-${a.value}`}
                   className="h-10 text-sm overflow-hidden "
                   onSelect={() => {
-                    setPreviewLanguage(a.value);
+                    setPreviewLanguage(projectId, a.value);
                     setOpen(false);
                   }}
                   value={a.label}

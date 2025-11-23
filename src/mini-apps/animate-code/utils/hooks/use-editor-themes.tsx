@@ -1,15 +1,14 @@
 import { useContext, useEffect } from "react";
-import { useAtomValue } from "jotai";
-import { AppState } from "../../state/state";
 import { ProjectContext } from "../../screens/components/project-context";
+import { useStore } from "../../state/state";
 
 export const useEditorThemes = () => {
   const { id: projectId } = useContext(ProjectContext);
-  const editorTheme = useAtomValue(
-    AppState.projectDetail[projectId].editorTheme,
+  const editorTheme = useStore(
+    (state) => state.projectDetail[projectId].editorTheme,
   );
-  const previewEditorTheme = useAtomValue(
-    AppState.projectDetail[projectId].previewEditorTheme,
+  const previewEditorTheme = useStore(
+    (state) => state.projectDetail[projectId].previewEditorTheme,
   );
 
   useEffect(() => {

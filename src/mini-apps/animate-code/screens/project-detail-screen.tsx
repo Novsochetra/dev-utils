@@ -1,13 +1,12 @@
 import { useContext, useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
-import { useAtomValue } from "jotai";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { Navbar } from "@/vendor/components/navbar";
 
 import { APP_ID, interval, Mode } from "../utils/constants";
 import { MenuBarItem } from "./components/menu-bar-item";
-import { AppState } from "../state/state";
+import { useStore } from "../state/state";
 import { useShortcutKeys } from "../utils/hooks/use-shortcut-keys";
 import {
   ProjectContext,
@@ -35,7 +34,7 @@ export const ProjectDetailScreen = () => {
 
 const ProjectDetailContent = () => {
   const { id: projectId } = useContext(ProjectContext);
-  const mode = useAtomValue(AppState.projectDetail[projectId].mode);
+  const mode = useStore((state) => state.projectDetail[projectId].mode);
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
 
   useShortcutKeys();
@@ -76,4 +75,5 @@ const ProjectDetailContent = () => {
     </AnimatePresence>
   );
 };
+
 export default ProjectDetailScreen;
