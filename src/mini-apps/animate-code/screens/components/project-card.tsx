@@ -1,10 +1,12 @@
 import { Link } from "react-router";
 import { memo, useRef, useEffect } from "react";
 import CodeEditor from "../code-editor";
+import { Trash2Icon } from "lucide-react";
 
 import { ProjectContextProvider } from "./project-context";
 import { useStore } from "../../state/state";
 import { GradientBackground } from "./gradient-background";
+import { Button } from "@/vendor/shadcn/components/ui/button";
 
 type ProjectCardProps = {
   id: string;
@@ -13,10 +15,11 @@ type ProjectCardProps = {
 
 export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
   const codeEditorRef = useRef<HTMLDivElement | null>(null);
+  const removeProject = useStore((state) => state.removeProject);
 
   return (
     <ProjectContextProvider id={id}>
-      <div className="flex flex-col h-full items-center overflow-hidden">
+      <div className="flex flex-col h-full items-center overflow-hidden relative group">
         <Link
           to={`/animate-code/project/${id}`}
           className="w-full aspect-video bg-gray-100 rounded-sm overflow-hidden mb-4"
@@ -29,6 +32,17 @@ export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
               readonly
             />
           </Preview>
+          <Button
+            variant="link"
+            size="icon"
+            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 text-white bg-zinc-600 transition-opacity hover:bg-none z-50"
+            onClick={(e) => {
+              e.preventDefault();
+              removeProject(index);
+            }}
+          >
+            <Trash2Icon size={12} />
+          </Button>
         </Link>
         <div className="flex flex-1 h-full">
           <ProjectNameInput index={index} />
@@ -40,7 +54,7 @@ export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
 
 const ProjectNameInput = memo(({ index }: { index: number }) => {
   const setProjectName = useStore((state) => state.setProjectName);
-  const name = useStore((state) => state.projects[index].name);
+  const name = useStore((state) => state.projects[index]?.name);
 
   return (
     <input

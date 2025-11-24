@@ -1,6 +1,7 @@
 import { v4 } from "uuid";
 import { create, type StateCreator } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import { persist } from "zustand/middleware";
 
 import {
   Mode,
@@ -53,6 +54,7 @@ export type Store = {
 
   // actions
   addProject: () => void;
+  removeProject: (idx: number) => void;
   addProjectDetail: (projectId: string) => void;
   duplicateSlide: (param: string) => void;
   selectSlide: (projectId: string, index: number) => void;
@@ -128,7 +130,10 @@ type SliceFunc<StoreKey extends keyof Store> = (
 
 const projectSlice: (
   ...args: SliceParams
-) => Pick<Store, "projects" | "getProjects" | "setProjectName" | "addProject"> =
+) => Pick<
+  Store,
+  "projects" | "getProjects" | "setProjectName" | "addProject" | "removeProject"
+> = persist(
   immer((set, get) => ({
     projects: [] as Store["projects"],
     getProjects: () => get().projects,
@@ -151,9 +156,23 @@ const projectSlice: (
       // MARK: we need to fix the share func / state, since in project slice can't access
       // outside state, actually it exist in get()
       // @ts-ignore
+      console.log("GET: ", get());
       get().addProjectDetail(projectId);
     },
-  }));
+
+    removeProject: (idx: number) => {
+      set((state) => {
+        state.projects.splice(idx, 1);
+      });
+    },
+  })),
+  {
+    name: "dev-utils::animate-code",
+    partialize: (state) => {
+      return { projects: state.projects };
+    },
+  },
+);
 
 const projectDetailSlice: SliceFunc<
   | "projectDetail"
