@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { memo, useRef, useEffect } from "react";
-import CodeEditor from "../code-editor";
 import { Trash2Icon } from "lucide-react";
 
 import { ProjectContextProvider } from "./project-context";
@@ -14,7 +13,6 @@ type ProjectCardProps = {
 };
 
 export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
-  const codeEditorRef = useRef<HTMLDivElement | null>(null);
   const removeProject = useStore((state) => state.removeProject);
 
   return (
@@ -24,14 +22,15 @@ export const ProjectCard = memo(({ id, index }: ProjectCardProps) => {
           to={`/animate-code/project/${id}`}
           className="w-full aspect-video bg-gray-100 rounded-sm overflow-hidden mb-4"
         >
-          <Preview projectId={id}>
+          {/* INFO: we might be need to generate the base64 preview image */}
+          {/* <Preview projectId={id}>
             <CodeEditor
               ref={codeEditorRef}
               value="welcome"
               className="rounded-[44px]"
               readonly
             />
-          </Preview>
+          </Preview> */}
           <Button
             variant="link"
             size="icon"

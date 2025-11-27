@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
-import { create, type StateCreator } from "zustand";
+import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { persist } from "zustand/middleware";
+import { persist, type StateCreatorParams } from "@/vendor/zustand/persist";
 
 import {
   Mode,
@@ -110,32 +110,24 @@ export type Store = {
   getEditorTheme: (
     projectId: string,
   ) => Store["projectDetail"][string]["editorTheme"];
-};
+} & { [key: string]: any };
 
-type StateCreatorParams = Parameters<StateCreator<Store, [], []>>;
-type SliceParams = [
-  StateCreatorParams[0], // Set type
-  () => Store, // get -> full store
-  ...(StateCreatorParams extends [
-    StateCreatorParams[0],
-    StateCreatorParams[1],
-    ...infer Rest,
-  ]
-    ? Rest
-    : []), // preserve rest
-];
 type SliceFunc<StoreKey extends keyof Store> = (
-  ...args: SliceParams
+  ...args: StateCreatorParams<Store>
 ) => Pick<Store, StoreKey>;
 
 const projectSlice: (
-  ...args: SliceParams
+  ...args: StateCreatorParams<Store>
 ) => Pick<
   Store,
   "projects" | "getProjects" | "setProjectName" | "addProject" | "removeProject"
-> = persist(
-  immer((set, get) => ({
-    projects: [] as Store["projects"],
+> = immer((...args) => {
+  const [set, get] = args;
+
+  return {
+    projects: persist([], { name: "animate-code::projects", path: "projects" })(
+      ...args,
+    ),
     getProjects: () => get().projects,
     setProjectName: (index: number, name: string) => {
       set((state) => {
@@ -156,7 +148,6 @@ const projectSlice: (
       // MARK: we need to fix the share func / state, since in project slice can't access
       // outside state, actually it exist in get()
       // @ts-ignore
-      console.log("GET: ", get());
       get().addProjectDetail(projectId);
     },
 
@@ -165,14 +156,8 @@ const projectSlice: (
         state.projects.splice(idx, 1);
       });
     },
-  })),
-  {
-    name: "dev-utils::animate-code",
-    partialize: (state) => {
-      return { projects: state.projects };
-    },
-  },
-);
+  };
+});
 
 const projectDetailSlice: SliceFunc<
   | "projectDetail"
@@ -213,356 +198,365 @@ const projectDetailSlice: SliceFunc<
   | "setSlides"
   | "getPreviewState"
   | "getEditorTheme"
-> = immer((set, get) => ({
-  projectDetail: {
-    [defaultProjectId]: createProjectDetailStructure(),
-  } as Store["projectDetail"],
+> = immer((...args) => {
+  const [set, get] = args;
+  return {
+    projectDetail: persist(
+      {
+        [defaultProjectId]: createProjectDetailStructure(),
+      },
+      { name: "animate-code::project-detail", path: "projectDetail" },
+    )(...args),
 
-  // actions
-  addProjectDetail: (projectId: string) => {
-    set((state) => {
-      state.projectDetail[projectId] = createProjectDetailStructure();
-    });
-  },
+    // actions
+    addProjectDetail: (projectId: string) => {
+      set((state) => {
+        state.projectDetail[projectId] = createProjectDetailStructure();
+      });
+    },
 
-  duplicateSlide: (projectId: string) => {
-    const index = get().projectDetail[projectId].currentSlideIdx;
-    const slides = get().projectDetail[projectId].slides;
-    const currentSlideData = slides[index]?.data;
+    duplicateSlide: (projectId: string) => {
+      const index = get().projectDetail[projectId].currentSlideIdx;
+      const slides = get().projectDetail[projectId].slides;
+      const currentSlideData = slides[index]?.data;
 
-    const newItem = {
-      id: v4(),
-      data: currentSlideData,
-      preview: false,
-    };
-    const prev = get().projectDetail[projectId].slides;
-    set((state) => {
-      state.projectDetail[projectId].slides = [
-        ...prev.slice(0, index + 1),
-        newItem,
-        ...prev.slice(index + 1),
-      ];
+      const newItem = {
+        id: v4(),
+        data: currentSlideData,
+        preview: false,
+      };
+      const prev = get().projectDetail[projectId].slides;
+      set((state) => {
+        state.projectDetail[projectId].slides = [
+          ...prev.slice(0, index + 1),
+          newItem,
+          ...prev.slice(index + 1),
+        ];
 
-      // auto select next slide
-      state.projectDetail[projectId].currentSlideIdx = index + 1;
-    });
-  },
+        // auto select next slide
+        state.projectDetail[projectId].currentSlideIdx = index + 1;
+      });
+    },
 
-  selectSlide: (projectId: string, index: number) => {
-    set((state) => {
-      state.projectDetail[projectId].currentSlideIdx = index;
-    });
-  },
+    selectSlide: (projectId: string, index: number) => {
+      set((state) => {
+        state.projectDetail[projectId].currentSlideIdx = index;
+      });
+    },
 
-  setCurrentSlideIdx: (projectId: string, index: number) => {
-    set((state) => {
-      state.projectDetail[projectId].currentSlideIdx = index;
-    });
-  },
+    setCurrentSlideIdx: (projectId: string, index: number) => {
+      set((state) => {
+        state.projectDetail[projectId].currentSlideIdx = index;
+      });
+    },
 
-  addSlide: (projectId: string) => {
-    const newItem = {
-      id: v4(),
-      data: "",
-      preview: false,
-      projectId: projectId,
-    };
-    const prev = get().projectDetail[projectId].slides;
-    const newSlides = [...prev, newItem];
+    addSlide: (projectId: string) => {
+      const newItem = {
+        id: v4(),
+        data: "",
+        preview: false,
+        projectId: projectId,
+      };
+      const prev = get().projectDetail[projectId].slides;
+      const newSlides = [...prev, newItem];
 
-    set((state) => {
-      state.projectDetail[projectId].slides.push(newItem);
-      // auto select last slide
-      state.projectDetail[projectId].currentSlideIdx = newSlides.length - 1;
-    });
-  },
+      set((state) => {
+        state.projectDetail[projectId].slides.push(newItem);
+        // auto select last slide
+        state.projectDetail[projectId].currentSlideIdx = newSlides.length - 1;
+      });
+    },
 
-  addSlideBelow: (projectId: string, index: number) => {
-    const newItem = {
-      id: v4(),
-      data: "",
-      preview: false,
-      projectId,
-    };
-    const prev = get().projectDetail[projectId].slides;
-    set((state) => {
-      state.projectDetail[projectId].slides = [
-        ...prev.slice(0, index + 1),
-        newItem,
-        ...prev.slice(index + 1),
-      ];
+    addSlideBelow: (projectId: string, index: number) => {
+      const newItem = {
+        id: v4(),
+        data: "",
+        preview: false,
+        projectId,
+      };
+      const prev = get().projectDetail[projectId].slides;
+      set((state) => {
+        state.projectDetail[projectId].slides = [
+          ...prev.slice(0, index + 1),
+          newItem,
+          ...prev.slice(index + 1),
+        ];
 
-      // auto select next slide
-      state.projectDetail[projectId].currentSlideIdx =
-        get().projectDetail[projectId].currentSlideIdx + 1;
-    });
-  },
+        // auto select next slide
+        state.projectDetail[projectId].currentSlideIdx =
+          get().projectDetail[projectId].currentSlideIdx + 1;
+      });
+    },
 
-  addSlideAbove: (projectId: string, index: number) => {
-    const newItem = {
-      id: v4(),
-      data: "",
-      preview: false,
-      projectId,
-    };
+    addSlideAbove: (projectId: string, index: number) => {
+      const newItem = {
+        id: v4(),
+        data: "",
+        preview: false,
+        projectId,
+      };
 
-    const prev = get().projectDetail[projectId].slides;
-    set((state) => {
-      state.projectDetail[projectId].slides = [
-        ...prev.slice(0, index),
-        newItem,
-        ...prev.slice(index),
-      ];
-    });
-  },
+      const prev = get().projectDetail[projectId].slides;
+      set((state) => {
+        state.projectDetail[projectId].slides = [
+          ...prev.slice(0, index),
+          newItem,
+          ...prev.slice(index),
+        ];
+      });
+    },
 
-  removeSlide: (projectId: string, index: number) => {
-    const prev = get().projectDetail[projectId].slides;
+    removeSlide: (projectId: string, index: number) => {
+      const prev = get().projectDetail[projectId].slides;
 
-    if (prev.length === 1) {
-      return prev;
-    }
+      if (prev.length === 1) {
+        return prev;
+      }
 
-    set((state) => {
-      state.projectDetail[projectId].slides = prev.filter(
-        (_, i) => index !== i,
+      set((state) => {
+        state.projectDetail[projectId].slides = prev.filter(
+          (_, i) => index !== i,
+        );
+      });
+
+      // Auto select previous slide
+      const currentIdx = get().projectDetail[projectId].currentSlideIdx;
+      set((state) => {
+        state.projectDetail[projectId].currentSlideIdx =
+          currentIdx <= 0 ? 0 : currentIdx - 1;
+      });
+    },
+
+    previewNextSlide: (projectId: string) => {
+      const previewSlideIdx =
+        get().projectDetail[projectId].previewSlideIdx ?? 0;
+      const slides = get().projectDetail[projectId].slides;
+      const lastIdx = slides.length - 1;
+
+      const nextIdx = Math.min(previewSlideIdx + 1, slides.length - 1);
+
+      if (nextIdx >= lastIdx) {
+        get().setPreviewState(projectId, PreviewState.FINISH);
+      } else {
+        get().setPreviewState(projectId, PreviewState.PAUSE);
+      }
+
+      get().setPreviewSlideIdx(projectId, nextIdx);
+    },
+
+    previewPreviousSlide: (projectId: string) => {
+      const previewSlideIdx =
+        get().projectDetail[projectId].previewSlideIdx ?? 0;
+
+      if (previewSlideIdx <= 0) {
+        get().setPreviewState(projectId, PreviewState.PAUSE);
+        return;
+      }
+
+      get().setPreviewState(projectId, PreviewState.PAUSE);
+      get().setPreviewSlideIdx(
+        projectId,
+        Math.max((previewSlideIdx || 0) - 1, 0),
       );
-    });
+    },
 
-    // Auto select previous slide
-    const currentIdx = get().projectDetail[projectId].currentSlideIdx;
-    set((state) => {
-      state.projectDetail[projectId].currentSlideIdx =
-        currentIdx <= 0 ? 0 : currentIdx - 1;
-    });
-  },
-
-  previewNextSlide: (projectId: string) => {
-    const previewSlideIdx = get().projectDetail[projectId].previewSlideIdx ?? 0;
-    const slides = get().projectDetail[projectId].slides;
-    const lastIdx = slides.length - 1;
-
-    const nextIdx = Math.min(previewSlideIdx + 1, slides.length - 1);
-
-    if (nextIdx >= lastIdx) {
-      get().setPreviewState(projectId, PreviewState.FINISH);
-    } else {
-      get().setPreviewState(projectId, PreviewState.PAUSE);
-    }
-
-    get().setPreviewSlideIdx(projectId, nextIdx);
-  },
-
-  previewPreviousSlide: (projectId: string) => {
-    const previewSlideIdx = get().projectDetail[projectId].previewSlideIdx ?? 0;
-
-    if (previewSlideIdx <= 0) {
-      get().setPreviewState(projectId, PreviewState.PAUSE);
-      return;
-    }
-
-    get().setPreviewState(projectId, PreviewState.PAUSE);
-    get().setPreviewSlideIdx(
-      projectId,
-      Math.max((previewSlideIdx || 0) - 1, 0),
-    );
-  },
-
-  toggleSidebar: (projectId: string) => {
-    const isOpen = get().projectDetail[projectId].sidebarOpen;
-    set((state) => {
-      state.projectDetail[projectId].sidebarOpen = !isOpen;
-    });
-  },
-
-  setMode: (projectId: string, mode: Mode) => {
-    set((state) => {
-      state.projectDetail[projectId].mode = mode;
-    });
-  },
-
-  setPreviewSize: (projectId: string, size: number) => {
-    set((state) => {
-      state.projectDetail[projectId].previewSize = size;
-    });
-  },
-
-  togglePreviewSize: (projectId: string) => {
-    const MIN_SIZE = 50;
-    const MAX_SIZE = 100;
-    const step = 10;
-    const currentDirection =
-      get().projectDetail[projectId].previewResizeDirection;
-
-    let currentSize = get().projectDetail[projectId].previewSize;
-    currentSize += step * currentDirection;
-
-    if (currentSize === MIN_SIZE) {
-      currentSize = MIN_SIZE;
+    toggleSidebar: (projectId: string) => {
+      const isOpen = get().projectDetail[projectId].sidebarOpen;
       set((state) => {
-        state.projectDetail[projectId].previewResizeDirection =
-          PreviewResizeDirection.UP;
+        state.projectDetail[projectId].sidebarOpen = !isOpen;
       });
-    }
+    },
 
-    if (currentSize === MAX_SIZE) {
-      currentSize = MAX_SIZE;
+    setMode: (projectId: string, mode: Mode) => {
       set((state) => {
-        state.projectDetail[projectId].previewResizeDirection =
-          PreviewResizeDirection.DOWN;
+        state.projectDetail[projectId].mode = mode;
       });
-    }
+    },
 
-    set((state) => {
-      state.projectDetail[projectId].previewSize = currentSize;
-    });
-  },
+    setPreviewSize: (projectId: string, size: number) => {
+      set((state) => {
+        state.projectDetail[projectId].previewSize = size;
+      });
+    },
 
-  setPreviewLanguage: (projectId: string, lang: string) => {
-    set((state) => {
-      state.projectDetail[projectId].previewLanguage = lang;
-    });
-  },
+    togglePreviewSize: (projectId: string) => {
+      const MIN_SIZE = 50;
+      const MAX_SIZE = 100;
+      const step = 10;
+      const currentDirection =
+        get().projectDetail[projectId].previewResizeDirection;
 
-  setPreviewSlideIdx: (projectId: string, idx: number) => {
-    set((state) => {
-      state.projectDetail[projectId].previewSlideIdx = idx;
-    });
-  },
+      let currentSize = get().projectDetail[projectId].previewSize;
+      currentSize += step * currentDirection;
 
-  setPreviewState: (projectId: string, mode: PreviewState) => {
-    set((state) => {
-      state.projectDetail[projectId].previewState = mode;
-    });
-  },
+      if (currentSize === MIN_SIZE) {
+        currentSize = MIN_SIZE;
+        set((state) => {
+          state.projectDetail[projectId].previewResizeDirection =
+            PreviewResizeDirection.UP;
+        });
+      }
 
-  setSlidePreview: (projectId: string, slideIdx: number, value: boolean) => {
-    set((state) => {
-      state.projectDetail[projectId].slides[slideIdx].preview = value;
-    });
-  },
+      if (currentSize === MAX_SIZE) {
+        currentSize = MAX_SIZE;
+        set((state) => {
+          state.projectDetail[projectId].previewResizeDirection =
+            PreviewResizeDirection.DOWN;
+        });
+      }
 
-  setEditorTheme: (projectId: string, v: ThemeNames) => {
-    set((state) => {
-      state.projectDetail[projectId].editorTheme = v;
-    });
-  },
+      set((state) => {
+        state.projectDetail[projectId].previewSize = currentSize;
+      });
+    },
 
-  setEditorPreviewTheme: (projectId: string, v: ThemeNames | null) => {
-    set((state) => {
-      state.projectDetail[projectId].previewEditorTheme = v;
-    });
-  },
+    setPreviewLanguage: (projectId: string, lang: string) => {
+      set((state) => {
+        state.projectDetail[projectId].previewLanguage = lang;
+      });
+    },
 
-  setEditorFontSize: (projectId: string, size: number) => {
-    set((state) => {
-      state.projectDetail[projectId].editorConfig.fontSize = size;
-    });
-  },
+    setPreviewSlideIdx: (projectId: string, idx: number) => {
+      set((state) => {
+        state.projectDetail[projectId].previewSlideIdx = idx;
+      });
+    },
 
-  setPreviewTitle: (projectId: string, title: string) => {
-    set((state) => {
-      state.projectDetail[projectId].previewTitle = title;
-    });
-  },
+    setPreviewState: (projectId: string, mode: PreviewState) => {
+      set((state) => {
+        state.projectDetail[projectId].previewState = mode;
+      });
+    },
 
-  setPreviewBackgroundAngle: (projectId: string, value: number) => {
-    set((state) => {
-      state.projectDetail[projectId].previewBackground.angle = value;
-    });
-  },
+    setSlidePreview: (projectId: string, slideIdx: number, value: boolean) => {
+      set((state) => {
+        state.projectDetail[projectId].slides[slideIdx].preview = value;
+      });
+    },
 
-  setPreviewBackgroundStartColor: (projectId: string, value: string) => {
-    set((state) => {
-      state.projectDetail[projectId].previewBackground.from = value;
-    });
-  },
+    setEditorTheme: (projectId: string, v: ThemeNames) => {
+      set((state) => {
+        state.projectDetail[projectId].editorTheme = v;
+      });
+    },
 
-  setPreviewBackgroundEndColor: (projectId: string, value: string) => {
-    set((state) => {
-      state.projectDetail[projectId].previewBackground.to = value;
-    });
-  },
+    setEditorPreviewTheme: (projectId: string, v: ThemeNames | null) => {
+      set((state) => {
+        state.projectDetail[projectId].previewEditorTheme = v;
+      });
+    },
 
-  setToggleEditorFontSIze: (projectId: string, direction: "up" | "down") => {
-    const current = get().projectDetail[projectId].editorConfig.fontSize;
-    const idx = predefinedEditorFontSize.findIndex((v) => v >= current);
-    const nextIdx =
-      direction === "up"
-        ? Math.min(idx + 1, predefinedEditorFontSize.length - 1)
-        : Math.max(idx - 1, 0);
+    setEditorFontSize: (projectId: string, size: number) => {
+      set((state) => {
+        state.projectDetail[projectId].editorConfig.fontSize = size;
+      });
+    },
 
-    set((state) => {
-      state.projectDetail[projectId].editorConfig.fontSize =
-        predefinedEditorFontSize[nextIdx];
-    });
-  },
+    setPreviewTitle: (projectId: string, title: string) => {
+      set((state) => {
+        state.projectDetail[projectId].previewTitle = title;
+      });
+    },
 
-  getSlides: (projectId: string) => {
-    return get().projectDetail[projectId].slides;
-  },
+    setPreviewBackgroundAngle: (projectId: string, value: number) => {
+      set((state) => {
+        state.projectDetail[projectId].previewBackground.angle = value;
+      });
+    },
 
-  getCurrentSlideIdx: (projectId: string) => {
-    return get().projectDetail[projectId]?.currentSlideIdx;
-  },
+    setPreviewBackgroundStartColor: (projectId: string, value: string) => {
+      set((state) => {
+        state.projectDetail[projectId].previewBackground.from = value;
+      });
+    },
 
-  getPreviewSlideIdx: (projectId: string) => {
-    return get().projectDetail[projectId]?.previewSlideIdx;
-  },
+    setPreviewBackgroundEndColor: (projectId: string, value: string) => {
+      set((state) => {
+        state.projectDetail[projectId].previewBackground.to = value;
+      });
+    },
 
-  setAddedDuration: (projectId: string, value: number) => {
-    set((state) => {
-      state.projectDetail[projectId].editorConfig.animationConfig.addDuration =
-        value;
-    });
-  },
+    setToggleEditorFontSIze: (projectId: string, direction: "up" | "down") => {
+      const current = get().projectDetail[projectId].editorConfig.fontSize;
+      const idx = predefinedEditorFontSize.findIndex((v) => v >= current);
+      const nextIdx =
+        direction === "up"
+          ? Math.min(idx + 1, predefinedEditorFontSize.length - 1)
+          : Math.max(idx - 1, 0);
 
-  setRemoveDuration: (projectId: string, value: number) => {
-    set((state) => {
-      state.projectDetail[
-        projectId
-      ].editorConfig.animationConfig.removeDuration = value;
-    });
-  },
+      set((state) => {
+        state.projectDetail[projectId].editorConfig.fontSize =
+          predefinedEditorFontSize[nextIdx];
+      });
+    },
 
-  setAddedDelayPerChar: (projectId: string, value: number) => {
-    set((state) => {
-      state.projectDetail[
-        projectId
-      ].editorConfig.animationConfig.addedDelayPerChar = value;
-    });
-  },
+    getSlides: (projectId: string) => {
+      return get().projectDetail[projectId].slides;
+    },
 
-  setLineDelay: (projectId: string, value: number) => {
-    set((state) => {
-      state.projectDetail[projectId].editorConfig.animationConfig.lineDelay =
-        value;
-    });
-  },
+    getCurrentSlideIdx: (projectId: string) => {
+      return get().projectDetail[projectId]?.currentSlideIdx;
+    },
 
-  setSlideData: (projectId: string, slideIdx: number, value: string) => {
-    set((state) => {
-      state.projectDetail[projectId].slides[slideIdx].data = value;
-    });
-  },
+    getPreviewSlideIdx: (projectId: string) => {
+      return get().projectDetail[projectId]?.previewSlideIdx;
+    },
 
-  setSlides: (
-    projectId: string,
-    slides: Store["projectDetail"][string]["slides"],
-  ) => {
-    set((state) => {
-      state.projectDetail[projectId].slides = slides;
-    });
-  },
+    setAddedDuration: (projectId: string, value: number) => {
+      set((state) => {
+        state.projectDetail[
+          projectId
+        ].editorConfig.animationConfig.addDuration = value;
+      });
+    },
 
-  getPreviewState: (projectId: string) => {
-    return get().projectDetail[projectId].previewState;
-  },
+    setRemoveDuration: (projectId: string, value: number) => {
+      set((state) => {
+        state.projectDetail[
+          projectId
+        ].editorConfig.animationConfig.removeDuration = value;
+      });
+    },
 
-  getEditorTheme: (projectId: string) => {
-    return get().projectDetail[projectId].editorTheme;
-  },
-}));
+    setAddedDelayPerChar: (projectId: string, value: number) => {
+      set((state) => {
+        state.projectDetail[
+          projectId
+        ].editorConfig.animationConfig.addedDelayPerChar = value;
+      });
+    },
+
+    setLineDelay: (projectId: string, value: number) => {
+      set((state) => {
+        state.projectDetail[projectId].editorConfig.animationConfig.lineDelay =
+          value;
+      });
+    },
+
+    setSlideData: (projectId: string, slideIdx: number, value: string) => {
+      set((state) => {
+        state.projectDetail[projectId].slides[slideIdx].data = value;
+      });
+    },
+
+    setSlides: (
+      projectId: string,
+      slides: Store["projectDetail"][string]["slides"],
+    ) => {
+      set((state) => {
+        state.projectDetail[projectId].slides = slides;
+      });
+    },
+
+    getPreviewState: (projectId: string) => {
+      return get().projectDetail[projectId].previewState;
+    },
+
+    getEditorTheme: (projectId: string) => {
+      return get().projectDetail[projectId].editorTheme;
+    },
+  };
+});
 
 export const useStore = create<Store>()((...args) => ({
   ...projectSlice(...args),

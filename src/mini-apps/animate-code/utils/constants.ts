@@ -106,7 +106,7 @@ export const defaultDummySlides = [
   slide6,
 ];
 
-export const defaultProjectId = v4();
+export const defaultProjectId = "aa490f7c-d85b-42fa-9de6-013447f232c2";
 
 const d = [slide0, slide1, slide2, slide3, slide4, slide5];
 

@@ -1,3 +1,4 @@
+import { useEffect, useState, useTransition } from "react";
 import { AnimatePresence } from "framer-motion";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
@@ -5,6 +6,7 @@ import { Navbar } from "@/vendor/components/navbar";
 
 import { APP_ID } from "../utils/constants";
 import { ListProject } from "./components/list-project";
+import { defaultPersistEngine } from "@/vendor/zustand/persist";
 
 export const AnimateCodeHomeScreen = () => {
   return (
@@ -17,13 +19,34 @@ export const AnimateCodeHomeScreen = () => {
             showSearchBar={false}
             enableBackOnFormTags
           />
-          <div className="flex flex-1 flex-col px-8 py-4 min-h-0">
-            <ListProject />
+          <div className="flex flex-1 flex-col px-8 py-4 min-h-0 overflow-auto">
+            <ListProjectWithDelayLayout />
           </div>
         </div>
       </AnimatedPage>
     </AnimatePresence>
   );
+};
+
+const ListProjectWithDelayLayout = () => {
+  const [isReady, setIsReady] = useState(false);
+  const [, startTransition] = useTransition();
+
+  useEffect(() => {
+    startTransition(() => {
+      if (defaultPersistEngine.isHydrated) {
+        setIsReady(true);
+      } else {
+        defaultPersistEngine.onHydrationCompleted(() => setIsReady(true));
+      }
+    });
+  }, []);
+
+  if (!isReady) {
+    return null;
+  }
+
+  return <ListProject />;
 };
 
 export default AnimateCodeHomeScreen;
