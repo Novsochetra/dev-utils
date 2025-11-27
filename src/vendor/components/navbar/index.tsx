@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 import { ChevronLeft, PackageIcon } from "lucide-react";
 
@@ -62,10 +62,16 @@ export const Navbar = (props: NavbarProps) => {
 
         <div data-tauri-drag-region className="flex items-center">
           {props.showBack ? (
-            <Link to="/" className="flex items-center text-zinc-600">
+            <a
+              href="#"
+              onClick={() => {
+                navigate(-1);
+              }}
+              className="flex items-center text-zinc-600"
+            >
               <ChevronLeft className="mr-4" size={24} />
               <span className="hidden sm:block">Back</span>
-            </Link>
+            </a>
           ) : null}
         </div>
 

@@ -18,6 +18,7 @@ export const AnimateCodeHomeScreen = () => {
             title="🤩"
             showSearchBar={false}
             enableBackOnFormTags
+            enableBackListener
           />
           <div className="flex flex-1 flex-col px-8 py-4 min-h-0 overflow-auto">
             <ListProjectWithDelayLayout />
