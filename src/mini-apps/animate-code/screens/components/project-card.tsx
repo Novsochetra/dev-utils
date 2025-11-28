@@ -60,7 +60,7 @@ const ProjectNameInput = memo(({ index }: { index: number }) => {
       type="text"
       name="editor-title-input"
       value={name}
-      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center font-extrabold truncate text-ellipsis line-clamp-1"
+      className="outline-none focus-visible:outline-none w-full overflow-scroll text-center  truncate text-ellipsis line-clamp-1"
       onChange={(e) => setProjectName(index, e.target.value)}
     />
   );
