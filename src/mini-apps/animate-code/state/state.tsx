@@ -16,6 +16,7 @@ export type Store = {
   projects: { id: string; name: string }[];
   getProjects: () => Store["projects"];
   setProjectName: (index: number, name: string) => void;
+  sampleMigration: { [key: string]: string };
 
   projectDetail: {
     [k: string]: {
@@ -120,7 +121,12 @@ const projectSlice: (
   ...args: StateCreatorParams<Store>
 ) => Pick<
   Store,
-  "projects" | "getProjects" | "setProjectName" | "addProject" | "removeProject"
+  | "projects"
+  | "getProjects"
+  | "setProjectName"
+  | "addProject"
+  | "removeProject"
+  | "sampleMigration"
 > = immer((...args) => {
   const [set, get] = args;
 
@@ -128,6 +134,39 @@ const projectSlice: (
     projects: persist([], { name: "animate-code::projects", path: "projects" })(
       ...args,
     ),
+    sampleMigration: persist(
+      { v1: "value" },
+      {
+        name: "animate-code::sample-migration",
+        path: "sampleMigration",
+        version: 1,
+
+        migrate(persistState: any, persistVersion) {
+          // INFO: we skip migration if the current version equal to the persisted version
+          if (this?.version && this?.version >= 2) {
+            let v = persistVersion;
+
+            // Upgrade from v1 → v2
+            if (v === 1 && v <= this?.version) {
+              const old = persistState["v1"];
+              persistState["v2"] = old;
+              delete persistState["v1"];
+              v = 2;
+            }
+
+            // Upgrade from v2 → v3
+            if (v === 2 && v <= this?.version) {
+              const old = persistState["v2"];
+              persistState["v3"] = old;
+              delete persistState["v2"];
+              v = 3;
+            }
+          }
+
+          return { data: persistState, version: this.version };
+        },
+      },
+    )(...args),
     getProjects: () => get().projects,
     setProjectName: (index: number, name: string) => {
       set((state) => {

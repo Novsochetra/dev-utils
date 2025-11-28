@@ -9,9 +9,11 @@ export type PersistEngineConfig = {
 
 // TODO:
 // 1. we need to find the way to auto unsubscribe
+// 2. refactor seem has many variable haha like hydratedKey & hydratedVersion
 export function createPersistEngine(config: PersistEngineConfig) {
   const watching = new Map<string, string>();
   const hydratedKeys = new Map<string, boolean>();
+  const hydratedVersions = new Map<string, number>();
   let unsubscribe: (() => void) | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hydrationCompletedCallback: ((...args: any[]) => any)[] = [];
@@ -30,17 +32,15 @@ export function createPersistEngine(config: PersistEngineConfig) {
     _registerTask<Value>(
       key: string,
       defaultValue: Value,
-      cb: (hydratedValue: Value) => void,
+      cb: (hydratedValue: { data: Value; version: number }) => void,
     ) {
       const task = async () => {
         try {
-          const stored = await get(key);
-          hydratedKeys.set(key, true);
-          const hydratedValue = stored?.data ?? defaultValue;
+          const hydrated = await this.hydrate(key, defaultValue);
 
-          cb(hydratedValue);
+          cb(hydrated);
         } catch {
-          cb(defaultValue);
+          cb({ data: defaultValue, version: 1 });
         }
       };
 
@@ -71,14 +71,17 @@ export function createPersistEngine(config: PersistEngineConfig) {
       }
     },
 
-    async hydrate<Value>(key: string, defaultValue: Value) {
+    async hydrate<Value>(
+      key: string,
+      defaultValue: Value,
+    ): Promise<{ data: Value; version: number }> {
       try {
         const stored = await get(key);
         hydratedKeys.set(key, true);
 
-        return stored?.data ?? defaultValue;
+        return { data: stored?.data ?? defaultValue, version: stored.version };
       } catch {
-        return defaultValue;
+        return { data: defaultValue, version: 1 };
       }
     },
 
@@ -90,15 +93,17 @@ export function createPersistEngine(config: PersistEngineConfig) {
       storeApi: StoreApi<TStore>,
       storageKey: string,
       path: string,
+      version: number,
     ) {
       watching.set(storageKey, path);
+      hydratedVersions.set(storageKey, version);
 
       if (!unsubscribe) {
         unsubscribe = storeApi.subscribe((nextState) => {
           // Save each watched path
           watching.forEach((fieldPath, key) => {
             const value = getByPath(nextState, fieldPath);
-            set(key, { data: value, version: 1 });
+            set(key, { data: value, version: hydratedVersions.get(key) });
           });
         });
       }

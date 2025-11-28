@@ -4,7 +4,7 @@ import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { Navbar } from "@/vendor/components/navbar";
 
-import { APP_ID } from "../utils/constants";
+import { APP_ID, APP_NAME } from "../utils/constants";
 import { ListProject } from "./components/list-project";
 import { defaultPersistEngine } from "@/vendor/zustand/persist";
 
@@ -15,7 +15,7 @@ export const AnimateCodeHomeScreen = () => {
         <div className="h-dvh w-full flex flex-col overscroll-none">
           <Navbar
             showBack
-            title="🤩"
+            title={APP_NAME}
             showSearchBar={false}
             enableBackOnFormTags
             enableBackListener
@@ -34,7 +34,9 @@ const ListProjectWithDelayLayout = () => {
   const [, startTransition] = useTransition();
 
   useEffect(() => {
-    startTransition(() => {
+    startTransition(async () => {
+      await defaultPersistEngine.rehydrate();
+
       if (defaultPersistEngine.isHydrated) {
         setIsReady(true);
       } else {

@@ -6,13 +6,15 @@ export type StateCreatorParams<TStore> = Parameters<
 >;
 
 export const defaultPersistEngine = createPersistEngine({
-  skipHydration: false,
+  skipHydration: true,
 });
 
 type PersistOptions = {
   name: string;
   path: string;
   engine?: ReturnType<typeof createPersistEngine>;
+  version?: number;
+  migrate?: (persistStated: any, version: number) => any;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,14 +29,22 @@ export function persist<TStore, TFieldValue>(
 
   return (...args: StateCreatorParams<TStore>): TFieldValue => {
     const storeApi = args[2];
+    const version = options?.version ?? 1;
 
     // hydration is async → return default first, then patch
-    const hydratedValue = value;
-    const callback = (hydrated: TFieldValue) => {
+    let hydratedValue = value;
+
+    const callback = (hydrated: { data: TFieldValue; version: number }) => {
       storeApi.setState((state) => {
         if (state && typeof state === "object") {
+          let migrated = hydrated.data;
+
+          if (options.migrate) {
+            migrated = options.migrate(hydrated.data, hydrated.version);
+          }
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (state as Record<string, any>)[options.path] = hydrated;
+          (state as Record<string, any>)[options.path] = migrated;
         }
 
         return state;
@@ -47,12 +57,13 @@ export function persist<TStore, TFieldValue>(
       } else {
         eng.hydrate(options.name, value).then((hydrated) => {
           callback(hydrated);
+
           eng._notifyCompletedCallback();
         });
       }
     }
 
-    defaultPersistEngine.watch(storeApi, options.name, options.path);
+    defaultPersistEngine.watch(storeApi, options.name, options.path, version);
 
     return hydratedValue;
   };
