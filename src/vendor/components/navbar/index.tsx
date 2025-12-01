@@ -84,7 +84,7 @@ export const Navbar = (props: NavbarProps) => {
             data-tauri-drag-region
             className="flex flex-1 justify-center items-center overflow-hidden"
           >
-            <h3 className="text-lg font-semibold truncate">{props.title}</h3>
+            <h3 className="font-semibold truncate">{props.title}</h3>
           </div>
         )}
 
