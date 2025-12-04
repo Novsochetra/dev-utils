@@ -15,7 +15,8 @@ import {
 } from "@/vendor/shadcn/components/ui/command";
 import { getMiniApps } from "@/core/mini-app-registry";
 import { useAppSuggestions } from "./use-app-suggestions";
-import { isDesktopApp } from "@/utils/is-desktop-mode";
+import { motion } from "framer-motion";
+import { minMenuBarLeftWidth } from "../app-layout";
 
 type NavbarProps = {
   showBack?: boolean;
@@ -30,8 +31,6 @@ type NavbarProps = {
       title: string;
     }
 );
-
-const miniApps = getMiniApps();
 
 export const Navbar = (props: NavbarProps) => {
   const navigate = useNavigate();
@@ -56,27 +55,40 @@ export const Navbar = (props: NavbarProps) => {
   );
 
   return (
-    <>
-      <div data-tauri-drag-region className="flex w-full min-h-12 h-12 py-2">
-        {isDesktopApp ? <MacOSTrafficLight /> : <div className="w-8 h-full" />}
+    <motion.div
+      layout
+      data-tauri-drag-region
+      className="flex flex-1 min-h-12 h-12 py-2 gap-4"
+    >
+      <div
+        data-tauri-drag-region
+        className={`flex items-center`}
+        style={
+          props.showBack
+            ? { position: "sticky", left: minMenuBarLeftWidth }
+            : {}
+        }
+      >
+        {props.showBack ? (
+          <a
+            href="#"
+            onClick={() => {
+              navigate(-1);
+            }}
+            className="flex items-center text-zinc-600"
+          >
+            <ChevronLeft className="mr-4 ml-2" size={24} />
+            <span className="">Back</span>
+          </a>
+        ) : null}
+      </div>
 
-        <div data-tauri-drag-region className="flex items-center">
-          {props.showBack ? (
-            <a
-              href="#"
-              onClick={() => {
-                navigate(-1);
-              }}
-              className="flex items-center text-zinc-600"
-            >
-              <ChevronLeft className="mr-4" size={24} />
-              <span className="hidden sm:block">Back</span>
-            </a>
-          ) : null}
-        </div>
-
+      <div className="flex flex-1 justify-center">
         {props.showSearchBar ? (
-          <div data-tauri-drag-region className="flex flex-1 justify-center">
+          <div
+            data-tauri-drag-region
+            className="flex flex-1 justify-center max-w-80"
+          >
             <CommandDialogDemo />
           </div>
         ) : (
@@ -87,19 +99,16 @@ export const Navbar = (props: NavbarProps) => {
             <h3 className="font-semibold truncate">{props.title}</h3>
           </div>
         )}
-
-        <div
-          data-tauri-drag-region
-          className="flex items-center min-w-23"
-        ></div>
       </div>
 
-      <Separator />
-    </>
+      <div />
+    </motion.div>
   );
 };
 
 export function CommandDialogDemo() {
+  const miniApps = getMiniApps();
+
   const { data: suggestionApps, update: updateSuggestion } =
     useAppSuggestions(miniApps);
 
@@ -236,8 +245,4 @@ const AppIcon = ({ icon }: { icon?: string }) => {
       )}
     </div>
   );
-};
-
-export const MacOSTrafficLight = () => {
-  return <div className="min-w-23 h-full"></div>;
 };

@@ -2,7 +2,6 @@ import { PackageIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import { getMiniApps } from "@/core/mini-app-registry";
-import { Navbar } from "@/vendor/components/navbar";
 import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import("@/mini-apps/data-generator/utils/faker");
@@ -11,29 +10,23 @@ function App() {
   const miniApps = getMiniApps();
 
   return (
-    <div className="h-screen flex flex-col">
-      <Navbar showSearchBar />
-
-      <div className="h-full overflow-y-auto flex-1">
-        <AnimatePresence mode="wait">
-          <AnimatedPage id="dashboard-main-app">
-            <div className="h-full flex-1">
-              <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
-                {miniApps.map((a, index) => {
-                  return (
-                    <AppIcon
-                      key={`app-${index}`}
-                      icon={a.icon}
-                      path={a.basePath}
-                      name={a.name}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          </AnimatedPage>
-        </AnimatePresence>
-      </div>
+    <div className="flex flex-1 min-h-0 overflow-auto">
+      <AnimatePresence mode="wait">
+        <AnimatedPage id="dashboard-main-app">
+          <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+            {miniApps.map((a, index) => {
+              return (
+                <AppIcon
+                  key={`app-${index}`}
+                  icon={a.icon}
+                  path={a.basePath}
+                  name={a.name}
+                />
+              );
+            })}
+          </div>
+        </AnimatedPage>
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 
-import { Navbar } from "@/vendor/components/navbar";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
 import {
@@ -35,13 +34,11 @@ export const TextCaseConverterScreen = () => {
   const [smartCaseDetectionMode, setSmartCaseDetectionMode] = useState(true);
 
   return (
-    <AnimatePresence mode="wait">
-      <AnimatedPage id={APP_ID}>
-        <div className="min-h-screen w-full flex flex-col">
-          <Navbar showBack title="Text Case Converter" showSearchBar={false} />
-
-          <div className="flex flex-col items-center justify-center p-8 ">
-            <div className="w-full md:w-8/12 p-6 flex flex-col gap-4 rounded-xl bg-white border">
+    <div className="flex flex-1 min-h-0 overflow-auto">
+      <AnimatePresence mode="wait">
+        <AnimatedPage id={APP_ID} classname="flex flex-1 flex-col">
+          <div className="p-8">
+            <div className="w-full p-6 flex flex-col gap-4 rounded-xl bg-white border">
               <div className="flex flex-col gap-4 relative">
                 <Label htmlFor="input-text">Text</Label>
                 <Textarea
@@ -130,9 +127,9 @@ export const TextCaseConverterScreen = () => {
               </div>
             </div>
           </div>
-        </div>
-      </AnimatedPage>
-    </AnimatePresence>
+        </AnimatedPage>
+      </AnimatePresence>
+    </div>
   );
 };
 

@@ -14,6 +14,7 @@ export const routes = [
       );
       return { Component };
     },
+    handle: { title: "Slide Detail", showBackButton: true },
   },
   {
     path: "/animate-code/landing",

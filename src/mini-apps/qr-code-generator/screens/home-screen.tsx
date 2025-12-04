@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCodeStyling, { type Options } from "qr-code-styling";
 import { AnimatePresence } from "framer-motion";
 
-import { Navbar } from "@/vendor/components/navbar";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 
 import { BackgroundOptionsView } from "../components/background-options-view";
@@ -55,16 +54,14 @@ const QRCodeGeneratorScreen = () => {
   }, [options, qrCodeInstance, loadQRCode]);
 
   return (
-    <QRCodeContext.Provider value={{ options, setOptions }}>
-      <AnimatePresence mode="wait">
-        <AnimatedPage id={APP_ID}>
-          <div className="min-h-screen w-full flex flex-col">
-            <Navbar showBack title="QR Code Generator" showSearchBar={false} />
-
-            <div className="flex flex-col items-center justify-center p-8 ">
-              <div className="w-full lg:w-8/12 p-6 rounded-xl bg-white border">
-                <div className="flex flex-1 flex-col items-center justify-center mb-8 p-4 gap-4">
-                  <div className="rounded-2xl overflow-hidden">
+    <div className="flex flex-1 min-h-0 overflow-auto">
+      <QRCodeContext.Provider value={{ options, setOptions }}>
+        <AnimatePresence mode="wait">
+          <AnimatedPage id={APP_ID} classname="flex flex-1 flex-col">
+            <div className="p-8">
+              <div className="w-full flex flex-col p-6 rounded-xl bg-white border">
+                <div className="flex flex-1 flex-col items-center justify-center gap-4">
+                  <div className="rounded-2xl overflow-hidden w-fit">
                     <div ref={ref} />
                   </div>
 
@@ -99,10 +96,10 @@ const QRCodeGeneratorScreen = () => {
                 <QROptionsView />
               </div>
             </div>
-          </div>
-        </AnimatedPage>{" "}
-      </AnimatePresence>
-    </QRCodeContext.Provider>
+          </AnimatedPage>{" "}
+        </AnimatePresence>
+      </QRCodeContext.Provider>
+    </div>
   );
 };
 

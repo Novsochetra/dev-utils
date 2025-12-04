@@ -2,7 +2,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { AnimatePresence } from "framer-motion";
 
-import { Navbar } from "@/vendor/components/navbar";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
@@ -54,15 +53,14 @@ const LoremGeneratorScreen = () => {
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <AnimatedPage id={APP_ID}>
-        <div className="min-h-screen w-full flex flex-col">
-          <Navbar showBack title="Lorem Generator" showSearchBar={false} />
-          <div className="flex flex-col items-center justify-center p-8 ">
-            <div className="w-full lg:w-8/12 p-6 rounded-xl bg-white border">
-              <div className="flex">
+    <div className="flex flex-1 min-h-0 overflow-auto">
+      <AnimatePresence mode="wait">
+        <AnimatedPage id={APP_ID} classname="flex flex-1 flex-col">
+          <div className="p-8 flex flex-1">
+            <div className="flex flex-col flex-1 border rounded-xl p-8">
+              <div className="flex flex-wrap gap-4">
                 <Input
-                  className="flex flex-1 mr-4"
+                  className="flex flex-1 min-w-20"
                   type="number"
                   placeholder="Enter amount"
                   value={parseInt(String(amount))}
@@ -86,7 +84,7 @@ const LoremGeneratorScreen = () => {
                     onUpdateResultBaseOnMode(v, amount, asHTML);
                   }}
                 >
-                  <SelectTrigger className="w-[180px]">
+                  <SelectTrigger className="flex flex-1">
                     <SelectValue placeholder="Theme" />
                   </SelectTrigger>
                   <SelectContent>
@@ -100,7 +98,8 @@ const LoremGeneratorScreen = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex flex-1 pt-4">
+
+              <div className="flex pt-4">
                 <Checkbox
                   id="asHTML"
                   onCheckedChange={(value: boolean) => {
@@ -112,12 +111,13 @@ const LoremGeneratorScreen = () => {
                   As HTML
                 </Label>
               </div>
+
               <Label className="my-4">Result</Label>
               <Textarea
                 placeholder=""
                 value={result}
+                className="h-full"
                 readOnly
-                className="h-96"
               />
 
               <Button
@@ -131,9 +131,9 @@ const LoremGeneratorScreen = () => {
               </Button>
             </div>
           </div>
-        </div>
-      </AnimatedPage>
-    </AnimatePresence>
+        </AnimatedPage>
+      </AnimatePresence>
+    </div>
   );
 };
 

@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import "./index.css";
-import { getRoutes } from "./mini-app-registry.ts";
+import { getRoutes } from "./mini-app-registry.tsx";
 import { Toaster } from "@/vendor/shadcn/components/ui/sonner.tsx";
 
 import.meta.glob("@/mini-apps/*/index.{ts,tsx,js,jsx}", { eager: true });

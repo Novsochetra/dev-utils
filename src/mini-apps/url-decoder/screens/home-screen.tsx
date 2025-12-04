@@ -1,4 +1,3 @@
-
 import { Fragment, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -10,31 +9,34 @@ import {
   TabsTrigger,
 } from "@/vendor/shadcn/components/ui/tabs";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
-import { Navbar } from "@/vendor/components/navbar";
+import { APP_BASE_PATH } from "../utils/constants";
+import { AnimatePresence } from "framer-motion";
+import { AnimatedPage } from "@/vendor/components/animate-page";
 
 export const UrlEncoderDecoderScreen = () => {
   return (
-    <div className="min-h-screen w-full flex flex-col">
-      <Navbar showBack title="URL encoder/decoder" showSearchBar={false} />
-      <div className="flex flex-col items-center justify-center p-8 ">
-
-        <Tabs
-          defaultValue="decoder"
-          className="w-[400px] p-6 rounded-xl bg-white border"
-        >
-          <TabsList className="w-full">
-            <TabsTrigger value="decoder">Decoder</TabsTrigger>
-            <TabsTrigger value="encoder">Encoder</TabsTrigger>
-          </TabsList>
-          <TabsContent value="decoder">
-            <DecodedTabContent />
-          </TabsContent>
-          <TabsContent value="encoder">
-            <EncodedTabContent />
-          </TabsContent>
-        </Tabs>
-      </div>
-
+    <div className="flex flex-1 min-h-0 overflow-auto">
+      <AnimatePresence mode="wait">
+        <AnimatedPage id={APP_BASE_PATH} classname="flex flex-1 flex-col">
+          <div className="p-8">
+            <Tabs
+              defaultValue="decoder"
+              className="w-full p-6 rounded-xl bg-white border"
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="decoder">Decoder</TabsTrigger>
+                <TabsTrigger value="encoder">Encoder</TabsTrigger>
+              </TabsList>
+              <TabsContent value="decoder">
+                <DecodedTabContent />
+              </TabsContent>
+              <TabsContent value="encoder">
+                <EncodedTabContent />
+              </TabsContent>
+            </Tabs>
+          </div>
+        </AnimatedPage>
+      </AnimatePresence>
     </div>
   );
 };
@@ -54,9 +56,7 @@ export const DecodedTabContent = () => {
         onChange={(e) => setURLText(e.target.value)}
         className="h-32"
       />
-      <Label className="my-4">
-        Result
-      </Label>
+      <Label className="my-4">Result</Label>
       <Textarea
         placeholder=""
         value={decodeURIComponent(urlText)}
@@ -92,7 +92,7 @@ export const EncodedTabContent = () => {
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
-      <Label className="my-4" >Result</Label>
+      <Label className="my-4">Result</Label>
       <Textarea className="h-32" value={encodeURIComponent(text)} readOnly />
 
       <Button

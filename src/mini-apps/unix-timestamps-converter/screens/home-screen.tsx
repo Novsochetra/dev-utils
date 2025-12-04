@@ -5,7 +5,6 @@ import { UTCDate } from "@date-fns/utc";
 
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
-import { Navbar } from "@/vendor/components/navbar";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 
 import { CurrentUTCDate } from "../components/current-utc-date";
@@ -29,18 +28,12 @@ export type GenerateMode = (typeof GenerateMode)[keyof typeof GenerateMode];
 
 const UnixTimeStapConverterScreen = () => {
   return (
-    <AnimatePresence mode="wait">
-      <AnimatedPage id={APP_ID}>
-        <div className="min-h-screen w-full flex flex-col">
-          <Navbar
-            showBack
-            title="Unix Timestamps Converter"
-            showSearchBar={false}
-          />
-
-          <div className="flex flex-col items-center justify-center p-8 ">
-            <div className="w-[600px] h-full p-6 rounded-xl border bg-white gap-2">
-              <div className="flex flex-1 mb-4">
+    <div className="flex flex-1 min-h-0 overflow-auto">
+      <AnimatePresence mode="wait">
+        <AnimatedPage id={APP_ID} classname="flex flex-col flex-1">
+          <div className="p-8">
+            <div className="w-full h-full p-6 rounded-xl border bg-white gap-2">
+              <div className="flex flex-1 flex-col sm:flex-row text-center gap-4 mb-4">
                 <CurrentUTCDate />
 
                 <CurrentUnix />
@@ -51,9 +44,9 @@ const UnixTimeStapConverterScreen = () => {
               <FormConverter />
             </div>
           </div>
-        </div>
-      </AnimatedPage>
-    </AnimatePresence>
+        </AnimatedPage>
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -66,39 +59,41 @@ const FormConverter = () => {
 
   return (
     <div>
-      <div className="flex flex-1 items-end">
-        <div className="flex flex-1 flex-col pr-4">
-          <Label className="my-4" htmlFor="millisecondsInput">
-            Convert Milliseconds
-          </Label>
-          <Input
-            id="millisecondsInput"
-            onChange={(e) => {
-              const value = e.target.value;
-              if (!Number.isNaN(value)) {
-                setValue(Number(value));
-              }
-            }}
-            autoFocus
-          />
-        </div>
-        <div>
-          <Select
-            defaultValue={GenerateMode.Milliseconds}
-            onValueChange={(v: GenerateMode) => {
-              setMode(v);
-            }}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={GenerateMode.Milliseconds}>
-                Milliseconds
-              </SelectItem>
-              <SelectItem value={GenerateMode.Unix}>Unix</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex flex-1 flex-col">
+        <Label className="my-4" htmlFor="millisecondsInput">
+          Convert Milliseconds
+        </Label>
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-1">
+            <Input
+              id="millisecondsInput"
+              onChange={(e) => {
+                const value = e.target.value;
+                if (!Number.isNaN(value)) {
+                  setValue(Number(value));
+                }
+              }}
+              autoFocus
+            />
+          </div>
+          <div className="flex flex-1">
+            <Select
+              defaultValue={GenerateMode.Milliseconds}
+              onValueChange={(v: GenerateMode) => {
+                setMode(v);
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Theme" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={GenerateMode.Milliseconds}>
+                  Milliseconds
+                </SelectItem>
+                <SelectItem value={GenerateMode.Unix}>Unix</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
       <Label className="my-4">To UTC Date & Time</Label>

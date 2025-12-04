@@ -13,7 +13,6 @@ import {
 
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Label } from "@/vendor/shadcn/components/ui/label";
-import { Navbar } from "@/vendor/components/navbar";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
 import {
   Tabs,
@@ -61,19 +60,13 @@ export const JwtDecoderEncoderScreen = () => {
         setJwtTokenValue,
       }}
     >
-      <AnimatePresence mode="wait">
-        <AnimatedPage id={APP_ID}>
-          <div className="min-h-screen w-full flex flex-col">
-            <Navbar
-              showBack
-              title="JWT Decoder / Encoder"
-              showSearchBar={false}
-            />
-
-            <div className="flex flex-1 justify-center p-8">
+      <div className="flex flex-1 min-h-0 overflow-auto min-w-0">
+        <AnimatePresence mode="wait">
+          <AnimatedPage id={APP_ID} classname="flex flex-1 flex-col min-w-0">
+            <div className="flex flex-1 justify-center p-8 min-w-0">
               <Tabs
                 defaultValue="decoder"
-                className="w-full lg:w-8/12 p-6 rounded-xl bg-white border"
+                className="w-full p-6 rounded-xl bg-white border"
               >
                 <TabsList className="w-full">
                   <TabsTrigger value="decoder">Decoder</TabsTrigger>
@@ -87,9 +80,9 @@ export const JwtDecoderEncoderScreen = () => {
                 </TabsContent>
               </Tabs>
             </div>
-          </div>
-        </AnimatedPage>
-      </AnimatePresence>
+          </AnimatedPage>
+        </AnimatePresence>
+      </div>
     </JWTHomeScreenContext.Provider>
   );
 };

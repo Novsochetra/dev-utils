@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 export const AnimatedPage: React.FC<{
   children: React.ReactNode;
   id: string;
-}> = ({ children, id }) => {
+  classname?: string;
+}> = ({ children, id, classname }) => {
   return (
     <motion.div
       key={id}
@@ -14,6 +15,7 @@ export const AnimatedPage: React.FC<{
         duration: 0.2,
         ease: "easeInOut",
       }}
+      className={classname}
     >
       {children}
     </motion.div>

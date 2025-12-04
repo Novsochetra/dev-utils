@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { CopyIcon, PlayIcon, Plus, TrashIcon } from "lucide-react";
+import type { PanelGroupProps } from "react-resizable-panels";
 import {
   useForm,
   useFieldArray,
@@ -8,12 +11,8 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 import { clsx } from "clsx";
-import { InputWithSuggestion } from "../components/input-with-suggestion";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
-import { Navbar } from "@/vendor/components/navbar";
-import { APP_ID, APP_NAME } from "../utils/constant";
-import { callFakerPath } from "../utils/faker";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import {
@@ -23,12 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/vendor/shadcn/components/ui/select";
-import { Plus, TrashIcon } from "lucide-react";
 import {
   ResizablePanel,
   ResizablePanelGroup,
   ResizableHandle,
 } from "@/vendor/shadcn/components/ui/resizable";
+import { InputWithSuggestion } from "../components/input-with-suggestion";
+import { APP_ID } from "../utils/constant";
+import { callFakerPath } from "../utils/faker";
 
 type FieldConfig = FieldConfigString | FieldConfigArray | FieldConfigMap;
 
@@ -60,6 +61,8 @@ type FormValues = {
 };
 
 const DataGeneratorScreen = () => {
+  const [mainDirection, setMainDirection] =
+    useState<PanelGroupProps["direction"]>("horizontal");
   const [generatedData, setGeneratedData] = useState({});
   const { control, handleSubmit, setValue } = useForm<FormValues>({
     defaultValues: {
@@ -72,6 +75,23 @@ const DataGeneratorScreen = () => {
     },
   });
 
+  useEffect(() => {
+    const func = () => {
+      const isMd = window.innerWidth <= 768;
+      if (isMd) {
+        setMainDirection("vertical");
+      } else {
+        setMainDirection("horizontal");
+      }
+    };
+
+    window.addEventListener("resize", func);
+
+    return () => {
+      window.removeEventListener("resize", func);
+    };
+  }, []);
+
   const handleGenerate = (data: FormValues) => {
     const schema: FieldConfig = data.fields[0];
 
@@ -83,74 +103,57 @@ const DataGeneratorScreen = () => {
   };
 
   return (
-    <AnimatePresence mode="wait">
-      <AnimatedPage id={APP_ID}>
-        <div className="h-screen w-full flex flex-col">
-          <Navbar showBack title={APP_NAME} showSearchBar={false} />
-          <div className="flex flex-1 flex-col p-8 h-full bg-red-400 overflow-auto">
-            <ResizablePanelGroup
-              direction="horizontal"
-              className="h-full bg-white rounded-lg"
-            >
-              <ResizablePanel className="p-6">
-                <div className="flex flex-1">
-                  <RecursiveFieldArray
-                    control={control}
-                    name="fields"
-                    setValue={setValue}
-                    isRoot={true}
-                  />
-                </div>
+    <div className="flex flex-1 min-w-0 overflow-auto">
+      <AnimatePresence>
+        <AnimatedPage id={APP_ID} classname="flex flex-1 min-w-0 p-8">
+          <ResizablePanelGroup
+            direction={mainDirection}
+            className="min-w-0 bg-white border rounded-lg"
+          >
+            <ResizablePanel className="flex flex-1 p-4 min-w-0 relative">
+              <div className="flex flex-1 flex-col min-w-0 overflow-scroll">
+                <RecursiveFieldArray
+                  control={control}
+                  name="fields"
+                  setValue={setValue}
+                  isRoot={true}
+                />
                 <Button
-                  className="mt-4 self-start"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="absolute top-4 right-4 z-50 "
                   onClick={handleSubmit(handleGenerate)}
                 >
-                  Generate Data
+                  <PlayIcon className="h-4 w-4" />
                 </Button>
-              </ResizablePanel>
+              </div>
+            </ResizablePanel>
 
-              <ResizableHandle withHandle />
+            <ResizableHandle withHandle />
 
-              <ResizablePanel className="flex-1 p-6">
-                <pre className="w-full p-6 bg-gray-200 rounded-lg h-full overflow-auto">
-                  {JSON.stringify(generatedData, null, 2)}
-                </pre>
-              </ResizablePanel>
-            </ResizablePanelGroup>
+            <ResizablePanel className="flex flex-1  min-w-0 relative">
+              <pre className="w-full p-4 bg-gray-200 h-full overflow-auto min-w-0">
+                {JSON.stringify(generatedData, null, 2)}
+              </pre>
 
-            {/* <ResizablePanelGroup */}
-            {/*   direction="horizontal" */}
-            {/*   className="w-full flex flex-row flex-1 rounded-xl border bg-white" */}
-            {/* > */}
-            {/*   <ResizablePanel className="flex flex-col flex-1 p-6"> */}
-            {/*     <div className="flex flex-1"> */}
-            {/*       <RecursiveFieldArray */}
-            {/*         control={control} */}
-            {/*         name="fields" */}
-            {/*         setValue={setValue} */}
-            {/*         isRoot={true} */}
-            {/*       /> */}
-            {/*     </div> */}
-            {/*     <Button */}
-            {/*       className="mt-4 self-start" */}
-            {/*       onClick={handleSubmit(handleGenerate)} */}
-            {/*     > */}
-            {/*       Generate Data */}
-            {/*     </Button> */}
-            {/*   </ResizablePanel> */}
-            {/*   <ResizableHandle withHandle /> */}
-            {/*   <ResizablePanel className="flex flex-1 p-6"> */}
-            {/*     <div className="flex-1 bg-gray-100 text-sm p-4 rounded overflow-auto h-full"> */}
-            {/*       <pre className="min-w-full"> */}
-            {/*         {JSON.stringify(generatedData, null, 2)} */}
-            {/*       </pre> */}
-            {/*     </div> */}
-            {/*   </ResizablePanel> */}
-            {/* </ResizablePanelGroup> */}
-          </div>
-        </div>
-      </AnimatedPage>
-    </AnimatePresence>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="absolute top-2 right-2 z-50 "
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    JSON.stringify(generatedData, null, 2),
+                  );
+                  toast.success("Copied to clipboard!");
+                }}
+              >
+                <CopyIcon className="h-4 w-4" />
+              </Button>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </AnimatedPage>
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -299,7 +302,7 @@ const RecursiveFieldArray = ({
                           {...field}
                           value={field.value as string}
                           placeholder={`Amount of field value to be generate`}
-                          className="w-60"
+                          // className="min-w-60"
                         />
                       )}
                     />

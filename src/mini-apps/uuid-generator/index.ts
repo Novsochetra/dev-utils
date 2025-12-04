@@ -1,10 +1,11 @@
 import { v4 } from "uuid";
 import { registerMiniApp } from "@/core/mini-app-registry";
 import { routes } from "./routes";
+import { APP_BASE_PATH, APP_NAME } from "./utils/constants";
 
 registerMiniApp({
   id: v4(),
-  basePath: "/uuid-generator",
+  basePath: APP_BASE_PATH,
   routes,
-  name: "UUID Generator",
+  name: APP_NAME,
 });
