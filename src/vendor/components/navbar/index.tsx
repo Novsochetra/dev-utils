@@ -172,6 +172,7 @@ export function CommandDialogDemo() {
                         key={`suggestion-app-${a.id}`}
                         className="h-10 text-sm overflow-hidden "
                         onSelect={() => {
+                          setOpen(false);
                           updateSuggestion(a.id, a);
                           navigate(a.basePath);
                         }}
