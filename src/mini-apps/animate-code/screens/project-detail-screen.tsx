@@ -48,31 +48,26 @@ const ProjectDetailContent = () => {
   }, []);
 
   return (
-    <AnimatePresence mode="wait">
-      <AnimatedPage id={APP_ID}>
-        <div className="h-dvh w-full flex flex-col overscroll-none">
-          <Navbar
-            showBack
-            title={APP_NAME}
-            showSearchBar={false}
-            enableBackListener={mode === Mode.Edit}
-            enableBackOnFormTags
-          />
-          <div className="flex flex-1 flex-col px-8 py-4 min-h-0">
-            <MenuBarItem />
+    <div className="flex flex-1 min-h-0 overflow-auto">
+      <AnimatePresence mode="wait">
+        <AnimatedPage id={APP_ID} classname="flex flex-1 flex-col min-w-0">
+          <div className="h-dvh w-full flex flex-col overscroll-none">
+            <div className="flex flex-1 flex-col px-8 py-4 min-h-0">
+              <MenuBarItem />
 
-            <div className="flex w-full rounded-xl bg-white border overflow-hidden">
-              <Slider codeEditorRef={codeEditorRef} />
+              <div className="flex w-full rounded-xl bg-white border overflow-hidden">
+                <Slider codeEditorRef={codeEditorRef} />
 
-              {mode === Mode.Preview && <Preview key={`preview`} />}
+                {mode === Mode.Preview && <Preview key={`preview`} />}
+              </div>
             </div>
-          </div>
-          <CommandMenu />
+            <CommandMenu />
 
-          <FeedbackWidget />
-        </div>
-      </AnimatedPage>
-    </AnimatePresence>
+            <FeedbackWidget />
+          </div>
+        </AnimatedPage>
+      </AnimatePresence>
+    </div>
   );
 };
 
