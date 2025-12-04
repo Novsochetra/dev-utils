@@ -1,3 +1,3 @@
 export const MacOSTrafficLight = () => {
-  return <div className="min-w-23 h-full bg-blue-500" />;
+  return <div className="min-w-23 h-full bg-blue-500" data-tauri-drag-region />;
 };

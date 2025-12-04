@@ -54,12 +54,12 @@ const MenuBarLeft = () => {
 
   return (
     <motion.div
-      data-tauri-drag-region
       animate={{ width: show ? sidebarWidth : 0 }}
       className="h-full flex items-center relative"
     >
       <motion.div
         layout
+        data-tauri-drag-region
         animate={{ width: show ? sidebarWidth : minMenuBarLeftWidth }}
         className="flex absolute left-0"
       >
@@ -69,6 +69,7 @@ const MenuBarLeft = () => {
           variant="ghost"
           size="icon"
           title="toggle sidebar"
+          data-tauri-drag-region={false}
           onClick={toggleSidebar}
         >
           <SidebarIcon className="text-slate-500" size={20} />
@@ -86,11 +87,7 @@ const MenuBarCenter = memo(() => {
   const current = matches.find((m) => m.handle?.title);
 
   return (
-    <motion.div
-      layout
-      className="flex-1 h-full flex justify-center"
-      animate={{}}
-    >
+    <motion.div layout className="flex-1 h-full flex justify-center">
       <Navbar showSearchBar showBack={current?.handle?.showBackButton} />
     </motion.div>
   );

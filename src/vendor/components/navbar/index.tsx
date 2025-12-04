@@ -55,13 +55,8 @@ export const Navbar = (props: NavbarProps) => {
   );
 
   return (
-    <motion.div
-      layout
-      data-tauri-drag-region
-      className="flex flex-1 min-h-12 h-12 py-2 gap-4"
-    >
+    <motion.div layout className="flex flex-1 min-h-12 h-12 py-2 gap-4">
       <div
-        data-tauri-drag-region
         className={`flex items-center`}
         style={
           props.showBack
@@ -83,12 +78,9 @@ export const Navbar = (props: NavbarProps) => {
         ) : null}
       </div>
 
-      <div className="flex flex-1 justify-center">
+      <div className="flex flex-1 justify-center" data-tauri-drag-region>
         {props.showSearchBar ? (
-          <div
-            data-tauri-drag-region
-            className="flex flex-1 justify-center max-w-80"
-          >
+          <div className="flex flex-1 justify-center max-w-80">
             <CommandDialogDemo />
           </div>
         ) : (
@@ -131,6 +123,7 @@ export function CommandDialogDemo() {
   return (
     <>
       <div
+        data-tauri-drag-region={false}
         className="w-full md:w-96 px-4 bg-stone-100 flex items-center rounded-md hover:bg-stone-50 transition-colors duration-300"
         onClick={() => {
           setOpen(true);
