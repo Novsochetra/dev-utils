@@ -199,6 +199,7 @@ export function CommandDialogDemo() {
                     key={`cmdk-item-${index}`}
                     className="h-10 text-sm overflow-hidden "
                     onSelect={() => {
+                      setOpen(false);
                       updateSuggestion(a.id, a);
                       navigate(a.basePath);
                     }}
