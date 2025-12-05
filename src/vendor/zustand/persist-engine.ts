@@ -1,119 +1,105 @@
-import { get, set } from "idb-keyval";
-import { v4 } from "uuid";
 import type { StoreApi } from "zustand";
-
-export type PersistEngineConfig = {
-  /** Only start hydration after explicit start (default: false) */
+import type { StorageAdapter } from "./storage.interface";
+import { TaskQueue } from "./task-queue";
+export interface PersistEngineConfig<Keys extends readonly string[]> {
   skipHydration?: boolean;
-};
+  adapter: StorageAdapter;
+  storageKeys: Keys
+}
+export class PersistEngine<Keys extends readonly string[]> {
+  private readyCallbacks: (() => void)[] = [];
 
-// TODO:
-// 1. we need to find the way to auto unsubscribe
-// 2. refactor seem has many variable haha like hydratedKey & hydratedVersion
-export function createPersistEngine(config: PersistEngineConfig) {
-  const watching = new Map<string, string>();
-  const hydratedKeys = new Map<string, boolean>();
-  const hydratedVersions = new Map<string, number>();
-  let unsubscribe: (() => void) | null = null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const hydrationCompletedCallback: ((...args: any[]) => any)[] = [];
-  const tasks: (() => Promise<void>)[] = [];
+  public config: PersistEngineConfig<Keys>;
+  private taskQueue: TaskQueue;
 
-  return {
-    id: v4(),
-    config: config,
+  constructor(config: PersistEngineConfig<Keys>) {
+    this.config = config
+    this.taskQueue = new TaskQueue()
+  }
 
-    isHydrated: false,
+  get isReady() {
+    return this.taskQueue.status
+  }
 
-    registerKeys: (key: string) => {
-      hydratedKeys.set(key, false);
-    },
+  async rehydrate() {
+    if (this.taskQueue.taskIds.length && this.taskQueue.taskIds.length === this.config.storageKeys.length) {
+      await this.taskQueue.run("concurrent")
+      this.checkReady();
+    }
+  }
 
-    _registerTask<Value>(
-      key: string,
-      defaultValue: Value,
-      cb: (hydratedValue: { data: Value; version: number }) => void,
-    ) {
-      const task = async () => {
-        try {
-          const hydrated = await this.hydrate(key, defaultValue);
+  async _registerTask<T>(
+    key: string,
+    defaultValue: T,
+    callback: (hydrated: T) => void,
+    migrate?: (data: T, oldVersion: number) => T,
+  ) {
 
-          cb(hydrated);
-        } catch {
-          cb({ data: defaultValue, version: 1 });
-        }
-      };
+    const task = async () => {
+      await this.hydrateKey(key, defaultValue, callback, migrate)
+    }
 
-      tasks.push(task);
-    },
+    this.taskQueue.addTask(key, task)
+  }
 
-    async rehydrate() {
-      if (tasks.length > 0) {
-        await Promise.all(tasks.map((t) => t()));
-      }
+  private async hydrateKey<T>(
+    key: string,
+    defaultValue: T,
+    callback?: (hydrated: T) => void,
+    migrate?: (data: T, oldVersion: number) => T
+  ): Promise<T> {
+    const stored = await this.config.adapter.get<T>(key);
+    let value = stored?.data ?? defaultValue;
+    const oldVersion = stored?.version ?? 1;
 
-      this._notifyCompletedCallback();
-    },
+    if (migrate) value = migrate(value, oldVersion);
 
-    _notifyCompletedCallback() {
-      const isReady =
-        hydratedKeys.size > 0 &&
-        Array.from(hydratedKeys.values()).every((v) => v);
+    if (callback) {
+      callback(value)
+    }
 
-      if (isReady) {
-        tasks.length = 0;
-        this.isHydrated = true;
+    return value;
+  }
 
-        if (hydrationCompletedCallback.length) {
-          hydrationCompletedCallback.forEach((t) => t());
-          hydrationCompletedCallback.length = 0;
-        }
-      }
-    },
+  onHydrateCompleted(callback: () => void) {
+    if (this.taskQueue.status === 'done') {
+      callback();
+    } else {
+      this.readyCallbacks.push(callback);
+    }
+  }
 
-    async hydrate<Value>(
-      key: string,
-      defaultValue: Value,
-    ): Promise<{ data: Value; version: number }> {
-      try {
-        const stored = await get(key);
-        hydratedKeys.set(key, true);
+  private checkReady() {
+    if (this.taskQueue.status === 'done') {
+      this.readyCallbacks.forEach((cb) => cb());
+      this.readyCallbacks.length = 0;
+    }
+  }
 
-        return { data: stored?.data ?? defaultValue, version: stored.version };
-      } catch {
-        return { data: defaultValue, version: 1 };
-      }
-    },
-
-    onHydrationCompleted(cb: () => void) {
-      hydrationCompletedCallback.push(cb);
-    },
-
-    watch<TStore>(
-      storeApi: StoreApi<TStore>,
-      storageKey: string,
-      path: string,
-      version: number,
-    ) {
-      watching.set(storageKey, path);
-      hydratedVersions.set(storageKey, version);
-
-      if (!unsubscribe) {
-        unsubscribe = storeApi.subscribe((nextState) => {
-          // Save each watched path
-          watching.forEach((fieldPath, key) => {
-            const value = getByPath(nextState, fieldPath);
-            set(key, { data: value, version: hydratedVersions.get(key) });
-          });
-        });
-      }
-    },
-  };
+  _watch<T>(
+    storeApi: StoreApi<T>,
+    key: string,
+    path: string,
+    version: number
+  ) {
+    storeApi.subscribe((state) => {
+      const value = getByPath(state, path);
+      this.config.adapter.set(key, { data: value, version });
+    });
+  }
 }
 
-function getByPath(obj: unknown, path: string) {
+export function getByPath(obj: unknown, path: string) {
   if (obj == null || typeof obj !== "object") return undefined;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return path.split(".").reduce((acc: any, key) => acc?.[key], obj);
+}
+
+export function setByPath(obj: any, path: string, value: any) {
+  const keys = path.split(".");
+  let ref = obj;
+
+  keys.slice(0, -1).forEach(k => ref = ref[k]);
+  ref[keys[keys.length - 1]] = value;
 }

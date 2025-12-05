@@ -1,7 +1,10 @@
 import { v4 } from "uuid";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { persist, type StateCreatorParams } from "@/vendor/zustand/persist";
+import {
+  persist,
+  type StateCreatorParams,
+} from "@/vendor/zustand/persist";
 
 import {
   Mode,
@@ -11,6 +14,8 @@ import {
   predefinedEditorFontSize,
 } from "../utils/constants";
 import { ThemeNames } from "../screens/components/code-editor/extensions/themes";
+import { PersistEngine } from "@/vendor/zustand/persist-engine";
+import { IndexDBStorage } from "@/vendor/zustand/index-db";
 
 export type Store = {
   projects: { id: string; name: string }[];
@@ -82,19 +87,19 @@ export type Store = {
   setPreviewBackgroundEndColor: (projectId: string, value: string) => void;
   setToggleEditorFontSIze: (
     projectId: string,
-    direction: "up" | "down",
+    direction: "up" | "down"
   ) => void;
   getSlides: (projectId: string) => Store["projectDetail"][string]["slides"];
   setSlidePreview: (
     projectId: string,
     slideIdx: number,
-    value: boolean,
+    value: boolean
   ) => void;
   getCurrentSlideIdx: (
-    projectId: string,
+    projectId: string
   ) => Store["projectDetail"][string]["currentSlideIdx"];
   getPreviewSlideIdx: (
-    projectId: string,
+    projectId: string
   ) => Store["projectDetail"][string]["previewSlideIdx"];
   setRemoveDuration: (projectId: string, value: number) => void;
   setAddedDuration: (projectId: string, value: number) => void;
@@ -103,19 +108,28 @@ export type Store = {
   setSlideData: (projectId: string, slideIdx: number, value: string) => void;
   setSlides: (
     projectId: string,
-    value: Store["projectDetail"][string]["slides"],
+    value: Store["projectDetail"][string]["slides"]
   ) => void;
   getPreviewState: (
-    projectId: string,
+    projectId: string
   ) => Store["projectDetail"][string]["previewState"];
   getEditorTheme: (
-    projectId: string,
+    projectId: string
   ) => Store["projectDetail"][string]["editorTheme"];
 } & { [key: string]: any };
 
 type SliceFunc<StoreKey extends keyof Store> = (
   ...args: StateCreatorParams<Store>
 ) => Pick<Store, StoreKey>;
+
+export const animateCodePersistEngine = new PersistEngine({
+  storageKeys: [
+    "animate-code::projects",
+    "animate-code::sample-migration",
+    "animate-code::project-detail"
+  ],
+  adapter: IndexDBStorage,
+})
 
 const projectSlice: (
   ...args: StateCreatorParams<Store>
@@ -131,17 +145,20 @@ const projectSlice: (
   const [set, get] = args;
 
   return {
-    projects: persist([], { name: "animate-code::projects", path: "projects" })(
-      ...args,
-    ),
+    projects: persist([], {
+      name: "animate-code::projects",
+      path: "projects",
+      engine: animateCodePersistEngine,
+    })(...args),
     sampleMigration: persist(
       { v1: "value" },
       {
         name: "animate-code::sample-migration",
         path: "sampleMigration",
         version: 1,
+        engine: animateCodePersistEngine,
 
-        migrate(persistState: any, persistVersion) {
+        migrate(persistState, persistVersion) {
           // INFO: we skip migration if the current version equal to the persisted version
           if (this?.version && this?.version >= 2) {
             let v = persistVersion;
@@ -163,9 +180,10 @@ const projectSlice: (
             }
           }
 
-          return { data: persistState, version: this.version };
+          return persistState;
+          // return { data: persistState, version: this.version };
         },
-      },
+      }
     )(...args),
     getProjects: () => get().projects,
     setProjectName: (index: number, name: string) => {
@@ -244,7 +262,11 @@ const projectDetailSlice: SliceFunc<
       {
         [defaultProjectId]: createProjectDetailStructure(),
       },
-      { name: "animate-code::project-detail", path: "projectDetail" },
+      {
+        name: "animate-code::project-detail",
+        path: "projectDetail",
+        engine: animateCodePersistEngine,
+      }
     )(...args),
 
     // actions
@@ -354,7 +376,7 @@ const projectDetailSlice: SliceFunc<
 
       set((state) => {
         state.projectDetail[projectId].slides = prev.filter(
-          (_, i) => index !== i,
+          (_, i) => index !== i
         );
       });
 
@@ -395,7 +417,7 @@ const projectDetailSlice: SliceFunc<
       get().setPreviewState(projectId, PreviewState.PAUSE);
       get().setPreviewSlideIdx(
         projectId,
-        Math.max((previewSlideIdx || 0) - 1, 0),
+        Math.max((previewSlideIdx || 0) - 1, 0)
       );
     },
 
@@ -580,7 +602,7 @@ const projectDetailSlice: SliceFunc<
 
     setSlides: (
       projectId: string,
-      slides: Store["projectDetail"][string]["slides"],
+      slides: Store["projectDetail"][string]["slides"]
     ) => {
       set((state) => {
         state.projectDetail[projectId].slides = slides;

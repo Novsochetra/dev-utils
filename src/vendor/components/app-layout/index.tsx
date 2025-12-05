@@ -8,7 +8,7 @@ import { Outlet, NavLink, useMatches, type UIMatch } from "react-router";
 import { getMiniApps } from "@/core/mini-app-registry";
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
-import { useAppStore } from "@/main-app/state";
+import { appStateLocalStorageEngine, useAppStore } from "@/main-app/state";
 import { Navbar } from "../navbar";
 import { MacOSTrafficLight } from "../navbar/macos-traffic-light";
 
@@ -16,6 +16,18 @@ const sidebarWidth = 300;
 export const minMenuBarLeftWidth = 130;
 
 export const AppLayout = () => {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    appStateLocalStorageEngine.onHydrateCompleted(() => {
+      setIsReady(true);
+    });
+  }, []);
+
+  if (!isReady) {
+    return <p>loading</p>;
+  }
+
   return (
     <div className="flex text-sm min-h-0 select-none">
       <MenuBar />
@@ -113,6 +125,7 @@ const LeftSidebar = () => {
   const miniApps = getMiniApps();
   const show = useAppStore((state) => state.sidebarVisible);
   const toggleSidebar = useAppStore((state) => state.toggleSidebar);
+  const openSidebar = useAppStore((state) => state.openSidebar);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `flex gap-2 px-4 py-2 rounded-lg items-center ${isActive ? "bg-slate-500 text-white" : "bg-white text-slate-500"}`;
@@ -123,6 +136,12 @@ const LeftSidebar = () => {
     },
     { enabled: true, enableOnContentEditable: true, enableOnFormTags: true },
   );
+
+  useEffect(() => {
+    if (show) {
+      openSidebar();
+    }
+  }, []);
 
   return (
     <AnimatePresence>

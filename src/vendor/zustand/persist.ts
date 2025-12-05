@@ -1,70 +1,54 @@
 import { type StateCreator } from "zustand";
-import { createPersistEngine } from "./persist-engine";
+import { PersistEngine, setByPath } from "./persist-engine";
+import { IndexDBStorage } from "./index-db";
 
 export type StateCreatorParams<TStore> = Parameters<
   StateCreator<TStore, [], []>
 >;
 
-export const defaultPersistEngine = createPersistEngine({
-  skipHydration: true,
+export const defaultPersistEngine = new PersistEngine({
+  skipHydration: false,
+  adapter: IndexDBStorage,
+  storageKeys: []
 });
 
-type PersistOptions = {
-  name: string;
+
+type PersistOptions<Engine extends PersistEngine<any>> = {
+  name: Engine["config"]["storageKeys"][number];
   path: string;
-  engine?: ReturnType<typeof createPersistEngine>;
   version?: number;
-  migrate?: (persistStated: any, version: number) => any;
-};
+  migrate?: (data: any, oldVersion: number) => any;
+  engine: Engine;
+}
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ReturnPersist<Args extends any[], Field> = (...args: Args) => Field;
-
-export function persist<TStore, TFieldValue>(
-  value: TFieldValue,
-  options: PersistOptions,
-): ReturnPersist<StateCreatorParams<TStore>, TFieldValue> {
-  const eng = options.engine ?? defaultPersistEngine;
-  eng.registerKeys(options.name);
-
-  return (...args: StateCreatorParams<TStore>): TFieldValue => {
+export function persist<TStore, TValue, Engine extends PersistEngine<any>>(
+  defaultValue: TValue,
+  options: PersistOptions<Engine>
+): (...args: StateCreatorParams<TStore>) => TValue {
+  const { name, path, migrate } = options;
+  const engine = options.engine ?? defaultPersistEngine;
+  
+  return (...args) => {
     const storeApi = args[2];
-    const version = options?.version ?? 1;
+    let initial = defaultValue;
 
-    // hydration is async → return default first, then patch
-    let hydratedValue = value;
-
-    const callback = (hydrated: { data: TFieldValue; version: number }) => {
-      storeApi.setState((state) => {
-        if (state && typeof state === "object") {
-          let migrated = hydrated.data;
-
-          if (options.migrate) {
-            migrated = options.migrate(hydrated.data, hydrated.version);
-          }
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (state as Record<string, any>)[options.path] = migrated;
-        }
-
-        return state;
-      });
-    };
-
-    if (!eng.isHydrated) {
-      if (eng.config.skipHydration) {
-        eng._registerTask(options.name, value, callback);
-      } else {
-        eng.hydrate(options.name, value).then((hydrated) => {
-          callback(hydrated);
-
-          eng._notifyCompletedCallback();
-        });
-      }
+    const cb = (hydrated: any) => {
+      storeApi.setState((s) => {
+       setByPath(s, path, hydrated);
+       return s;
+     });
     }
 
-    defaultPersistEngine.watch(storeApi, options.name, options.path, version);
+    engine._registerTask(name, defaultValue, cb, migrate)
 
-    return hydratedValue;
+    if(!engine.config.skipHydration) {
+      engine.rehydrate()
+    }
+
+    engine.onHydrateCompleted(() => {
+      engine._watch(storeApi, name, path, options.version ?? 1);
+    })
+
+    return initial;
   };
 }

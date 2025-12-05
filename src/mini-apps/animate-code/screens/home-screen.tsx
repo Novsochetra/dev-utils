@@ -4,8 +4,9 @@ import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
 
 import { APP_ID } from "../utils/constants";
-import { ListProject } from "./components/list-project";
 import { defaultPersistEngine } from "@/vendor/zustand/persist";
+import { ListProject } from "./components/list-project";
+import { animateCodePersistEngine } from "../state/state";
 
 export const AnimateCodeHomeScreen = () => {
   return (
@@ -27,12 +28,12 @@ const ListProjectWithDelayLayout = () => {
 
   useEffect(() => {
     startTransition(async () => {
-      await defaultPersistEngine.rehydrate();
+      await animateCodePersistEngine.rehydrate();
 
-      if (defaultPersistEngine.isHydrated) {
+      if (defaultPersistEngine.isReady) {
         setIsReady(true);
       } else {
-        defaultPersistEngine.onHydrationCompleted(() => setIsReady(true));
+        animateCodePersistEngine.onHydrateCompleted(() => setIsReady(true));
       }
     });
   }, []);
