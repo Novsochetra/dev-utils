@@ -2,9 +2,8 @@ import { useContext, useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
-import { Navbar } from "@/vendor/components/navbar";
 
-import { APP_ID, APP_NAME, interval, Mode } from "../utils/constants";
+import { APP_ID, interval, Mode } from "../utils/constants";
 import { MenuBarItem } from "./components/menu-bar-item";
 import { useStore } from "../state/state";
 import { useShortcutKeys } from "../utils/hooks/use-shortcut-keys";
