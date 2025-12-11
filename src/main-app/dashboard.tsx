@@ -12,8 +12,8 @@ function App() {
   return (
     <div className="flex flex-1 min-h-0 overflow-auto">
       <AnimatePresence mode="wait">
-        <AnimatedPage id="dashboard-main-app">
-          <div className="grid gap-8 p-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
+        <AnimatedPage id="dashboard-main-app" classname="flex flex-1">
+          <div className="w-full grid gap-8 p-8 grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-[repeat(auto-fill,_minmax(100px,200px))]">
             {miniApps.map((a, index) => {
               return (
                 <AppIcon
@@ -43,7 +43,7 @@ const AppIcon = ({
   return (
     <Link
       to={path}
-      className="rounded-xl flex flex-col items-center overflow-hidden "
+      className="rounded-xl flex flex-col"
     >
       <div className="w-full aspect-square bg-gray-100 rounded-xl flex items-center justify-center">
         {icon ? (
