@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { Fragment, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import "./index.css";
@@ -12,8 +12,8 @@ const routes = getRoutes();
 const router = createBrowserRouter(routes);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <Fragment>
     <RouterProvider router={router} />
     <Toaster />
-  </StrictMode>,
+  </Fragment>,
 );
