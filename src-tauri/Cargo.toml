@@ -27,3 +27,4 @@ tauri-plugin-prevent-default = "4"
 tauri-plugin-clipboard = { git = "https://github.com/CrossCopy/tauri-plugin-clipboard", branch = "v2" }
 sha2 = { version = "0.10.9" }
 hex = "0.4"
+enigo = "0.6.1"

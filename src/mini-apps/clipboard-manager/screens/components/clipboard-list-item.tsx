@@ -22,7 +22,7 @@ export const ClipboardListItem = memo(function MemoItem({
         if (el) onSelect(index, el);
       }}
       className={cn(
-        "cursor-pointer text-sm transition-all hover:bg-muted hover:rounded-md w-full px-4 py-2",
+        "cursor-pointer text-sm transition-all hover:bg-muted hover:rounded-md w-full px-4 py-2 min-h-9",
         "relative group",
         "overflow-hidden", // important
         "truncate",

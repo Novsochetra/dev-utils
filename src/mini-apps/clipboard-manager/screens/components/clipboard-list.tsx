@@ -4,6 +4,7 @@ import { writeText } from "tauri-plugin-clipboard-api";
 
 import { useClipboardStore } from "../../state/state";
 import { ClipboardListItem } from "./clipboard-list-item";
+import { invoke } from "@tauri-apps/api/core";
 
 export const ClipboardList = memo(({
   activeIndex, 
@@ -35,7 +36,7 @@ export const ClipboardList = memo(({
 
   // keyboard
   useEffect(() => {
-    const handle = (e: KeyboardEvent) => {
+    const handle = async (e: KeyboardEvent) => {
       let newIndex = activeIndex;
 
       if (e.key === "ArrowDown")
@@ -46,6 +47,21 @@ export const ClipboardList = memo(({
         if (item && item.type === "text") {
           writeText(item.content);
           toast.success("Copied to clipboard!");
+          invoke('auto_paste')
+            .catch(() => {
+              toast.error("Unable to auto paste to previous opened application. Please check the permission in settings!", {
+                // Add an action button that provides the detailed next steps
+                action: {
+                  label: "Settings",
+                  onClick: () => {
+                    invoke('open_system_settings')
+                      .catch(() => {
+                        toast.error("Unable to open system settings")
+                      })
+                  },
+                }
+              });
+            });
         }
       }
 
