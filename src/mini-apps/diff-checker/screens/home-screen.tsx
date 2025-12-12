@@ -111,7 +111,7 @@ const DiffChecker = () => {
   const diffLinesArray = buildDiffLinesArray(left, right, mode);
 
   return (
-    <div className="flex flex-1 flex-col p-8 min-w-0 gap-4">
+    <div className="flex flex-1 flex-col p-4 min-w-0 gap-4">
       <div className="flex justify-center">
         <Tabs
           className="w-full sm:w-fit"
@@ -196,7 +196,7 @@ const DiffChecker = () => {
 
             {/* RIGHT EDITOR */}
             <ResizablePanel
-              className="flex flex-1 border rounded-md relative"
+              className="flex flex-1 rounded-md relative"
               defaultSize={
                 localStorage.getItem(
                   "dev-utils::diff-checker::resize-panel-1-2",
@@ -358,7 +358,7 @@ export const AutoHeightTextArea = ({
 
       <Textarea
         ref={textAreaRef}
-        className={`w-full outline-none shadow-none border-none resize-none overflow-hidden focus-visible:ring-0`}
+        className={`w-full h-full outline-none shadow-none border-none resize-none overflow-hidden focus-visible:ring-0`}
         value={value}
         style={{
           fontSize: baseFontSize,
