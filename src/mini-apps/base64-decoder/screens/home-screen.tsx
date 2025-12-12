@@ -21,19 +21,19 @@ export const Base64EncoderDecoderScreen = () => {
     <div className="flex flex-1 min-h-0 overflow-auto">
       <AnimatePresence mode="wait">
         <AnimatedPage id={APP_ID} classname="flex flex-1 flex-col">
-          <div className="p-8">
+          <div className="p-4">
             <Tabs
               defaultValue="decoder"
-              className="w-full p-6 rounded-xl bg-white border"
+              className="flex w-full rounded-xl items-center"
             >
-              <TabsList className="w-full">
+              <TabsList className="w-full sm:w-80 flex justify-center">
                 <TabsTrigger value="decoder">Decoder</TabsTrigger>
                 <TabsTrigger value="encoder">Encoder</TabsTrigger>
               </TabsList>
-              <TabsContent value="decoder">
+              <TabsContent className="w-full" value="decoder">
                 <DecodedTabContent />
               </TabsContent>
-              <TabsContent value="encoder">
+              <TabsContent className="w-full" value="encoder">
                 <EncodedTabContent />
               </TabsContent>
             </Tabs>
