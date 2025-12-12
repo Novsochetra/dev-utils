@@ -1,105 +1,53 @@
-import { memo, useEffect, type Dispatch } from "react";
-import { toast } from "sonner";
-import { writeText } from "tauri-plugin-clipboard-api";
+import { memo, type Dispatch } from "react";
 
-import { useClipboardStore } from "../../state/state";
+import { Input } from "@/vendor/shadcn/components/ui/input";
 import { ClipboardListItem } from "./clipboard-list-item";
-import { invoke } from "@tauri-apps/api/core";
+import type { SearchResultItem } from "../home-screen";
 
-export const ClipboardList = memo(({
-  activeIndex, 
-  setActiveIndex
-}: {
-  activeIndex: number, 
-  setActiveIndex: Dispatch<React.SetStateAction<number>>
-}) => {
-  const items = useClipboardStore((s) => s.items);
-
-  
-  const itemElements: HTMLDivElement[] = [];
-
-  const setItemElement = (i: number, el: HTMLDivElement) => {
-    itemElements[i] = el;
-  };
-
-  const updateDataset = (newIndex: number) => {
-    itemElements.forEach((el, i) => {
-      if (!el) return;
-      el.dataset.selected = i === newIndex ? "true" : "false";
-    });
-  };
-
-  // initial highlight
-  useEffect(() => {
-    updateDataset(activeIndex);
-  }, []);
-
-  // keyboard
-  useEffect(() => {
-    const handle = async (e: KeyboardEvent) => {
-      let newIndex = activeIndex;
-
-      if (e.key === "ArrowDown")
-        newIndex = Math.min(newIndex + 1, items.length - 1);
-      if (e.key === "ArrowUp") newIndex = Math.max(newIndex - 1, 0);
-      if (e.key === "Enter") {
-        const item = items[activeIndex];
-        if (item && item.type === "text") {
-          writeText(item.content);
-          toast.success("Copied to clipboard!");
-          invoke('auto_paste')
-            .catch(() => {
-              toast.error("Unable to auto paste to previous opened application. Please check the permission in settings!", {
-                // Add an action button that provides the detailed next steps
-                action: {
-                  label: "Settings",
-                  onClick: () => {
-                    invoke('open_system_settings')
-                      .catch(() => {
-                        toast.error("Unable to open system settings")
-                      })
-                  },
-                }
-              });
-            });
-        }
-      }
-
-      if (newIndex !== activeIndex) {
-        setActiveIndex(newIndex);
-        updateDataset(newIndex);
-
-        // ⚡ Auto-scroll active item into view
-        const el = itemElements[newIndex];
-        if (el) {
-          el.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest", // keep item visible but don't scroll too aggressively
-          });
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handle);
-    return () => window.removeEventListener("keydown", handle);
-  }, [activeIndex]);
-  
-  return (
-    <div className="flex flex-col flex-1 min-w-20 max-w-80 overflow-y-scroll min-h-0 p-4">
-      {items.map((item, i) => (
-        <ClipboardListItem
-          key={i}
-          item={item}
-          index={i}
-          onSelect={(index, el) => {
-            setItemElement(index, el);
-            el.onclick = () => {
-              setActiveIndex(index);
-              updateDataset(index);
-            };
-          }}
+export const ClipboardList = memo(
+  ({
+    filteredItems,
+    searchQuery,
+    setSearchQuery,
+    setActiveIndex,
+    setItemElement,
+    updateDataset,
+  }: {
+    filteredItems: SearchResultItem[];
+    searchQuery: string;
+    activeIndex: number;
+    setActiveIndex: Dispatch<React.SetStateAction<number>>;
+    setSearchQuery: Dispatch<React.SetStateAction<string>>;
+    setItemElement: (index: number, el: HTMLDivElement) => void;
+    updateDataset: (index: number) => void;
+  }) => {
+    return (
+      <div className="flex flex-col flex-1 min-w-20 max-w-80 overflow-y-scroll min-h-0 p-4">
+        {/* Search Input */}
+        <Input
+          type="text"
+          placeholder="Search clipboard..."
+          className="mb-2 p-2 border rounded-md"
+          value={searchQuery}
+          autoFocus
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
-      ))}
-    </div>
-  );
-});
+
+        {filteredItems.map((item, i) => (
+          <ClipboardListItem
+            key={i}
+            item={item}
+            index={i}
+            onSelect={(index, el) => {
+              setItemElement(index, el);
+              el.onclick = () => {
+                setActiveIndex(index);
+                updateDataset(index);
+              };
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+);

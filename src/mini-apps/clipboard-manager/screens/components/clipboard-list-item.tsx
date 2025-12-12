@@ -1,18 +1,20 @@
 import { memo } from "react";
-import { cn } from "@/vendor/shadcn/lib/utils";
-import { useClipboardStore, type ClipItem } from "../../state/state";
 import { TrashIcon } from "lucide-react";
+
+import { cn } from "@/vendor/shadcn/lib/utils";
+import { useClipboardStore } from "../../state/state";
+import type { SearchResultItem } from "../home-screen";
 
 export const ClipboardListItem = memo(function MemoItem({
   item,
   index,
   onSelect,
 }: {
-  item: ClipItem;
+  item: SearchResultItem;
   index: number;
   onSelect: (i: number, el: HTMLDivElement) => void;
 }) {
-  const removeClipboardItem = useClipboardStore(state => state.removeItem)
+  const removeClipboardItem = useClipboardStore((state) => state.removeItem);
 
   return (
     <div
@@ -39,7 +41,7 @@ export const ClipboardListItem = memo(function MemoItem({
         // Ensures the button takes priority for clicks
         onClick={(e) => {
           e.stopPropagation(); // Prevent the parent 'onSelect' from firing
-          removeClipboardItem(item.id)
+          removeClipboardItem(item.id);
         }}
         className={cn(
           "absolute right-2 top-1/2 -translate-y-1/2 bg-destructive",
