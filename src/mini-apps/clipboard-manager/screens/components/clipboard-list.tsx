@@ -30,6 +30,7 @@ export const ClipboardList = memo(
           className="mb-2 p-2 border rounded-md"
           value={searchQuery}
           autoFocus
+          spellCheck="false"
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
