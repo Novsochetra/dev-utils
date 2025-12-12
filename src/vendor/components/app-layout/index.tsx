@@ -128,7 +128,7 @@ const LeftSidebar = () => {
   const openSidebar = useAppStore((state) => state.openSidebar);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex gap-2 px-4 py-2 rounded-lg items-center ${isActive ? "bg-slate-500 text-white" : "bg-white text-slate-500"}`;
+    `flex gap-2 px-4 py-2 rounded-lg items-center ${isActive ? "bg-primary text-primary-foreground" : "bg text-foreground"}`;
   useHotkeys(
     "meta+b",
     () => {
