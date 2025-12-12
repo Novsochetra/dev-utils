@@ -147,6 +147,14 @@ export function CommandDialogDemo() {
         onOpenChange={setOpen}
         className="border-4 border-stone-200 rounded-3xl"
         showCloseButton={false}
+        onKeyDown={(e) => {
+          // prevent event from bubble up
+          // like when no mini app clipboard manager there also event enter listener
+          // so if we show the navbar and press enter the clipboard manager event will be execute also
+          if (e.key === 'Enter') {
+            e.stopPropagation()
+          }
+        }}
       >
         <div className="p-2">
           <CommandInput
