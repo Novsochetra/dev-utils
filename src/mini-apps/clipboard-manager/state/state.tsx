@@ -45,6 +45,13 @@ export const useClipboardStore = create<Store>()(
 
       addItem: async (item) => {
         set((state) => {
+          // INFO: we might can improve later for lru-cache
+          const MAX_ITEM_CAPACITY = 10_000;
+
+          if(state.items.length >= MAX_ITEM_CAPACITY) {
+            state.items.splice(MAX_ITEM_CAPACITY - 1)
+          }
+
           if(!item.content?.trim()) {
             return state;
           }
