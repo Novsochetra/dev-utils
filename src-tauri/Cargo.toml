@@ -28,3 +28,7 @@ tauri-plugin-clipboard = { git = "https://github.com/CrossCopy/tauri-plugin-clip
 sha2 = { version = "0.10.9" }
 hex = "0.4"
 enigo = "0.6.1"
+reqwest = { version = "0.12.25" }
+url = { version = "2.5.7" }
+scraper = { version = "0.25.0" }
+base64 = { version = "0.22.1" }

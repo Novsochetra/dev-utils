@@ -44,7 +44,7 @@ export const ClipboardList = memo(
 
     return (
       <div className="flex flex-col flex-1 min-w-20 max-w-80 overflow-y-scroll min-h-0 px-4 pb-4">
-        <div className="sticky top-0 bg-background z-[9999] pt-4">
+        <div className="sticky top-0 bg-background z-10 pt-4">
           <Input
             type="text"
             placeholder="Search clipboard..."
