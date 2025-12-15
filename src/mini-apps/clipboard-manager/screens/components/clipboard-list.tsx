@@ -29,34 +29,37 @@ export const ClipboardList = memo(
     setItemElement: (index: number, el: HTMLDivElement) => void;
     updateDataset: (index: number) => void;
   }) => {
+
     const onSelect = useCallback((index: number, el: HTMLDivElement) => {
       setItemElement(index, el);
       el.onclick = () => {
         setActiveIndex(index);
         updateDataset(index);
       };
-    }, []);
+    }, [setActiveIndex, updateDataset, setItemElement]);
 
     const animateProps = searchQuery
       ? { animationKey: filteredItems.length.toString() }
       : {};
 
     return (
-      <div className="flex flex-col flex-1 min-w-20 max-w-80 overflow-y-scroll min-h-0 p-4">
-        <Input
-          type="text"
-          placeholder="Search clipboard..."
-          className="mb-2 p-2 border rounded-md"
-          value={searchQuery}
-          autoFocus
-          spellCheck="false"
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className="flex flex-col flex-1 min-w-20 max-w-80 overflow-y-scroll min-h-0 px-4 pb-4">
+        <div className="sticky top-0 bg-background z-[9999] pt-4">
+          <Input
+            type="text"
+            placeholder="Search clipboard..."
+            className="mb-2 p-2 border rounded-md"
+            value={searchQuery}
+            autoFocus
+            spellCheck="false"
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
        <StaggeredListContainer {...animateProps}>
           <AnimatePresence mode="popLayout">
             {filteredItems.map((item, i) => (
-              <motion.div key={searchQuery ? `search-item-${i}`: item.id} variants={itemVariants}>
+              <motion.div key={searchQuery ? `search-item-${i}`: `clipboard-list-item-${item.id}`} variants={itemVariants}>
                 <ClipboardListItem item={item} index={i} onSelect={onSelect} />
               </motion.div>
             ))}
