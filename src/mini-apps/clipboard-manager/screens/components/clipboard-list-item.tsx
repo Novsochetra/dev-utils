@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, type Dispatch } from "react";
 import { TrashIcon } from "lucide-react";
 
 import { cn } from "@/vendor/shadcn/lib/utils";
@@ -8,23 +8,28 @@ import type { SearchResultItem } from "../home-screen";
 export type ClipboardListItemProps = {
   item: SearchResultItem;
   index: number;
+  isActive: boolean;
   onSelect: (i: number, el: HTMLDivElement) => void;
-}
+  setActiveIndex: Dispatch<React.SetStateAction<number>>;
+};
 
 export const ClipboardListItem = memo(function MemoItem({
   item,
   index,
   onSelect,
+  isActive,
+  setActiveIndex,
 }: ClipboardListItemProps) {
   const removeClipboardItem = useClipboardStore((state) => state.removeItem);
 
   return (
     <div
       data-index={index}
-      data-selected="false"
+      data-selected={isActive ? "true" : "false"}
       ref={(el) => {
         if (el) onSelect(index, el);
       }}
+      onClick={() => setActiveIndex(index)}
       className={cn(
         "cursor-pointer text-sm transition-all hover:bg-muted hover:rounded-md w-full px-4 py-2 min-h-9",
         "relative group",

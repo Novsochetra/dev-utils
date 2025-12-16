@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import Fuse, { type FuseResultMatch } from "fuse.js";
 import { writeText } from "tauri-plugin-clipboard-api";
@@ -23,7 +23,7 @@ export type SearchResultItem = {
 };
 
 export default function ClipboardManager() {
-  const itemElements: HTMLDivElement[] = [];
+  const itemElements = useRef<HTMLDivElement[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const items = useClipboardStore((s) => s.items) as (ClipItem & {
     matches: FuseResultMatch[];
@@ -32,16 +32,8 @@ export default function ClipboardManager() {
   const [filteredItems, setFilteredItems] = useState<SearchResultItem[]>(items);
   const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
 
-
   const setItemElement = (i: number, el: HTMLDivElement) => {
-    itemElements[i] = el;
-  };
-
-  const updateDataset = (newIndex: number) => {
-    itemElements.forEach((el, i) => {
-      if (!el) return;
-      el.dataset.selected = i === newIndex ? "true" : "false";
-    });
+    itemElements.current[i] = el;
   };
 
   const fuse = useMemo(
@@ -77,10 +69,6 @@ export default function ClipboardManager() {
     setActiveIndex(0);
   }, [debouncedQuery, items, fuse]);
 
-  useEffect(() => {
-    updateDataset(activeIndex);
-  }, []);
-
   // keyboard navigation
   useEffect(() => {
     const handle = async (e: KeyboardEvent) => {
@@ -111,9 +99,8 @@ export default function ClipboardManager() {
 
       if (newIndex !== activeIndex) {
         setActiveIndex(newIndex);
-        updateDataset(newIndex);
 
-        const el = itemElements[newIndex];
+        const el = itemElements.current[newIndex];
         if (el) {
           el.scrollIntoView({
             behavior: "smooth",
@@ -171,7 +158,6 @@ export default function ClipboardManager() {
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               setItemElement={setItemElement}
-              updateDataset={updateDataset}
             />
 
             <div className="h-full w-px bg-border" />

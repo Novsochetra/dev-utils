@@ -1,4 +1,4 @@
-import { memo, useCallback, type Dispatch } from "react";
+import { memo, type Dispatch } from "react";
 import { List, type RowComponentProps } from "react-window";
 
 import { Input } from "@/vendor/shadcn/components/ui/input";
@@ -15,7 +15,7 @@ export const ClipboardList = memo(
     setSearchQuery,
     setActiveIndex,
     setItemElement,
-    updateDataset,
+    activeIndex,
   }: {
     filteredItems: SearchResultItem[];
     searchQuery: string;
@@ -23,26 +23,18 @@ export const ClipboardList = memo(
     setActiveIndex: Dispatch<React.SetStateAction<number>>;
     setSearchQuery: Dispatch<React.SetStateAction<string>>;
     setItemElement: (index: number, el: HTMLDivElement) => void;
-    updateDataset: (index: number) => void;
   }) => {
-    const onSelect = useCallback(
-      (index: number, el: HTMLDivElement) => {
-        setItemElement(index, el);
-        el.onclick = () => {
-          setActiveIndex(index);
-          updateDataset(index);
-        };
-      },
-      [setActiveIndex, updateDataset, setItemElement]
-    );
+    const onSelect = (index: number, el: HTMLDivElement) => {
+      setItemElement(index, el);
+    };
 
     return (
-      <div className="flex flex-col flex-1 min-w-20 max-w-80 min-h-0 px-4 pb-4">
-        <div className="sticky top-0 bg-background z-10 pt-4">
+      <div className="flex flex-col flex-1 relative">
+        <div className="absolute top-0 left-0 z-10 w-full px-4 pt-4 pb-2">
           <Input
             type="text"
             placeholder="Search clipboard..."
-            className="mb-2 p-2 border rounded-md"
+            className="p-2 border rounded-md h-9"
             value={searchQuery}
             autoFocus
             spellCheck="false"
@@ -50,14 +42,18 @@ export const ClipboardList = memo(
           />
         </div>
 
-        <div className="flex flex-1 flex-col min-h-0 overflow-auto">
-          <List
-            rowComponent={RowComponent}
-            rowCount={filteredItems.length}
-            rowHeight={36}
-            rowProps={{ names: filteredItems, onSelect }}
-          />
-        </div>
+        <List
+          style={{ marginTop: 36 + 16 + 8 }}
+          rowComponent={RowComponent}
+          rowCount={filteredItems.length}
+          rowHeight={36}
+          rowProps={{
+            names: filteredItems,
+            onSelect,
+            activeIndex,
+            setActiveIndex,
+          }}
+        />
       </div>
     );
   }
@@ -68,16 +64,22 @@ function RowComponent({
   names,
   style,
   onSelect,
+  activeIndex,
+  setActiveIndex,
 }: RowComponentProps<{
   names: SearchResultItem[];
   onSelect: ClipboardListItemProps["onSelect"];
+  activeIndex: number;
+  setActiveIndex: Dispatch<React.SetStateAction<number>>;
 }>) {
   return (
-    <div style={style}>
+    <div style={style} className="px-4">
       <ClipboardListItem
         item={names[index]}
         index={index}
         onSelect={onSelect}
+        isActive={activeIndex === index}
+        setActiveIndex={setActiveIndex}
       />
     </div>
   );
