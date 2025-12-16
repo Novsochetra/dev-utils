@@ -66,7 +66,8 @@ export const useClipboardStore = create<Store>()(
             state.items.splice(existing, 1);
             state.items.unshift({
               ...clone,
-              count: clone.count + 1
+              count: clone.count + 1,
+              createdAt: item.createdAt,
             });
           } else {
             // New item → add to top

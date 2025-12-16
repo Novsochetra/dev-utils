@@ -40,14 +40,11 @@ export const StaggeredListContainer = ({
 }: StaggeredListProps) => {
   const shouldReduceMotion = useReducedMotion();
 
-  // If motion is reduced, disable the initial/animate props
   const animationProps = shouldReduceMotion || !animationKey
     ? {
-        key: animationKey,
         className,
       }
     : {
-        key: animationKey, 
         variants: containerVariants,
         initial: "hidden",
         animate: "visible",
@@ -56,7 +53,7 @@ export const StaggeredListContainer = ({
 
   return (
     // INFO: must be provide animationKey={animationKey} re-triggering the stagger
-    <motion.div {...animationProps}>
+    <motion.div key={animationKey} {...animationProps}>
       <AnimatePresence mode="popLayout"> 
         {children}
       </AnimatePresence>

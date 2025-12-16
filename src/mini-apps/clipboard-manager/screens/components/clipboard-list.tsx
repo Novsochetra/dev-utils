@@ -1,16 +1,12 @@
 import { memo, useCallback, type Dispatch } from "react";
+import { List, type RowComponentProps } from "react-window";
 
 import { Input } from "@/vendor/shadcn/components/ui/input";
-import { StaggeredListContainer } from "@/vendor/components/staggered-list-container";
-import { ClipboardListItem } from "./clipboard-list-item";
 import type { SearchResultItem } from "../home-screen";
-import { AnimatePresence, motion } from "framer-motion";
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 20 },
-};
+import {
+  ClipboardListItem,
+  type ClipboardListItemProps,
+} from "./clipboard-list-item";
 
 export const ClipboardList = memo(
   ({
@@ -29,21 +25,19 @@ export const ClipboardList = memo(
     setItemElement: (index: number, el: HTMLDivElement) => void;
     updateDataset: (index: number) => void;
   }) => {
-
-    const onSelect = useCallback((index: number, el: HTMLDivElement) => {
-      setItemElement(index, el);
-      el.onclick = () => {
-        setActiveIndex(index);
-        updateDataset(index);
-      };
-    }, [setActiveIndex, updateDataset, setItemElement]);
-
-    const animateProps = searchQuery
-      ? { animationKey: filteredItems.length.toString() }
-      : {};
+    const onSelect = useCallback(
+      (index: number, el: HTMLDivElement) => {
+        setItemElement(index, el);
+        el.onclick = () => {
+          setActiveIndex(index);
+          updateDataset(index);
+        };
+      },
+      [setActiveIndex, updateDataset, setItemElement]
+    );
 
     return (
-      <div className="flex flex-col flex-1 min-w-20 max-w-80 overflow-y-scroll min-h-0 px-4 pb-4">
+      <div className="flex flex-col flex-1 min-w-20 max-w-80 min-h-0 px-4 pb-4">
         <div className="sticky top-0 bg-background z-10 pt-4">
           <Input
             type="text"
@@ -56,16 +50,35 @@ export const ClipboardList = memo(
           />
         </div>
 
-       <StaggeredListContainer {...animateProps}>
-          <AnimatePresence mode="popLayout">
-            {filteredItems.map((item, i) => (
-              <motion.div key={searchQuery ? `search-item-${i}`: `clipboard-list-item-${item.id}`} variants={itemVariants}>
-                <ClipboardListItem item={item} index={i} onSelect={onSelect} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </StaggeredListContainer>
+        <div className="flex flex-1 flex-col min-h-0 overflow-auto">
+          <List
+            rowComponent={RowComponent}
+            rowCount={filteredItems.length}
+            rowHeight={36}
+            rowProps={{ names: filteredItems, onSelect }}
+          />
+        </div>
       </div>
     );
   }
 );
+
+function RowComponent({
+  index,
+  names,
+  style,
+  onSelect,
+}: RowComponentProps<{
+  names: SearchResultItem[];
+  onSelect: ClipboardListItemProps["onSelect"];
+}>) {
+  return (
+    <div style={style}>
+      <ClipboardListItem
+        item={names[index]}
+        index={index}
+        onSelect={onSelect}
+      />
+    </div>
+  );
+}

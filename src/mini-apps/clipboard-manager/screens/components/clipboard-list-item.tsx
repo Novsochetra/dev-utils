@@ -5,15 +5,17 @@ import { cn } from "@/vendor/shadcn/lib/utils";
 import { useClipboardStore } from "../../state/state";
 import type { SearchResultItem } from "../home-screen";
 
+export type ClipboardListItemProps = {
+  item: SearchResultItem;
+  index: number;
+  onSelect: (i: number, el: HTMLDivElement) => void;
+}
+
 export const ClipboardListItem = memo(function MemoItem({
   item,
   index,
   onSelect,
-}: {
-  item: SearchResultItem;
-  index: number;
-  onSelect: (i: number, el: HTMLDivElement) => void;
-}) {
+}: ClipboardListItemProps) {
   const removeClipboardItem = useClipboardStore((state) => state.removeItem);
 
   return (
