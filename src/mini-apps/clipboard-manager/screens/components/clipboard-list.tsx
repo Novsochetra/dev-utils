@@ -29,7 +29,7 @@ export const ClipboardList = memo(
     };
 
     return (
-      <div className="flex flex-col flex-1 relative">
+      <div className="flex flex-col flex-1 relative max-w-80">
         <div className="absolute top-0 left-0 z-10 w-full px-4 pt-4 pb-2">
           <Input
             type="text"
