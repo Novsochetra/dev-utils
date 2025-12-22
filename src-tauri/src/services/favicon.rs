@@ -24,7 +24,7 @@ pub async fn fetch_and_store_favicon(app: &AppHandle, raw_url: &str) -> Option<P
 
     // Ensure app directories
     let app_dir = ensure_app_dirs(app).ok()?;
-    
+
     let icons_dir = app_dir
         .join("mini-apps")
         .join("clipboard-manager")

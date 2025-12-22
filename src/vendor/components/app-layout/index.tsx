@@ -1,9 +1,15 @@
-import { memo, useState, useEffect, type ReactNode } from "react";
+import { memo, useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { getVersion } from "@tauri-apps/api/app";
 import { HomeIcon, PackageIcon, SidebarIcon } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Outlet, NavLink, useMatches, type UIMatch } from "react-router";
+import {
+  Outlet,
+  NavLink,
+  useMatches,
+  type UIMatch,
+  useNavigate,
+} from "react-router";
 
 import { getMiniApps } from "@/core/mini-app-registry";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -47,7 +53,7 @@ export const AppLayout = () => {
   );
 };
 
-const MenuBar = () => {
+export const MenuBar = () => {
   return (
     <motion.div
       data-tauri-drag-region
@@ -60,20 +66,51 @@ const MenuBar = () => {
   );
 };
 
+const useWindowWidth = () => {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+
+  useEffect(() => {
+    function onResize() {
+      setWindowWidth(window.innerWidth)
+    }
+
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      window.removeEventListener('resize', onResize)
+    }
+  }, [])
+
+  return windowWidth
+}
+
 const MenuBarLeft = () => {
-  const show = useAppStore((s) => s.sidebarVisible);
+  const windowWidth = useWindowWidth()
+  const sidebarVisible = useAppStore((s) => s.sidebarVisible);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
+  const leftMenuBar = useAppStore(s => s.menubar.left)
+  const matches = useMatches() as UIMatch<
+    unknown,
+    { title?: string; showBackButton?: boolean }
+  >[];
+  const current = matches[matches.length - 1];
+  const navigate = useNavigate();
+  const width = sidebarVisible
+    ? (windowWidth - sidebarWidth) / 3 + sidebarWidth
+    : windowWidth / 3;
 
   return (
     <motion.div
-      animate={{ width: show ? sidebarWidth : 0 }}
-      className="h-full flex items-center relative"
+      layout
+      className="flex items-center"
+      animate={{ width }}
+      data-tauri-drag-region
     >
       <motion.div
         layout
         data-tauri-drag-region
-        animate={{ width: show ? sidebarWidth : minMenuBarLeftWidth }}
-        className="flex absolute left-0"
+        animate={{ width: sidebarVisible ? sidebarWidth : minMenuBarLeftWidth }}
+        className="flex"
       >
         <MacOSTrafficLight />
 
@@ -87,33 +124,53 @@ const MenuBarLeft = () => {
           <SidebarIcon className="text-slate-500" size={20} />
         </Button>
       </motion.div>
+
+      <div className="flex flex-1 px-2 min-w-0 items-center" data-tauri-drag-region>
+        {leftMenuBar}
+      </div>
     </motion.div>
   );
 };
 
 const MenuBarCenter = memo(() => {
+  const windowWidth = useWindowWidth()
+  const sidebarVisible = useAppStore((s) => s.sidebarVisible);
   const matches = useMatches() as UIMatch<
     unknown,
     { title?: string; showBackButton?: boolean }
   >[];
-  const current = matches.find((m) => m.handle?.title);
+  const current = matches[matches.length - 1];
+  const width = sidebarVisible
+    ? (windowWidth - sidebarWidth) / 3
+    : windowWidth / 3;
 
   return (
-    <motion.div layout className="flex-1 h-full flex justify-center">
+    <motion.div
+      layout
+      className="flex flex-1 h-full justify-center min-w-0 max-h-12"
+      animate={{ width }}
+    >
       <Navbar showSearchBar showBack={current?.handle?.showBackButton} />
     </motion.div>
   );
 });
 
-const MenuBarRight = ({ children }: { children?: ReactNode }) => {
-  if (!children) {
-    return null;
-  }
+const MenuBarRight = () => {
+  const windowWidth = useWindowWidth()
+  const sidebarVisible = useAppStore((s) => s.sidebarVisible);
+  const children = useAppStore((state) => state.menubar.right);
+  const width = sidebarVisible
+    ? (windowWidth - sidebarWidth) / 3
+    : windowWidth / 3;
 
-  return (
-    <div className="flex">
-      <p>hi</p>
-    </div>
+    return (
+    <motion.div
+      data-tauri-drag-region
+      className="flex max-h-12 items-center justify-end flex-nowrap px-2"
+      animate={{ width }}
+    >
+      {children}
+    </motion.div>
   );
 };
 
@@ -128,13 +185,15 @@ const LeftSidebar = () => {
   const openSidebar = useAppStore((state) => state.openSidebar);
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex gap-2 px-4 py-2 rounded-lg items-center ${isActive ? "bg-primary text-primary-foreground" : "bg text-foreground"}`;
+    `flex gap-2 px-4 py-2 rounded-lg items-center ${
+      isActive ? "bg-primary text-primary-foreground" : "bg text-foreground"
+    }`;
   useHotkeys(
     "meta+b",
     () => {
       toggleSidebar();
     },
-    { enabled: true, enableOnContentEditable: true, enableOnFormTags: true },
+    { enabled: true, enableOnContentEditable: true, enableOnFormTags: true }
   );
 
   useEffect(() => {

@@ -1,0 +1,8 @@
+{
+  "identifier": "opener",
+  "description": "Opener (url, app) permissions",
+  "windows": ["main"],
+  "permissions": [
+    "opener:default"
+  ]
+}

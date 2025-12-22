@@ -29,7 +29,7 @@ type Store = {
   removeFolder: (id: Folder["id"]) => void;
   renameFolder: (id: Folder["id"], name: Folder["name"]) => void;
 
-  addBookmark: (params: Pick<BookmarkItem, "icon" | "url" | "name" | "folderId">) => void;
+  addBookmark: (params: Pick<BookmarkItem, "url" | "name" | "folderId">) => void;
   removeBookmark: (id: BookmarkItem["id"]) => void;
   updateBookmark: (
     id: BookmarkItem["id"],

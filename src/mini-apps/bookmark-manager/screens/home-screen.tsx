@@ -4,7 +4,13 @@ import { type FuseResultMatch } from "fuse.js";
 import { invoke } from "@tauri-apps/api/core";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
+import { useAppStore } from "@/main-app/state";
+import { BookmarkFolders } from "./components/list-folder";
+import { BookmarkManagerRightToolbar } from "./components/toolbar/right-toolbar";
+import { BookmarkManagerLeftToolbar } from "./components/toolbar/left-toolbar";
 import { APP_ID } from "../utils/constants";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useNavigate } from "react-router";
 
 export type SearchResultItem = {
   matches: readonly FuseResultMatch[] | undefined;
@@ -18,6 +24,30 @@ export type SearchResultItem = {
 
 export default function BookmarkManager() {
   const [iconPath, setIconPath] = useState<string>("");
+  const setRightMenubar = useAppStore(state => state.setRightMenubar)
+  const setLeftMenubar = useAppStore(state => state.setLeftMenubar)
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+     navigate('/')
+    },
+    { enabled: true, enableOnFormTags: true },
+  );
+  
+  useEffect(() => {
+    setRightMenubar(
+      <BookmarkManagerRightToolbar />
+    )
+
+    setLeftMenubar(<BookmarkManagerLeftToolbar />)
+
+    return () => {
+      setRightMenubar(null)
+      setLeftMenubar(null)
+    }
+  }, [])
 
   useEffect(() => {
     async function saveFavicon(url: string) {
@@ -39,8 +69,8 @@ export default function BookmarkManager() {
     <div className="flex flex-1 min-h-0">
       <AnimatePresence mode="wait">
         <AnimatedPage id={APP_ID} classname="flex flex-1 flex-col min-w-0">
-          <div className="flex flex-1 min-h-0 min-w-0">
-            {iconPath ? <img src={iconPath} className="w-4 h-4" /> : null}
+          <div className="flex flex-1 flex-col p-4 min-h-0 overflow-auto">
+            <BookmarkFolders />
           </div>
         </AnimatedPage>
       </AnimatePresence>

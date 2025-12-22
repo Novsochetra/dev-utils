@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { useHotkeys } from "react-hotkeys-hook";
-import { ChevronLeft, PackageIcon } from "lucide-react";
+import { PackageIcon } from "lucide-react";
 
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import {
@@ -16,7 +16,6 @@ import {
 import { getMiniApps } from "@/core/mini-app-registry";
 import { useAppSuggestions } from "./use-app-suggestions";
 import { motion } from "framer-motion";
-import { minMenuBarLeftWidth } from "../app-layout";
 
 type NavbarProps = {
   showBack?: boolean;
@@ -55,45 +54,23 @@ export const Navbar = (props: NavbarProps) => {
   );
 
   return (
-    <motion.div layout className="flex flex-1 min-h-12 h-12 py-2 gap-4">
-      <div
-        className={`flex items-center`}
-        style={
-          props.showBack
-            ? { position: "sticky", left: minMenuBarLeftWidth }
-            : {}
-        }
-      >
-        {props.showBack ? (
-          <a
-            href="#"
-            onClick={() => {
-              navigate(-1);
-            }}
-            className="flex items-center text-zinc-600"
-          >
-            <ChevronLeft className="mr-4 ml-2" size={24} />
-            <span className="">Back</span>
-          </a>
-        ) : null}
-      </div>
-
-      <div className="flex flex-1 justify-center" data-tauri-drag-region>
+    <motion.div layout className="flex flex-1 min-h-12 h-12 min-w-0">
+      
+      <div className="flex flex-1 justify-center p-2 min-w-0" data-tauri-drag-region>
         {props.showSearchBar ? (
-          <div className="flex flex-1 justify-center max-w-80">
+          <div className="flex flex-1 justify-center max-w-[600px] min-w-0">
             <CommandDialogDemo />
           </div>
         ) : (
           <div
             data-tauri-drag-region
-            className="flex flex-1 justify-center items-center overflow-hidden"
+            className="flex flex-1 justify-center items-center overflow-hidden min-w-0"
           >
             <h3 className="font-semibold truncate">{props.title}</h3>
           </div>
         )}
       </div>
 
-      <div />
     </motion.div>
   );
 };
@@ -124,12 +101,12 @@ export function CommandDialogDemo() {
     <>
       <div
         data-tauri-drag-region={false}
-        className="w-full md:w-96 px-4 bg-stone-100 flex items-center rounded-md hover:bg-stone-50 transition-colors duration-300"
+        className="flex flex-1 min-w-0 justify-between bg-stone-100 items-center rounded-md hover:bg-stone-50 transition-colors duration-300 p-2"
         onClick={() => {
           setOpen(true);
         }}
       >
-        <p className="text-muted-foreground text-sm flex flex-1 line-clamp-1 text-ellipsis text-nowrap">
+        <p className="text-muted-foreground text-sm truncate">
           Search apps{" "}
         </p>
 
