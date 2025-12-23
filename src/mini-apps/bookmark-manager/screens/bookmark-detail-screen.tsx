@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, type Dispatch } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useParams } from "react-router";
 import { useHotkeys } from "react-hotkeys-hook";
-import { openUrl } from '@tauri-apps/plugin-opener';
 import { List, type RowComponentProps } from "react-window";
+import { openUrl } from "@tauri-apps/plugin-opener";
 
 import { useAppStore } from "@/main-app/state";
 import { AnimatedPage } from "@/vendor/components/animate-page";
@@ -17,19 +17,22 @@ import {
 import { Empty } from "./components/empty";
 import { useBookmarkStore, type BookmarkItem } from "../state/state";
 import { toast } from "sonner";
+import { EmptySearch } from "./components/empty-search";
 
 export const BookmarkDetailScreen = () => {
   const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
   const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setSearchBookmarkQuery = useBookmarkStore(state => state.setSearchBookmarkQuery)
+  const setSearchBookmarkResult = useBookmarkStore(state => state.setSearchBookmarkResult)
+
   const navigate = useNavigate();
 
-  useHotkeys(
-    "Escape",
-    () => {
-      navigate(-1);
-    },
-    { enabled: true, enableOnFormTags: true }
-  );
+  useHotkeys("Escape", (e) => {
+    navigate(-1);
+    e.stopPropagation();
+  });
+
+
 
   useEffect(() => {
     setLeftMenubar(<BookmarkManagerDetailLeftToolbar />);
@@ -39,6 +42,9 @@ export const BookmarkDetailScreen = () => {
     return () => {
       setRightMenubar(null);
       setLeftMenubar(null);
+
+      setSearchBookmarkQuery("")
+      setSearchBookmarkResult([])
     };
   }, []);
 
@@ -62,29 +68,36 @@ export const BookmarkList = () => {
     (b) => b.folderId === params["id"]
   );
   const [activeIndex, setActiveIndex] = useState(0);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredItems, setFilteredItems] = useState<BookmarkItem[]>(bookmarkByFolders);
-  const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
+  const searchQuery = useBookmarkStore((s) => s.searchBookmarkQuery);
+
+  const filteredItems = useBookmarkStore((s) => s.searchBookmarkResult);
+  const items = searchQuery ? filteredItems : bookmarkByFolders;
+
   const itemElements = useRef<HTMLDivElement[]>([]);
 
-  // keyboard navigation
-  useEffect(() => {
-    const handle = async (e: KeyboardEvent) => {
+  useHotkeys(
+    "Enter",
+    (e) => {
+      if (e.key === "Enter") {
+        const item = items[activeIndex];
+        if (item?.url) {
+          openUrl(item?.url);
+        } else {
+          toast.error("URL not found");
+        }
+      }
+    },
+    { enabled: true }
+  );
+
+  useHotkeys(
+    ["ArrowDown", "ArrowUp"],
+    (e) => {
       let newIndex = activeIndex;
 
       if (e.key === "ArrowDown")
-        newIndex = Math.min(newIndex + 1, filteredItems.length - 1);
+        newIndex = Math.min(newIndex + 1, items.length - 1);
       if (e.key === "ArrowUp") newIndex = Math.max(newIndex - 1, 0);
-      
-      // TODO:
-      // if (e.key === "Enter") {
-      //   const item = filteredItems[activeIndex];
-      //   if(item.url) {
-      //     openUrl(item.url)
-      //   } else {
-      //     toast.error("URL not found")
-      //   }
-      // }
 
       if (newIndex !== activeIndex) {
         setActiveIndex(newIndex);
@@ -97,50 +110,44 @@ export const BookmarkList = () => {
           });
         }
       }
-    };
-
-    window.addEventListener("keydown", handle);
-    return () => window.removeEventListener("keydown", handle);
-  }, [activeIndex, filteredItems]);
+      e.stopPropagation();
+      e.preventDefault();
+    },
+    { enabled: true, enableOnFormTags: true },
+    [activeIndex, items]
+  );
 
   const setItemElement = (i: number, el: HTMLDivElement) => {
     itemElements.current[i] = el;
   };
 
-  if (!bookmarkByFolders[activeIndex]) {
+  if (searchQuery && !filteredItems.length) {
+    return <EmptySearch />
+  }
+
+  if (!bookmarkByFolders.length) {
     return <Empty />;
   }
 
   return (
     <div className="flex flex-row flex-1 relative h-full">
-      {/* <div className="absolute top-0 left-0 z-10 w-full px-4 pt-4 pb-2">
-          <Input
-            type="text"
-            placeholder="Search clipboard..."
-            className="p-2 border rounded-md h-9"
-            value={searchQuery}
-            autoFocus
-            spellCheck="false"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div> */}
-      <div className="flex flex-1 min-h-0 min-w-0 max-w-80">
+      <div className="flex flex-1 min-h-0 min-w-0 max-w-80 p-4">
         <List
-          // style={{ marginTop: 36 + 16 + 8 }}
           rowComponent={RowComponent}
-          rowCount={bookmarkByFolders.length}
+          rowCount={items.length}
           rowHeight={36}
           rowProps={{
-            bookmarks: bookmarkByFolders,
+            bookmarks: items,
             onSelect: setItemElement,
             activeIndex,
             setActiveIndex,
           }}
         />
       </div>
+      <div className="bg-border w-px h-full" />
 
-      <div className="flex flex-1 min-h-0 min-w-0 bg-green-500">
-        <p>{bookmarkByFolders[activeIndex].url}</p>
+      <div className="flex flex-1 min-h-0 min-w-0 p-4">
+        <p>{items[activeIndex]?.url}</p>
       </div>
     </div>
   );
@@ -160,7 +167,7 @@ function RowComponent({
   setActiveIndex: Dispatch<React.SetStateAction<number>>;
 }>) {
   return (
-    <div style={style} className="h-9 border-b">
+    <div style={style} className="h-9">
       <BookmarkListItem
         item={bookmarks[index]}
         index={index}

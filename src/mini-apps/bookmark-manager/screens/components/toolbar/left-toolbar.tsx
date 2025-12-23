@@ -1,24 +1,25 @@
 import { useNavigate } from "react-router";
 import { ChevronLeft } from "lucide-react";
+import { Button } from "@/vendor/shadcn/components/ui/button";
 
 export const BookmarkManagerLeftToolbar = () => {
   const navigate = useNavigate();
 
   return (
     <div
-      className="flex flex-1 px-2 min-w-0 items-center"
+      className="flex flex-1 px-2 min-w-0 items-center gap-2"
       data-tauri-drag-region
     >
-      <a
-        href="#"
+      <Button
         data-tauri-drag-region={false}
+        size="sm"
+        variant="ghost"
         onClick={() => {
-          navigate('/')
+          navigate("/");
         }}
-        className="flex items-center text-zinc-600"
       >
-        <ChevronLeft className="mr-2" size={24} />
-      </a>
+        <ChevronLeft />
+      </Button>
 
       <p className="w-full truncate text-sm text-foreground">
         Bookmark Manager

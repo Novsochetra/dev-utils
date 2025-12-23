@@ -2,15 +2,16 @@ import { Link } from "react-router";
 import { memo } from "react";
 import { Trash2Icon } from "lucide-react";
 
-import { useBookmarkStore } from "../../state/state";
 import { Button } from "@/vendor/shadcn/components/ui/button";
+import { useBookmarkStore } from "../../state/state";
 
-type ListBookmarkItemProps = {
+type ListFolderItemProps = {
   id: string;
+  name: string;
   index: number;
 };
 
-export const ListFolderItem = memo(({ id, index }: ListBookmarkItemProps) => {
+export const ListFolderItem = memo(({ id, name }: ListFolderItemProps) => {
   const removeFolder = useBookmarkStore((state) => state.removeFolder);
 
   return (
@@ -32,21 +33,22 @@ export const ListFolderItem = memo(({ id, index }: ListBookmarkItemProps) => {
           </Button>
         </Link>
         <div className="flex flex-1 h-full">
-          <BookmarkNameInput id={id} index={index} />
+          <BookmarkNameInput id={id} name={name} />
         </div>
       </div>
   );
 });
 
-const BookmarkNameInput = memo(({ id, index }: { id: string, index: number }) => {
+const BookmarkNameInput = memo(({ id, name }: { id: string, name: string }) => {
   const renameFolder = useBookmarkStore((state) => state.renameFolder);
-  const folderName = useBookmarkStore((state) => state.folders[index]?.name);
+  const searchQuery = useBookmarkStore(state => state.searchFolderQuery)
 
   return (
     <input
       type="text"
       name="editor-title-input"
-      value={folderName}
+      value={name}
+      disabled={!!searchQuery}
       className="outline-none focus-visible:outline-none w-full overflow-scroll text-center  truncate text-ellipsis line-clamp-1"
       onChange={(e) => renameFolder(id, e.target.value)}
     />

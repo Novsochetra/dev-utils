@@ -8,7 +8,6 @@ import {
   NavLink,
   useMatches,
   type UIMatch,
-  useNavigate,
 } from "react-router";
 
 import { getMiniApps } from "@/core/mini-app-registry";
@@ -89,12 +88,6 @@ const MenuBarLeft = () => {
   const sidebarVisible = useAppStore((s) => s.sidebarVisible);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
   const leftMenuBar = useAppStore(s => s.menubar.left)
-  const matches = useMatches() as UIMatch<
-    unknown,
-    { title?: string; showBackButton?: boolean }
-  >[];
-  const current = matches[matches.length - 1];
-  const navigate = useNavigate();
   const width = sidebarVisible
     ? (windowWidth - sidebarWidth) / 3 + sidebarWidth
     : windowWidth / 3;
@@ -166,8 +159,9 @@ const MenuBarRight = () => {
     return (
     <motion.div
       data-tauri-drag-region
-      className="flex max-h-12 items-center justify-end flex-nowrap px-2"
+      className="flex items-center justify-end flex-nowrap px-2"
       animate={{ width }}
+      layout
     >
       {children}
     </motion.div>

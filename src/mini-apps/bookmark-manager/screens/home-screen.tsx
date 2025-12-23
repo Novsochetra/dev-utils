@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import { type FuseResultMatch } from "fuse.js";
-import { invoke } from "@tauri-apps/api/core";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useNavigate } from "react-router";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { useAppStore } from "@/main-app/state";
@@ -9,8 +10,6 @@ import { BookmarkFolders } from "./components/list-folder";
 import { BookmarkManagerRightToolbar } from "./components/toolbar/right-toolbar";
 import { BookmarkManagerLeftToolbar } from "./components/toolbar/left-toolbar";
 import { APP_ID } from "../utils/constants";
-import { useHotkeys } from "react-hotkeys-hook";
-import { useNavigate } from "react-router";
 
 export type SearchResultItem = {
   matches: readonly FuseResultMatch[] | undefined;
@@ -23,17 +22,16 @@ export type SearchResultItem = {
 };
 
 export default function BookmarkManager() {
-  const [iconPath, setIconPath] = useState<string>("");
   const setRightMenubar = useAppStore(state => state.setRightMenubar)
   const setLeftMenubar = useAppStore(state => state.setLeftMenubar)
+
   const navigate = useNavigate();
 
   useHotkeys(
     "Escape",
     () => {
      navigate('/')
-    },
-    { enabled: true, enableOnFormTags: true },
+    }
   );
   
   useEffect(() => {
@@ -48,23 +46,7 @@ export default function BookmarkManager() {
       setLeftMenubar(null)
     }
   }, [])
-
-  useEffect(() => {
-    async function saveFavicon(url: string) {
-      const fullPath = await invoke("save_favicon", {
-        url,
-      });
-      const base64 = await invoke('get_favicon_base64', {path: fullPath})
-      
-      setIconPath(`data:image/x-icon;base64,${base64}`);
-    }
-
-    const url = "https://www.bbc.com/news/live/ckgk391yzm7t";
-    
-
-    saveFavicon(url);
-  }, []);
-
+  
   return (
     <div className="flex flex-1 min-h-0">
       <AnimatePresence mode="wait">

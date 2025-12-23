@@ -1,8 +1,8 @@
 import { memo, type Dispatch } from "react";
 import { TrashIcon } from "lucide-react";
+import clsx from "clsx";
 
 import { cn } from "@/vendor/shadcn/lib/utils";
-// import { useClipboardStore } from "../../state/state";
 import { useBookmarkStore, type BookmarkItem } from "../../state/state";
 
 export type BookmarkListItemProps = {
@@ -20,9 +20,9 @@ export const BookmarkListItem = memo(function MemoItem({
   isActive,
   setActiveIndex,
 }: BookmarkListItemProps) {
-  // const removeClipboardItem = useClipboardStore((state) => state.removeItem);
-  const removeBookmark = useBookmarkStore(s => s.removeBookmark)
-  const updateBookmark = useBookmarkStore(s => s.updateBookmark)
+  const removeBookmark = useBookmarkStore((s) => s.removeBookmark);
+  const updateBookmark = useBookmarkStore((s) => s.updateBookmark);
+  const searchQuery = useBookmarkStore((s) => s.searchBookmarkQuery);
 
   return (
     <div
@@ -43,17 +43,27 @@ export const BookmarkListItem = memo(function MemoItem({
       )}
       title={item?.name} // tooltip on hover for full content
     >
+      {item.icon ? (
+        <img
+          src={item.icon}
+          className="w-4 h-4 absolute left-2 top-1/2 -translate-y-1/2"
+        />
+      ) : null}
       <input
         type="text"
         name="editor-title-input"
         value={item?.name}
-        className="outline-none focus-visible:outline-none w-full overflow-scroll truncate text-ellipsis line-clamp-1"
-        onChange={(e) => updateBookmark(item.id, {name: e.target.value})}
+        disabled={!!searchQuery}
+        className={clsx(
+          "outline-none focus-visible:outline-none w-full overflow-scroll truncate text-ellipsis line-clamp-1",
+          item.icon && "pl-4"
+        )}
+        onChange={(e) => updateBookmark(item.id, { name: e.target.value })}
         onKeyDown={(e) => {
-          // INFO: after we change the form we normal press enter 
+          // INFO: after we change the form we normal press enter
           // so don't open the url, since we already has event listener
-          if(e.key === "Enter") {
-            e.preventDefault()
+          if (e.key === "Enter") {
+            e.preventDefault();
           }
         }}
       />
@@ -62,6 +72,7 @@ export const BookmarkListItem = memo(function MemoItem({
         onClick={(e) => {
           e.stopPropagation();
           removeBookmark(item.id);
+          setActiveIndex(index > 0 ? index - 1 : 0);
         }}
         className={cn(
           "absolute right-2 top-1/2 -translate-y-1/2 bg-destructive",

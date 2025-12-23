@@ -25,14 +25,18 @@ export const BookmarkFolders = () => {
 
 export const ListFolder = () => {
   const folders = useBookmarkStore((state) => state.folders);
+  const searchFolderQuery = useBookmarkStore(state => state.searchFolderQuery)
+  const searchFolderResult = useBookmarkStore(state => state.searchFolderResult)
+  const items = searchFolderQuery ? searchFolderResult : folders
+
   return (
     <AnimatePresence>
-      {folders.map((p, idx) => {
+      {items.map((p, idx) => {
         return (
           <motion.div
             key={p.id}
             layout
-            layoutId={`project-item-${p.id}`}
+            layoutId={`folder-item-${p.id}`}
             variants={{
               hidden: {
                 scale: 0.9,
@@ -48,7 +52,7 @@ export const ListFolder = () => {
               opacity: 0,
             }}
           >
-            <ListFolderItem id={p.id} index={idx} />
+            <ListFolderItem id={p.id} index={idx} name={p.name} />
           </motion.div>
         );
       })}
