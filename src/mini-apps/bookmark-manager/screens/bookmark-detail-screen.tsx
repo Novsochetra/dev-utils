@@ -4,9 +4,15 @@ import { useNavigate, useParams } from "react-router";
 import { useHotkeys } from "react-hotkeys-hook";
 import { List, type RowComponentProps } from "react-window";
 import { openUrl } from "@tauri-apps/plugin-opener";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 import { useAppStore } from "@/main-app/state";
 import { AnimatedPage } from "@/vendor/components/animate-page";
+import { Label } from "@/vendor/shadcn/components/ui/label";
+import { Input } from "@/vendor/shadcn/components/ui/input";
+import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
+import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import { BookmarkManagerDetailLeftToolbar } from "./components/toolbar/bookmark-manager-detail-left-toolbar";
 import { BookmarkManagerDetailRightToolbar } from "./components/toolbar/bookmark-manager-detail-right-toolbar";
 import { APP_ID } from "../utils/constants";
@@ -16,14 +22,17 @@ import {
 } from "./components/list-bookmark-item";
 import { Empty } from "./components/empty";
 import { useBookmarkStore, type BookmarkItem } from "../state/state";
-import { toast } from "sonner";
 import { EmptySearch } from "./components/empty-search";
 
 export const BookmarkDetailScreen = () => {
   const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
   const setRightMenubar = useAppStore((state) => state.setRightMenubar);
-  const setSearchBookmarkQuery = useBookmarkStore(state => state.setSearchBookmarkQuery)
-  const setSearchBookmarkResult = useBookmarkStore(state => state.setSearchBookmarkResult)
+  const setSearchBookmarkQuery = useBookmarkStore(
+    (state) => state.setSearchBookmarkQuery
+  );
+  const setSearchBookmarkResult = useBookmarkStore(
+    (state) => state.setSearchBookmarkResult
+  );
 
   const navigate = useNavigate();
 
@@ -31,8 +40,6 @@ export const BookmarkDetailScreen = () => {
     navigate(-1);
     e.stopPropagation();
   });
-
-
 
   useEffect(() => {
     setLeftMenubar(<BookmarkManagerDetailLeftToolbar />);
@@ -43,8 +50,8 @@ export const BookmarkDetailScreen = () => {
       setRightMenubar(null);
       setLeftMenubar(null);
 
-      setSearchBookmarkQuery("")
-      setSearchBookmarkResult([])
+      setSearchBookmarkQuery("");
+      setSearchBookmarkResult([]);
     };
   }, []);
 
@@ -122,7 +129,7 @@ export const BookmarkList = () => {
   };
 
   if (searchQuery && !filteredItems.length) {
-    return <EmptySearch />
+    return <EmptySearch />;
   }
 
   if (!bookmarkByFolders.length) {
@@ -144,10 +151,29 @@ export const BookmarkList = () => {
           }}
         />
       </div>
+
       <div className="bg-border w-px h-full" />
 
-      <div className="flex flex-1 min-h-0 min-w-0 p-4">
-        <p>{items[activeIndex]?.url}</p>
+      <div className="flex flex-col flex-1 min-h-0 min-w-0">
+        <div className="flex flex-col gap-4 flex-1 p-4">
+          <BookmarkURL activeIndex={activeIndex} url={items[activeIndex].url} />
+
+          <BookmarkDescription
+            activeIndex={activeIndex}
+            description={items[activeIndex].description}
+          />
+        </div>
+        <Separator />
+        <div className="flex gap-1 flex-col p-4">
+          <div className="flex justify-between overflow-hidden">
+            <p className="text-muted-foreground text-sm">Created At:</p>
+            <p className="truncate text-foreground">{format(items[activeIndex]?.createdAt, "EEE dd MMM yyyy HH:mm:ss")}</p>
+          </div>
+          <div className="flex justify-between overflow-hidden">
+            <p className="text-muted-foreground">Updated At:</p>
+            <p className="truncate text-foreground">{format(items[activeIndex]?.updatedAt, "EEE dd MMM yyyy HH:mm:ss")}</p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -178,5 +204,62 @@ function RowComponent({
     </div>
   );
 }
+
+const BookmarkURL = ({
+  activeIndex,
+  url,
+}: {
+  activeIndex: number;
+  url: string;
+}) => {
+  const searchQuery = useBookmarkStore((s) => s.searchBookmarkQuery);
+  const updateBookmark = useBookmarkStore((s) => s.updateBookmark);
+  const bookmark = useBookmarkStore((s) => s.bookmarks[activeIndex]);
+
+  return (
+    <div className="grid gap-3">
+      <Label htmlFor="url">URL</Label>
+      <Input
+        id="url"
+        name="url"
+        value={searchQuery ? url : bookmark.url}
+        defaultValue=""
+        disabled={!!searchQuery}
+        required
+        onChange={(e) => {
+          updateBookmark(bookmark.id, { name: e.target.value });
+        }}
+      />
+    </div>
+  );
+};
+
+const BookmarkDescription = ({
+  activeIndex,
+  description,
+}: {
+  activeIndex: number;
+  description: string | null;
+}) => {
+  const searchQuery = useBookmarkStore((s) => s.searchBookmarkQuery);
+  const updateBookmark = useBookmarkStore((s) => s.updateBookmark);
+  const bookmark = useBookmarkStore((s) => s.bookmarks[activeIndex]);
+
+  return (
+    <div className="grid gap-3">
+      <Label htmlFor="description">Note</Label>
+      <Textarea
+        id="description"
+        name="description"
+        value={(searchQuery ? description : bookmark.description) || ""}
+        defaultValue=""
+        disabled={!!searchQuery}
+        onChange={(e) => {
+          updateBookmark(bookmark.id, { description: e.target.value });
+        }}
+      />
+    </div>
+  );
+};
 
 export default BookmarkDetailScreen;
