@@ -3,12 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { getVersion } from "@tauri-apps/api/app";
 import { HomeIcon, PackageIcon, SidebarIcon } from "lucide-react";
 import { useHotkeys } from "react-hotkeys-hook";
-import {
-  Outlet,
-  NavLink,
-  useMatches,
-  type UIMatch,
-} from "react-router";
+import { Outlet, NavLink, useMatches, type UIMatch } from "react-router";
 
 import { getMiniApps } from "@/core/mini-app-registry";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -30,7 +25,11 @@ export const AppLayout = () => {
   }, []);
 
   if (!isReady) {
-    return <p>loading</p>;
+    return (
+      <div className="h-screen flex flex-1 items-center justify-center">
+        <p className="text-foreground text-sm">Getting things ready…</p>
+      </div>
+    );
   }
 
   return (
@@ -66,28 +65,28 @@ export const MenuBar = () => {
 };
 
 const useWindowWidth = () => {
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     function onResize() {
-      setWindowWidth(window.innerWidth)
+      setWindowWidth(window.innerWidth);
     }
 
-    window.addEventListener('resize', onResize)
+    window.addEventListener("resize", onResize);
 
     return () => {
-      window.removeEventListener('resize', onResize)
-    }
-  }, [])
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
-  return windowWidth
-}
+  return windowWidth;
+};
 
 const MenuBarLeft = () => {
-  const windowWidth = useWindowWidth()
+  const windowWidth = useWindowWidth();
   const sidebarVisible = useAppStore((s) => s.sidebarVisible);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
-  const leftMenuBar = useAppStore(s => s.menubar.left)
+  const leftMenuBar = useAppStore((s) => s.menubar.left);
   const width = sidebarVisible
     ? (windowWidth - sidebarWidth) / 3 + sidebarWidth
     : windowWidth / 3;
@@ -119,7 +118,10 @@ const MenuBarLeft = () => {
         </Button>
       </motion.div>
 
-      <div className="flex flex-1 px-2 min-w-0 items-center" data-tauri-drag-region>
+      <div
+        className="flex flex-1 px-2 min-w-0 items-center"
+        data-tauri-drag-region
+      >
         {leftMenuBar}
       </div>
     </motion.div>
@@ -127,7 +129,7 @@ const MenuBarLeft = () => {
 };
 
 const MenuBarCenter = memo(() => {
-  const windowWidth = useWindowWidth()
+  const windowWidth = useWindowWidth();
   const sidebarVisible = useAppStore((s) => s.sidebarVisible);
   const matches = useMatches() as UIMatch<
     unknown,
@@ -150,14 +152,14 @@ const MenuBarCenter = memo(() => {
 });
 
 const MenuBarRight = () => {
-  const windowWidth = useWindowWidth()
+  const windowWidth = useWindowWidth();
   const sidebarVisible = useAppStore((s) => s.sidebarVisible);
   const children = useAppStore((state) => state.menubar.right);
   const width = sidebarVisible
     ? (windowWidth - sidebarWidth) / 3
     : windowWidth / 3;
 
-    return (
+  return (
     <motion.div
       data-tauri-drag-region
       className="flex items-center justify-end flex-nowrap px-2"
