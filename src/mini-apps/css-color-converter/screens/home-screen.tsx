@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
 import { AnimatedPage } from "@/vendor/components/animate-page";
+import { useAppStore } from "@/main-app/state";
+
 import { APP_ID } from "../utils/constant";
 import { convertColor } from "../utils/convert-color";
+import { CssColorConverterLeftToolbar } from "./components/toolbar/left-toolbar";
 
 export const CssColorConverterScreen = () => {
   const [hexColor, setHexColor] = useState("");
@@ -16,6 +21,30 @@ export const CssColorConverterScreen = () => {
   const [oklchColor, setOklchColor] = useState("");
   const [lchColor, setLchColor] = useState("");
   const [testValue, setTestValue] = useState("");
+
+  const setRightMenubar = useAppStore(state => state.setRightMenubar)
+  const setLeftMenubar = useAppStore(state => state.setLeftMenubar)
+
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+     navigate('/')
+    },
+    { enableOnFormTags: true }
+  );
+  
+  useEffect(() => {
+    setRightMenubar(null)
+
+    setLeftMenubar(<CssColorConverterLeftToolbar />)
+
+    return () => {
+      setRightMenubar(null)
+      setLeftMenubar(null)
+    }
+  }, [])
 
   return (
     <AnimatePresence mode="wait">
