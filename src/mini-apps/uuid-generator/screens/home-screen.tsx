@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { v1, v4, v6, v7 } from "uuid";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
+import { AnimatePresence } from "framer-motion";
 
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
@@ -13,9 +16,10 @@ import {
   SelectValue,
 } from "@/vendor/shadcn/components/ui/select";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
-import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
+import { useAppStore } from "@/main-app/state";
 import { APP_ID } from "../utils/constants";
+import { UUIDGeneratorLeftToolbar } from "./components/toolbar/left-toolbar";
 
 export const SupportUUIDVersion = {
   V1: "V1",
@@ -52,9 +56,30 @@ function generateUUID(version: SupportUUIDVersion) {
 export const UUIDGeneratorScreen = () => {
   const [amount, setAmount] = useState(1);
   const [uuidVersion, setUUidVersion] = useState<SupportUUIDVersion>(
-    SupportUUIDVersion.V4,
+    SupportUUIDVersion.V4
   );
   const [result, setResult] = useState<string>(generateUUID(uuidVersion));
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<UUIDGeneratorLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
 
   return (
     <div className="flex flex-1 min-h-0 overflow-auto">
