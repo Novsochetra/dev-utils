@@ -4,13 +4,18 @@ import Fuse, { type FuseResultMatch } from "fuse.js";
 import { writeText } from "tauri-plugin-clipboard-api";
 import { toast } from "sonner";
 import { invoke } from "@tauri-apps/api/core";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
-import { useClipboardStore, type ClipItem } from "../state/state";
+import { useAppStore } from "@/main-app/state";
+
 import { APP_ID } from "../utils/constants";
 import { ClipboardList } from "./components/clipboard-list";
 import { Empty } from "./components/empty";
+import { ClipboardManagerLeftToolbar } from "./components/toolbar/left-toolbar";
+import { useClipboardStore, type ClipItem } from "../state/state";
 
 export type SearchResultItem = {
   matches: readonly FuseResultMatch[] | undefined;
@@ -45,6 +50,28 @@ export default function ClipboardManager() {
       }),
     [items]
   );
+
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<ClipboardManagerLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
 
   useEffect(() => {
     const handler = setTimeout(() => {
