@@ -6,7 +6,7 @@ export const APP_NAME = "Animate Code";
 
 export const APP_BASE_PATH = "/animate-code";
 
-export const APP_ID = v4();
+export const APP_ID = "a53bd6f4-71b8-4861-a7a2-6919b58fcc47";
 
 export const Mode = {
   Preview: 0,

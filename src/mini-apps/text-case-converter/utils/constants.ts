@@ -1,5 +1,3 @@
-import { v4 } from "uuid";
-
 export const SupportedTextCase = {
   LowerCase: "LowerCase",
   UpperCase: "UpperCase",
@@ -33,4 +31,4 @@ export const APP_NAME = "Text Case Converter";
 
 export const APP_BASE_PATH = "/text-case-converter";
 
-export const APP_ID = v4();
+export const APP_ID = "cf0b02cc-cbbe-48d8-968f-00f983b6ede2";
