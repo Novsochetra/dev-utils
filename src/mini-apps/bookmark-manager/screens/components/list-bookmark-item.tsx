@@ -1,4 +1,4 @@
-import { memo, type Dispatch } from "react";
+import { memo, useRef, type Dispatch } from "react";
 import { TrashIcon } from "lucide-react";
 import clsx from "clsx";
 
@@ -23,6 +23,7 @@ export const BookmarkListItem = memo(function MemoItem({
   const removeBookmark = useBookmarkStore((s) => s.removeBookmark);
   const updateBookmark = useBookmarkStore((s) => s.updateBookmark);
   const searchQuery = useBookmarkStore((s) => s.searchBookmarkQuery);
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   return (
     <div
@@ -50,6 +51,7 @@ export const BookmarkListItem = memo(function MemoItem({
         />
       ) : null}
       <input
+        ref={inputRef}
         type="text"
         name="editor-title-input"
         value={item?.name}
@@ -62,8 +64,10 @@ export const BookmarkListItem = memo(function MemoItem({
         onKeyDown={(e) => {
           // INFO: after we change the form we normal press enter
           // so don't open the url, since we already has event listener
-          if (e.key === "Enter") {
+          if (e.key === "Enter" || e.key === "Escape") {
             e.preventDefault();
+            e.stopPropagation();
+            inputRef.current?.blur()
           }
         }}
       />

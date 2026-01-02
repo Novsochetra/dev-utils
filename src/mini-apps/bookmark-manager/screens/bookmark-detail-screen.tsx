@@ -13,6 +13,7 @@ import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
+import { isMac } from "@/utils/is-desktop-mode";
 import { BookmarkManagerDetailLeftToolbar } from "./components/toolbar/bookmark-manager-detail-left-toolbar";
 import { BookmarkManagerDetailRightToolbar } from "./components/toolbar/bookmark-manager-detail-right-toolbar";
 import { APP_ID } from "../utils/constants";
@@ -82,9 +83,29 @@ export const BookmarkList = () => {
 
   const itemElements = useRef<HTMLDivElement[]>([]);
 
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
+  const deleteShortcutKey = isMac ? "meta+backspace" : "ctrl+backspace";
+  
+  useHotkeys(
+    deleteShortcutKey,
+    (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      if(items[activeIndex]?.id) {
+        removeBookmark(items[activeIndex].id);
+        setActiveIndex(activeIndex > 0 ? activeIndex - 1 : 0);
+        toast.success("Removed Bookmark")
+      }
+    }
+  )
+
   useHotkeys(
     "Enter",
     (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
       if (e.key === "Enter") {
         const item = items[activeIndex];
         if (item?.url) {
@@ -93,8 +114,7 @@ export const BookmarkList = () => {
           toast.error("URL not found");
         }
       }
-    },
-    { enabled: true }
+    }
   );
 
   useHotkeys(
@@ -120,7 +140,6 @@ export const BookmarkList = () => {
       e.stopPropagation();
       e.preventDefault();
     },
-    { enabled: true, enableOnFormTags: true },
     [activeIndex, items]
   );
 
@@ -154,27 +173,32 @@ export const BookmarkList = () => {
 
       <div className="bg-border w-px h-full" />
 
-      <div className="flex flex-col flex-1 min-h-0 min-w-0">
-        <div className="flex flex-col gap-4 flex-1 p-4">
-          <BookmarkURL activeIndex={activeIndex} url={items[activeIndex].url} />
+      {
+        items[activeIndex] ? 
+          <div className="flex flex-col flex-1 min-h-0 min-w-0">
+            <div className="flex flex-col gap-4 flex-1 p-4">
+              <BookmarkURL activeIndex={activeIndex} url={items[activeIndex].url} />
 
-          <BookmarkDescription
-            activeIndex={activeIndex}
-            description={items[activeIndex].description}
-          />
-        </div>
-        <Separator />
-        <div className="flex gap-1 flex-col p-4">
-          <div className="flex justify-between overflow-hidden">
-            <p className="text-muted-foreground text-sm">Created At:</p>
-            <p className="truncate text-foreground">{format(items[activeIndex]?.createdAt, "EEE dd MMM yyyy HH:mm:ss")}</p>
+              <BookmarkDescription
+                activeIndex={activeIndex}
+                description={items[activeIndex].description}
+              />
+            </div>
+            <Separator />
+            <div className="flex gap-1 flex-col p-4">
+              <div className="flex justify-between overflow-hidden">
+                <p className="text-muted-foreground text-sm">Created At:</p>
+                <p className="truncate text-foreground">{format(items[activeIndex]?.createdAt, "EEE dd MMM yyyy HH:mm:ss")}</p>
+              </div>
+              <div className="flex justify-between overflow-hidden">
+                <p className="text-muted-foreground">Updated At:</p>
+                <p className="truncate text-foreground">{format(items[activeIndex]?.updatedAt, "EEE dd MMM yyyy HH:mm:ss")}</p>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between overflow-hidden">
-            <p className="text-muted-foreground">Updated At:</p>
-            <p className="truncate text-foreground">{format(items[activeIndex]?.updatedAt, "EEE dd MMM yyyy HH:mm:ss")}</p>
-          </div>
-        </div>
-      </div>
+        : null
+      }
+
     </div>
   );
 };
