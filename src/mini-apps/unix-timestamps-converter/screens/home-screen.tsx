@@ -1,14 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { fromUnixTime } from "date-fns";
 import { UTCDate } from "@date-fns/utc";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { Input } from "@/vendor/shadcn/components/ui/input";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
-
-import { CurrentUTCDate } from "../components/current-utc-date";
-import { CurrentUnix } from "../components/current-unix";
 import {
   Select,
   SelectContent,
@@ -17,7 +16,12 @@ import {
   SelectValue,
 } from "@/vendor/shadcn/components/ui/select";
 import { AnimatedPage } from "@/vendor/components/animate-page";
+import { useAppStore } from "@/main-app/state";
+
+import { CurrentUTCDate } from "../components/current-utc-date";
+import { CurrentUnix } from "../components/current-unix";
 import { APP_ID } from "../utils/constants";
+import { UnixTimestampsConverterLeftToolbar } from "../components/toolbar/left-toolbar";
 
 export const GenerateMode = {
   Milliseconds: "milliSeconds",
@@ -27,6 +31,28 @@ export const GenerateMode = {
 export type GenerateMode = (typeof GenerateMode)[keyof typeof GenerateMode];
 
 const UnixTimeStapConverterScreen = () => {
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<UnixTimestampsConverterLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
+
   return (
     <div className="flex flex-1 min-h-0 overflow-auto">
       <AnimatePresence mode="wait">
