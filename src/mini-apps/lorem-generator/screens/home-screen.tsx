@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Label } from "@/vendor/shadcn/components/ui/label";
@@ -14,9 +16,12 @@ import {
   SelectValue,
 } from "@/vendor/shadcn/components/ui/select";
 import { Checkbox } from "@/vendor/shadcn/components/ui/checkbox";
+import { useAppStore } from "@/main-app/state";
+
 import { makeParagraph, makeSentence, makeWord } from "../utils/generator";
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { APP_ID } from "../utils/constant";
+import { LoremGeneratorLeftToolbar } from "./components/toolbar/left-toolbar";
 
 const GenerateMode = {
   Paragraph: "paragraph",
@@ -31,6 +36,27 @@ const LoremGeneratorScreen = () => {
   const [result, setResult] = useState(makeParagraph(1));
   const [amount, setAmount] = useState<number>(1);
   const [asHTML, setAsHTML] = useState<boolean>(false);
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<LoremGeneratorLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
 
   const onUpdateResultBaseOnMode = (
     value: GenerateMode,
