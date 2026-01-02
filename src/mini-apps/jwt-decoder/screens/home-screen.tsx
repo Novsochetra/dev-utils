@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { CopyIcon } from "lucide-react";
@@ -10,6 +10,8 @@ import {
   type CompactJWEHeaderParameters,
   type JWTPayload,
 } from "jose";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Label } from "@/vendor/shadcn/components/ui/label";
@@ -20,9 +22,12 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/vendor/shadcn/components/ui/tabs";
-import { JWTHomeScreenContext } from "../components/jwt-home-screen-context";
+import { useAppStore } from "@/main-app/state";
 import { AnimatedPage } from "@/vendor/components/animate-page";
+
+import { JWTHomeScreenContext } from "../components/jwt-home-screen-context";
 import { APP_ID } from "../utils/constant";
+import { JwtEncoderDecoderLeftToolbar } from "../components/toolbar/left-toolbar";
 
 const defaultPlaceHolderJWT =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30";
@@ -37,6 +42,28 @@ export const JwtDecoderEncoderScreen = () => {
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
   const [decodedResult, setDecodedResult] = useState(JSON.stringify({}));
   const [resultDecodedHeader, setDecodedResultHeader] = useState("");
+
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<JwtEncoderDecoderLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
 
   return (
     <JWTHomeScreenContext.Provider
