@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { diffLines, diffWords, diffChars } from "diff";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import {
@@ -8,8 +10,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/vendor/shadcn/components/ui/tabs";
-
-import { APP_ID } from "../utils/constant";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -17,8 +17,34 @@ import {
 } from "@/vendor/shadcn/components/ui/resizable";
 import { type PanelGroupProps } from "react-resizable-panels";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
+import { useAppStore } from "@/main-app/state";
+
+import { APP_ID } from "../utils/constant";
+import { DiffCheckerLeftToolbar } from "./components/toolbar/left-toolbar";
 
 const HomeScreen = () => {
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<DiffCheckerLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
+  
   return (
     <div className="flex flex-1 min-h-0 overflow-auto">
       <AnimatePresence mode="wait">
