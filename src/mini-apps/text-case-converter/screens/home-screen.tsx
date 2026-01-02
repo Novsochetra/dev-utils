@@ -1,8 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
+import { Checkbox } from "@/vendor/shadcn/components/ui/checkbox";
+import { Badge } from "@/vendor/shadcn/components/ui/badge";
+import { AnimatedPage } from "@/vendor/components/animate-page";
+import { useAppStore } from "@/main-app/state";
 import {
   Select,
   SelectContent,
@@ -10,18 +16,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/vendor/shadcn/components/ui/select";
+
 import {
   detectTextCase,
   transformTextCase,
 } from "../utils/text-case-converter";
-import { Checkbox } from "@/vendor/shadcn/components/ui/checkbox";
-import { Badge } from "@/vendor/shadcn/components/ui/badge";
-import { AnimatedPage } from "@/vendor/components/animate-page";
 import {
   SupportedTextCase,
   SupportedTextCaseLabel,
   APP_ID,
 } from "../utils/constants";
+import { TextCaseConverterLeftToolbar } from "./components/toolbar/left-toolbar";
 
 export const TextCaseConverterScreen = () => {
   const [text, setText] = useState("");
@@ -32,6 +37,27 @@ export const TextCaseConverterScreen = () => {
     SupportedTextCase.LowerCase,
   );
   const [smartCaseDetectionMode, setSmartCaseDetectionMode] = useState(true);
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<TextCaseConverterLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
 
   return (
     <div className="flex flex-1 min-h-0 overflow-auto">
