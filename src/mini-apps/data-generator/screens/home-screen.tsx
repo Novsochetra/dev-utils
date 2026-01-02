@@ -11,6 +11,8 @@ import {
   type UseFormReturn,
 } from "react-hook-form";
 import { clsx } from "clsx";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { AnimatedPage } from "@/vendor/components/animate-page";
 import { Button } from "@/vendor/shadcn/components/ui/button";
@@ -27,9 +29,13 @@ import {
   ResizablePanelGroup,
   ResizableHandle,
 } from "@/vendor/shadcn/components/ui/resizable";
+import { useAppStore } from "@/main-app/state";
+
 import { InputWithSuggestion } from "../components/input-with-suggestion";
 import { APP_ID } from "../utils/constant";
 import { callFakerPath } from "../utils/faker";
+
+import { DataGeneratorLeftToolbar } from "../components/toolbar/left-toolbar";
 
 type FieldConfig = FieldConfigString | FieldConfigArray | FieldConfigMap;
 
@@ -74,6 +80,28 @@ const DataGeneratorScreen = () => {
       ],
     },
   });
+
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<DataGeneratorLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
 
   useEffect(() => {
     const func = () => {
