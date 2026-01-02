@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import QRCodeStyling, { type Options } from "qr-code-styling";
 import { AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import { Separator } from "@/vendor/shadcn/components/ui/separator";
+import { AnimatedPage } from "@/vendor/components/animate-page";
+import { useAppStore } from "@/main-app/state";
 
 import { BackgroundOptionsView } from "../components/background-options-view";
 import { CornerDotOptionsView } from "../components/corner-dots-options-view";
@@ -14,9 +18,8 @@ import { QROptionsView } from "../components/qr-options-view";
 import { QRCodeContext } from "../components/qr-code-context";
 import { DownloadButton } from "../components/download-button";
 import { DownloadSelectOptions } from "../components/download-select-options";
-
+import { QRCodeGeneratorLeftToolbar } from "../components/toolbar/left-toolbar";
 import { APP_ID, defaultOptions } from "../utils/constants";
-import { AnimatedPage } from "@/vendor/components/animate-page";
 
 const QRCodeGeneratorScreen = () => {
   const [options, setOptions] = useState<Options>(defaultOptions);
@@ -26,6 +29,28 @@ const QRCodeGeneratorScreen = () => {
   >("png");
   const qrCodeInstance = useMemo(() => {
     return new QRCodeStyling(defaultOptions);
+  }, []);
+
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<QRCodeGeneratorLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
   }, []);
 
   const loadQRCode = useCallback(
