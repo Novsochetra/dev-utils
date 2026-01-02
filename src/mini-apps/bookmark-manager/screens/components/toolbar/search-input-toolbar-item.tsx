@@ -19,9 +19,7 @@ export const SearchInputToolbarItem = ({value, onChangeText}: {value: string, on
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
-
-    },
-    { enabled: !expandedSearch },
+    }
   );
 
   return (
@@ -71,6 +69,12 @@ export const SearchInputToolbarItem = ({value, onChangeText}: {value: string, on
                   }
 
                   e.stopPropagation();
+                }
+
+                if (e.key === "Enter") {
+                  e.stopPropagation();
+                  setExpandedSearch(true)
+                  inputRef.current?.blur()
                 }
               }}
               onBlur={(e) => {

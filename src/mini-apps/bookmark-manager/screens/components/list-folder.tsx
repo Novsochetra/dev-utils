@@ -53,7 +53,6 @@ export const ListFolder = () => {
         removeFolder(items[selectedIdx].id);
       }
     },
-    { enableOnFormTags: true }
   );
 
   useHotkeys(
@@ -64,8 +63,7 @@ export const ListFolder = () => {
       if (items[selectedIdx].id) {
         navigate(`/bookmark-manager/${items[selectedIdx].id}`);
       }
-    },
-    { enableOnFormTags: true }
+    }
   );
 
   useHotkeys(
@@ -77,7 +75,6 @@ export const ListFolder = () => {
         return prev + 1;
       });
     },
-    { enableOnFormTags: true }
   );
 
   useHotkeys(
@@ -89,7 +86,6 @@ export const ListFolder = () => {
         return prev - 1;
       });
     },
-    { enableOnFormTags: true }
   );
 
   useHotkeys(
@@ -136,7 +132,6 @@ export const ListFolder = () => {
         setSelectedIdx((best as { idx: number; distance: number }).idx);
       }
     },
-    { enableOnFormTags: true }
   );
 
   return (
