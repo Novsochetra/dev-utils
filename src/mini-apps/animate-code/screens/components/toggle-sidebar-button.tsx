@@ -11,6 +11,7 @@ export const ToggleSidebarButton = memo(() => {
 
   return (
     <Button
+      tabIndex={-1}
       variant="outline"
       size="sm"
       onClick={() => toggleSidebar(projectId)}

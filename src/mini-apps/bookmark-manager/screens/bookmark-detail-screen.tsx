@@ -223,7 +223,6 @@ const BookmarkURL = ({
         id="url"
         name="url"
         value={searchQuery ? url : bookmark.url}
-        defaultValue=""
         disabled={!!searchQuery}
         required
         onChange={(e) => {
@@ -252,7 +251,6 @@ const BookmarkDescription = ({
         id="description"
         name="description"
         value={(searchQuery ? description : bookmark.description) || ""}
-        defaultValue=""
         disabled={!!searchQuery}
         onChange={(e) => {
           updateBookmark(bookmark.id, { description: e.target.value });

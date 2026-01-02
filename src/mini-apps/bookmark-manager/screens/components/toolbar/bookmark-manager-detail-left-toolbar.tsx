@@ -16,6 +16,7 @@ export const BookmarkManagerDetailLeftToolbar = () => {
       data-tauri-drag-region
     >
       <Button
+        tabIndex={-1}
         data-tauri-drag-region={false}
         size="sm"
         variant="ghost"

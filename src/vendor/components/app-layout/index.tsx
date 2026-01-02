@@ -108,6 +108,7 @@ const MenuBarLeft = () => {
         <MacOSTrafficLight />
 
         <Button
+          tabIndex={-1}
           variant="ghost"
           size="icon"
           title="toggle sidebar"

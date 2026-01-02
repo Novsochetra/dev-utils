@@ -69,7 +69,7 @@ export const BookmarkForm = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button size="sm" variant="ghost">
+        <Button size="sm" variant="ghost" tabIndex={-1}>
           <PlusIcon />
         </Button>
       </DialogTrigger>

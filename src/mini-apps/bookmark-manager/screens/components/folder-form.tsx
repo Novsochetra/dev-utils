@@ -50,7 +50,7 @@ export const FolderForm = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button data-tauri-drag-region={false} size="sm" variant="ghost">
+        <Button data-tauri-drag-region={false} size="sm" variant="ghost" tabIndex={-1}>
           <PlusIcon />
         </Button>
       </DialogTrigger>

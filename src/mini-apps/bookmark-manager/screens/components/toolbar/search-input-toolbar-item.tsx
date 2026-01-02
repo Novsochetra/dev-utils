@@ -27,6 +27,7 @@ export const SearchInputToolbarItem = ({value, onChangeText}: {value: string, on
   return (
     <div className="flex items-center relative pr-1">
       <Button
+        tabIndex={-1}
         size="sm"
         variant="ghost"
         className={clsx(
