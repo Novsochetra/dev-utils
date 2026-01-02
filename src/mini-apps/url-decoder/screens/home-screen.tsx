@@ -1,5 +1,9 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useHotkeys } from "react-hotkeys-hook";
+import { useNavigate } from "react-router";
+import { AnimatePresence } from "framer-motion";
+
 import { Button } from "@/vendor/shadcn/components/ui/button";
 import { Label } from "@/vendor/shadcn/components/ui/label";
 import {
@@ -9,11 +13,34 @@ import {
   TabsTrigger,
 } from "@/vendor/shadcn/components/ui/tabs";
 import { Textarea } from "@/vendor/shadcn/components/ui/textarea";
-import { APP_BASE_PATH } from "../utils/constants";
-import { AnimatePresence } from "framer-motion";
 import { AnimatedPage } from "@/vendor/components/animate-page";
+import { useAppStore } from "@/main-app/state";
+import { APP_BASE_PATH } from "../utils/constants";
+import { URLEncoderDecoderLeftToolbar } from "./components/toolbar/left-toolbar";
 
 export const UrlEncoderDecoderScreen = () => {
+  const setRightMenubar = useAppStore((state) => state.setRightMenubar);
+  const setLeftMenubar = useAppStore((state) => state.setLeftMenubar);
+  const navigate = useNavigate();
+
+  useHotkeys(
+    "Escape",
+    () => {
+      navigate("/");
+    },
+    { enableOnFormTags: true }
+  );
+
+  useEffect(() => {
+    setRightMenubar(null);
+    setLeftMenubar(<URLEncoderDecoderLeftToolbar />);
+
+    return () => {
+      setRightMenubar(null);
+      setLeftMenubar(null);
+    };
+  }, []);
+
   return (
     <div className="flex flex-1 min-h-0 overflow-auto">
       <AnimatePresence mode="wait">
