@@ -84,21 +84,23 @@ export const BookmarkForm = () => {
           <div className="grid gap-4">
             <div className="grid gap-3">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" defaultValue="Untitled" />
+              <Input id="name" name="name" defaultValue="Untitled" autoCorrect="false" autoCapitalize="off" />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="url">URL</Label>
-              <Input id="url" name="url" defaultValue="" required />
+              <Input id="url" name="url" defaultValue="" required autoCorrect="false" autoCapitalize="off" />
             </div>
 
             <div className="grid gap-3">
               <Label htmlFor="description">Note</Label>
-              <Textarea id="description" name="description" defaultValue="" />
+              <Textarea id="description" name="description" defaultValue="" autoCorrect="false" autoCapitalize="off" />
             </div>
           </div>
 
           <DialogFooter className="mt-4">
-            <DialogClose asChild>
+            <DialogClose asChild onClick={() => {
+              setIsLoading(false);
+            }}>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
 

@@ -180,24 +180,6 @@ export const useBookmarkStore = create<Store>()(
       },
 
       async updateBookmark(id, newFields) {
-        let localIconPath: string | null, icon: string | null;
-
-        try {
-          if (newFields.url) {
-            localIconPath = (await invoke("save_favicon", {
-              url: newFields.url,
-            })) as string;
-
-            const base64 = await invoke("get_favicon_base64", {
-              path: localIconPath,
-            });
-            icon = `data:image/x-icon;base64,${base64}`;
-          }
-        } catch (error) {
-          icon = null;
-          localIconPath = null;
-        }
-
         set((state) => {
           const foundIdx = state.bookmarks.findIndex((s) => s.id === id);
 
@@ -205,8 +187,6 @@ export const useBookmarkStore = create<Store>()(
             state.bookmarks[foundIdx] = {
               ...state.bookmarks[foundIdx],
               ...newFields,
-              icon,
-              localIconPath,
             };
           }
         });

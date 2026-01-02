@@ -225,8 +225,9 @@ const BookmarkURL = ({
         value={searchQuery ? url : bookmark.url}
         disabled={!!searchQuery}
         required
+        autoCorrect="false"
         onChange={(e) => {
-          updateBookmark(bookmark.id, { name: e.target.value });
+          updateBookmark(bookmark.id, { url: e.target.value });
         }}
       />
     </div>
@@ -250,6 +251,7 @@ const BookmarkDescription = ({
       <Textarea
         id="description"
         name="description"
+        autoCorrect="false"
         value={(searchQuery ? description : bookmark.description) || ""}
         disabled={!!searchQuery}
         onChange={(e) => {
