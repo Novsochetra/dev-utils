@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Dev Utils",
-  "version": "0.0.0-beta.20260105",
+  "version": "0.0.0-beta.20260106",
   "identifier": "com.devutils.prod",
   "build": {
     "frontendDist": "../dist",
@@ -29,7 +29,7 @@
       },
       {
         "label": "splash",
-        "url": "/splash-screen.html",
+        "url": "splash-screen.html",
         "width": 800,
         "height": 600,
         "minWidth": 720,
@@ -40,7 +40,8 @@
         "hiddenTitle": true,
         "titleBarStyle": "Overlay",
         "trafficLightPosition": { "x": 16, "y": 22 },
-        "acceptFirstMouse": true
+        "acceptFirstMouse": true,
+        "alwaysOnTop": true
       }
     ],
     "security": {
