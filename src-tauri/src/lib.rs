@@ -11,6 +11,7 @@ pub fn run() {
             commands::system_setting::open_system_settings,
             commands::bookmark::save_favicon,
             commands::bookmark::get_favicon_base64,
+            commands::splashscreen::close_splashscreen
         ])
         .plugin(tauri_plugin_clipboard::init())
         // .plugin(tauri_plugin_prevent_default::init())
